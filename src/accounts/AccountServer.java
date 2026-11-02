@@ -17,6 +17,8 @@ public final class AccountServer {
 	/**
 	 * Authenticates a user and makes a connection when credentials are validated.
 	 * 
+	 * @param username Unique username the user chose to sign in with
+	 * @param password Unique password associated with the username
 	 * @author Darren
 	 */
 	public static boolean signIn(String username, String password) {
