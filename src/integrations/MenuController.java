@@ -23,7 +23,12 @@ class MenuController {
 	{
 		return selection;
 	}
-	
+
+ /**
+   * Asks the user to confirm (yes) or deny (no); helper function for many menu interactions
+   *
+   * @author Bilal
+   */
 	static String promptYesOrNo() 
 	{
 		return choice;
