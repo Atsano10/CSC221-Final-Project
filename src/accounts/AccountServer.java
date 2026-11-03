@@ -19,6 +19,8 @@ public final class AccountServer {
 	 * 
 	 * @param username Unique username the user chose to sign in with
 	 * @param password Unique password associated with the username
+	 * @return True if the username and password match, to succesfully sign into the program.
+	 * 
 	 * @author Darren
 	 */
 	public static boolean signIn(String username, String password) {
