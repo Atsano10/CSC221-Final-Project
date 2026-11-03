@@ -1,31 +1,47 @@
-class MenuController {
+  /**
+  * Provides the user menu and actions post authentication
+  */
 
+class MenuController {
+	
+  /** 
+	* Prints the options available to the user for the main menu
+	*
+	* @author Bilal
+	*/
 	static void displayMainMenu() 
 	{
-		/* Prints the options available to the user for the main menu
-		* @author Bilal
-		*/
-	}
-
-	static int getMenuSelection() 
-	{
-		/* Asks the user to choose a menu option anywhere from 1 to [number of menu options]
-		* @author Bilal
-		*/
 		
-		return selection;
 	}
 	
+  /** 
+    * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
+	*
+	* @author Bilal
+	*/
+	static int getMenuSelection() 
+	{
+		return selection;
+	}
+
+ /**
+   * Asks the user to confirm (yes) or deny (no); helper function for many menu interactions
+   *
+   * @author Bilal
+   */
 	static String promptYesOrNo() 
 	{
 		return choice;
 	}
-
+	
+  /** 
+    * Prints the next menu based on selection parameter
+    *
+	* @author Bilal
+	*/
 	static void doMenuAction(int selection) 
 	{
-		/* Prints the next menu based on selection parameter
-		* @author Bilal
-		*/
+		
 	}
 
 	static String promptForFilePath() {
