@@ -54,6 +54,7 @@ class MenuController {
 	 * then it will take you back to the login screen.
 	 *
 	 * @see #handleExit()
+	 *
 	 * @author Apostolos Tsano
 	 */
 	static void handleLogout() {
@@ -67,6 +68,7 @@ class MenuController {
 	 * Displays a closing message and terminates the application
 	 *
 	 * @see #handleLogout()
+	 *
 	 * @author Apostolos Tsano
 	 */
 	static void handleExit() {
