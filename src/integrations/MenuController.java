@@ -65,7 +65,7 @@ class MenuController {
 	/**
 	 * Handles exiting the program.
 	 * 
-	 * Displays a closing message and terminates the application
+	 * Displays a closing message and terminates the application.
 	 *
 	 * @see #handleLogout()
 	 *
