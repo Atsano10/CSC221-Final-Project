@@ -1,17 +1,31 @@
 class MenuController {
 
-	static void displayMainMenu() {
+	static void displayMainMenu() 
+	{
+		/* Prints the options available to the user for the main menu
+		* @author Bilal
+		*/
 	}
 
-	static int getMenuSelection() {
-		return 0;
+	static int getMenuSelection() 
+	{
+		/* Asks the user to choose a menu option anywhere from 1 to [number of menu options]
+		* @author Bilal
+		*/
+		
+		return selection;
 	}
 	
-	static String promptYesOrNo() {
-		return "";
+	static String promptYesOrNo() 
+	{
+		return choice;
 	}
 
-	static void doMenuAction(int selection) {
+	static void doMenuAction(int selection) 
+	{
+		/* Prints the next menu based on selection parameter
+		* @author Bilal
+		*/
 	}
 
 	static String promptForFilePath() {
