@@ -1,6 +1,12 @@
+  /**
+  * Provides the user menu and actions post authentication
+  */
+
 class MenuController {
 	
-	/* Prints the options available to the user for the main menu
+  /** 
+	* Prints the options available to the user for the main menu
+	*
 	* @author Bilal
 	*/
 	static void displayMainMenu() 
@@ -8,7 +14,9 @@ class MenuController {
 		
 	}
 	
-	/* Asks the user to choose a menu option anywhere from 1 to [number of menu options]
+  /** 
+    * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
+	*
 	* @author Bilal
 	*/
 	static int getMenuSelection() 
@@ -21,7 +29,9 @@ class MenuController {
 		return choice;
 	}
 	
-	/* Prints the next menu based on selection parameter
+  /** 
+    * Prints the next menu based on selection parameter
+    *
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) 
