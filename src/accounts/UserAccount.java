@@ -37,9 +37,9 @@ public class UserAccount {
     /**
      * Changes the accounts password.
      * 
-     * @param oldPass is the users current passwor
-     * @param newPass is the users chosen new password
-     * @return True when the password is successfully changed
+     * @param oldPass is the users current password.
+     * @param newPass is the users new password.
+     * @return True when the password is successfully changed.
      * 
      * @author Ronnie
      */
@@ -48,8 +48,8 @@ public class UserAccount {
     }
 
     /**
-    *  Returns the Users stored security Question
-    *  @return the security question
+    *  Returns the Users stored security Question.
+    *  @return the security question.
     *
     *  @author Ronnie
     */
@@ -58,9 +58,9 @@ public class UserAccount {
     }
 
     /** 
-    *  Compares the given answer to the security question to the stored one.
-    *  @param answer it the user's answer to the security question
-    *  @return True when the answer matches the stored answer
+    *  Compares the given answer of the security question to the stored one.
+    *  @param answer is the user's answer to the question.
+    *  @return True when the answer matches the stored answer.
     *   
     *  @author Ronnie
     */
