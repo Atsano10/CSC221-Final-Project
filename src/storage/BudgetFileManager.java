@@ -5,7 +5,11 @@ import java.util.List;
 /**
  * Manages reading, writing, and deleting budget files.
  *
- * @author IvanC
+ * @author 
+ *	Nishat Salsabeel, Team Lead                        
+ *	Ivan Chukharev
+ *	Fahim Taleb
+ *	Nusru Zaman
  */
 public class BudgetFileManager {
 
