@@ -50,13 +50,40 @@ class MenuController {
 
 	static void handleReadFile() {
 	}
-
+     /**
+     * Handles checking and displaying data anomalies.
+     *
+     * Checks if data has been loaded first; if no data exists, prints a warning message.
+     * Iterates through stored data and finds values outside the valid range.
+     * Prints each anomalous record with its year and value, and counts total anomalies found.
+     * If no anomalies are found, informs the user accordingly.
+     *
+     * @author junyu chen
+     */
 	static void handleAnomalies() {
 	}
-
+     /**
+     * Handles deleting all data for a specified year.
+     *
+     * Checks if data has been loaded first; if no data exists, prints a warning message.
+     * Prompts the user to enter the target year to delete.
+     * Removes all matching year records and their associated data value.
+     * Notifies the user whether the year was found and deleted or not found.
+     *
+     * @author junyu chen
+     */
 	static void handleDeleteYear() {
 	}
-
+    /**
+     * Handles changing the current user's password.
+     *
+     * Prompts the user for the old password and verifies it against the stored password.
+     * If the old password matches, asks for a new password and a confirmation of the new password.
+     * Updates the stored password only if the new password and confirmation match.
+     * Prints success or error messages based on validation results.
+     *
+     * @author junyu chen
+     */
 	static void handleChangePassword() {
 	}
 
