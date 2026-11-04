@@ -1,5 +1,8 @@
   /**
   * Provides the user menu and actions post authentication
+  * @author Bilal
+  * @author Apostolos
+  * @author Junyu
   */
 
 class MenuController {
@@ -26,7 +29,7 @@ class MenuController {
 
  /**
    * Asks the user to confirm (yes) or deny (no); helper function for many menu interactions
-   *
+   * @return either the string "yes" or the string "no"
    * @author Bilal
    */
 	static String promptYesOrNo() 
@@ -36,7 +39,7 @@ class MenuController {
 	
   /** 
     * Prints the next menu based on selection parameter
-    *
+    * @param The menu selection getMenuSelection() returned
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) 
