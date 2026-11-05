@@ -1,5 +1,9 @@
-  /**
-  * Provides the user menu and actions post authentication
+/**
+  * Displays the main user menu and actions post authentication such as file reading
+  *
+  * @author Bilal
+  * @author Apostolos
+  * @author Junyu
   */
 
 class MenuController {
@@ -16,7 +20,8 @@ class MenuController {
 	
   /** 
     * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
-	*
+	* 
+	* @return An int from 1 - [number of menu options] chosen by the user
 	* @author Bilal
 	*/
 	static int getMenuSelection() 
@@ -27,6 +32,7 @@ class MenuController {
  /**
    * Asks the user to confirm (yes) or deny (no); helper function for many menu interactions
    *
+   * @return Either the string "yes" or the string "no" chosen by the user
    * @author Bilal
    */
 	static String promptYesOrNo() 
@@ -37,6 +43,7 @@ class MenuController {
   /** 
     * Prints the next menu based on selection parameter
     *
+	* @param The selection the user made fetched by the getMenuSelection method
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) 
@@ -47,10 +54,24 @@ class MenuController {
 	static String promptForFilePath() {
 		return "";
 	}
+	/**
+     * Handles reading data from a user-specified file.
+     *
+     * Gets the file path from {@link #promptForFilePath()}.
+     * Reads the file line by line, parses year and numeric data pairs, and stores them.
+     * Skips invalid or malformed lines without crashing the program.
+     * Shows a success message and the total number of loaded records when finished.
+     * If the file cannot be found, displays an error message.
+     *
+     * @see #promptForFilePath()
+     * 
+     * @author junyu chen
+     */
 
 	static void handleReadFile() {
 	}
-     /**
+
+	/**
      * Handles checking and displaying data anomalies.
      *
      * Checks if data has been loaded first; if no data exists, prints a warning message.
@@ -62,7 +83,8 @@ class MenuController {
      */
 	static void handleAnomalies() {
 	}
-     /**
+
+	/**
      * Handles deleting all data for a specified year.
      *
      * Checks if data has been loaded first; if no data exists, prints a warning message.
@@ -74,7 +96,8 @@ class MenuController {
      */
 	static void handleDeleteYear() {
 	}
-    /**
+
+	/**
      * Handles changing the current user's password.
      *
      * Prompts the user for the old password and verifies it against the stored password.
