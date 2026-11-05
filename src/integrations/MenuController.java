@@ -1,4 +1,4 @@
-  /**
+/**
   * Displays the main user menu and actions post authentication such as file reading
   *
   * @author Bilal
@@ -70,6 +70,7 @@ class MenuController {
 
 	static void handleReadFile() {
 	}
+
 	/**
      * Handles checking and displaying data anomalies.
      *
@@ -80,9 +81,9 @@ class MenuController {
      *
      * @author junyu chen
      */
-
 	static void handleAnomalies() {
 	}
+
 	/**
      * Handles deleting all data for a specified year.
      *
@@ -93,9 +94,9 @@ class MenuController {
      *
      * @author junyu chen
      */
-
 	static void handleDeleteYear() {
 	}
+
 	/**
      * Handles changing the current user's password.
      *
@@ -106,7 +107,6 @@ class MenuController {
      *
      * @author junyu chen
      */
-
 	static void handleChangePassword() {
 	}
 
