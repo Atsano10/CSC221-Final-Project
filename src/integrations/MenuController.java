@@ -1,5 +1,9 @@
   /**
-  * Provides the user menu and actions post authentication
+  * Displays the main user menu and actions post authentication such as file reading
+  *
+  * @author Bilal
+  * @author Apostolos
+  * @author Junyu
   */
 
 class MenuController {
@@ -16,7 +20,8 @@ class MenuController {
 	
   /** 
     * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
-	*
+	* 
+	* @return An int from 1 - [number of menu options] chosen by the user
 	* @author Bilal
 	*/
 	static int getMenuSelection() 
@@ -27,6 +32,7 @@ class MenuController {
  /**
    * Asks the user to confirm (yes) or deny (no); helper function for many menu interactions
    *
+   * @return Either the string "yes" or the string "no" chosen by the user
    * @author Bilal
    */
 	static String promptYesOrNo() 
@@ -37,6 +43,7 @@ class MenuController {
   /** 
     * Prints the next menu based on selection parameter
     *
+	* @param The selection the user made fetched by the getMenuSelection method
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) 
