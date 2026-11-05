@@ -1,9 +1,9 @@
 /**
   * Displays the main user menu and actions post authentication such as file reading
   *
-  * @author Bilal
-  * @author Apostolos
-  * @author Junyu
+  * @author Bilal Ansar
+  * @author Apostolos Tsano
+  * @author Junyu Chen
   */
 
 class MenuController {
@@ -30,7 +30,7 @@ class MenuController {
 	}
 
  /**
-   * Asks the user to confirm (yes) or deny (no); helper function for many menu interactions
+   * Prompt the user to confirm (yes) or deny (no) with user input; helper function for many menu interactions
    *
    * @return Either the string "yes" or the string "no" chosen by the user
    * @author Bilal
@@ -41,8 +41,9 @@ class MenuController {
 	}
 	
   /** 
-    * Prints the next menu based on selection parameter
-    *
+    * Prints the next menu based on selection parameter if applicable,
+    * otherwise does the relevant menu action by calling methods from other classes
+	*
 	* @param The selection the user made fetched by the getMenuSelection method
 	* @author Bilal
 	*/
@@ -50,9 +51,13 @@ class MenuController {
 	{
 		
 	}
-
+  /**
+    *
+	*
+	* @author Apostolos Tsano
+    */
 	static String promptForFilePath() {
-		return "";
+		return path;
 	}
 	/**
      * Handles reading data from a user-specified file.
@@ -65,7 +70,7 @@ class MenuController {
      *
      * @see #promptForFilePath()
      * 
-     * @author junyu chen
+     * @author Junyu Chen
      */
 
 	static void handleReadFile() {
@@ -79,7 +84,7 @@ class MenuController {
      * Prints each anomalous record with its year and value, and counts total anomalies found.
      * If no anomalies are found, informs the user accordingly.
      *
-     * @author junyu chen
+     * @author Junyu Chen
      */
 	static void handleAnomalies() {
 	}
@@ -92,7 +97,7 @@ class MenuController {
      * Removes all matching year records and their associated data value.
      * Notifies the user whether the year was found and deleted or not found.
      *
-     * @author junyu chen
+     * @author Junyu Chen
      */
 	static void handleDeleteYear() {
 	}
@@ -105,7 +110,7 @@ class MenuController {
      * Updates the stored password only if the new password and confirmation match.
      * Prints success or error messages based on validation results.
      *
-     * @author junyu chen
+     * @author Junyu Chen
      */
 	static void handleChangePassword() {
 	}
