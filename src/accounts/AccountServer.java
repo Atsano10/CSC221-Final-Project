@@ -5,6 +5,9 @@
  */
 public final class AccountServer {
 
+	// Username of signed in user. null when no one is signed in.
+	private static String currentUsername = null;
+
 	/**
 	 * Private constructor that prevents creation of an AccountServer object.
 	 * 
@@ -19,12 +22,32 @@ public final class AccountServer {
 	 * 
 	 * @param username Unique username the user chose to sign in with
 	 * @param password Unique password associated with the username
-	 * @return True if the username and password match, to succesfully sign into the program.
+	 * @return True if the username and password match, to successfully sign into
+	 *         the program.
 	 * 
 	 * @author Darren
 	 */
 	public static boolean signIn(String username, String password) {
-		return false;
+
+		// Catches if someone is already signed in.
+		if (currentUsername != null || username == null || password == null) {
+			return false;
+		}
+
+		// If verifyPassword returns false, return false for signIn.
+		if (!verifyPassword(password, storedHash)) {
+			return false;
+		}
+
+		// Missing check for whether or not the username is actually in storage.
+		// Check in with storage team to see their methods that would work with storage
+		// to grab the information
+		
+		
+		// If nothing catches, signIn returns true.
+		currentUsername = username.trim();
+		return true;
+
 	}
 
 	/**
