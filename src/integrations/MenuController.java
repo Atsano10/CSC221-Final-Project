@@ -13,8 +13,7 @@ class MenuController {
 	*
 	* @author Bilal
 	*/
-	static void displayMainMenu() 
-	{
+	static void displayMainMenu() {
 		
 	}
 	
@@ -24,8 +23,7 @@ class MenuController {
 	* @return An int from 1 - [number of menu options] chosen by the user
 	* @author Bilal
 	*/
-	static int getMenuSelection() 
-	{
+	static int getMenuSelection() {
 		return selection;
 	}
 
@@ -35,8 +33,7 @@ class MenuController {
    * @return Either the string "yes" or the string "no" chosen by the user
    * @author Bilal
    */
-	static String promptYesOrNo() 
-	{
+	static String promptYesOrNo() {
 		return choice;
 	}
 	
@@ -47,18 +44,23 @@ class MenuController {
 	* @param The selection the user made fetched by the getMenuSelection method
 	* @author Bilal
 	*/
-	static void doMenuAction(int selection) 
-	{
+	static void doMenuAction(int selection) {
 		
 	}
+	
   /**
-    *
+	* 
+    * Prompts the user to enter the path of the file to be read.
+	* 
 	*
+	* @return The file path which is set by the user.
+	* 
 	* @author Apostolos Tsano
     */
 	static String promptForFilePath() {
 		return path;
 	}
+	
 	/**
      * Handles reading data from a user-specified file.
      *
@@ -72,8 +74,8 @@ class MenuController {
      * 
      * @author Junyu Chen
      */
-
 	static void handleReadFile() {
+		
 	}
 
 	/**
@@ -87,6 +89,7 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleAnomalies() {
+		
 	}
 
 	/**
@@ -100,6 +103,7 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleDeleteYear() {
+		
 	}
 
 	/**
@@ -113,6 +117,7 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleChangePassword() {
+		
 	}
 
 	/**
@@ -129,7 +134,6 @@ class MenuController {
      */
 	static void handleDeleteAccount() {
 
-		
 	}
 	
 	/**
@@ -144,7 +148,6 @@ class MenuController {
 	 */
 	static void handleLogout() {
 
-		
 	}
 
 	/**
@@ -157,7 +160,6 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleExit() {
-
-		
+	
 	}
 }
