@@ -42,6 +42,9 @@ public final class AccountServer {
 		// Missing check for whether or not the username is actually in storage.
 		// Check in with storage team to see their methods that would work with storage
 		// to grab the information
+		if (/* Insert Storage function here*/) {
+			return false;
+		}
 		
 		
 		// If nothing catches, signIn returns true.
@@ -56,7 +59,7 @@ public final class AccountServer {
 	 * @author Darren
 	 */
 	public static void signOut() {
-
+		currentUsername = null;
 	}
 
 	/**
