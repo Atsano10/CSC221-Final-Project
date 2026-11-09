@@ -5,6 +5,8 @@
  */
 public class UserAccount {
 
+    private String username;
+
     /**
      * Public constructor that allows for the creation of a UserAccount object.
      * 
@@ -18,7 +20,11 @@ public class UserAccount {
     public UserAccount(String username, String password, 
             String question, String answer) 
     {
-        
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     /**
@@ -31,7 +37,29 @@ public class UserAccount {
      * @author Vic
      */
     public boolean setSecurity(String question, String answer) {
-        return false;
+
+        // Checks if the arguments are null
+        if ((question == null) || (answer == null)) {
+            return false;
+        }
+
+        // Checks that there is an active user and it matches the accessing user.
+        UserAccount currentUser = AccountServer.getCurrentUser();
+
+        if (currentUser == null) {
+            return false;
+        }
+
+        if (!currentUser.username.equals(this.username)){
+            return false;
+        }
+
+        /*
+        Need a method from storage team to access a given user's information 
+        to set the security question and answer.
+         */
+
+        return true;
     }
 
     /**
@@ -44,7 +72,14 @@ public class UserAccount {
      * @author Ronnie
      */
     public boolean changePass(String oldPass, String newPass){
-        return false;
+        /* 
+         * Needs a method to pull the hashed password from storage.   
+         */
+       String hashedpassword;
+
+       AccountServer.verifyPassword(oldPass, hashedpassword); //Verify that the password is the oldPassword is the correct one 
+       AccountServer.hashPassword(newPass); //Hashes the new password given.
+       return true;
     }
 
     /**
@@ -54,7 +89,11 @@ public class UserAccount {
     *  @author Ronnie
     */
     public String securityQuestion(){
-        return null;
+        /*
+        *   Need method from storage to pull the question, or if hashed.
+        */
+        String storedHashQuestion;
+        return storedHashQuestion; //Same reasoning as "password".
     }
 
     /** 
@@ -65,7 +104,12 @@ public class UserAccount {
     *  @author Ronnie
     */
     public boolean securityAnswer(String answer){
-        return false;
+        /*
+        Need a method from storage to get the stored hashed security answer
+         */
+        
+        String storedHashAnswer;
+        return AccountServer.verifyPassword(answer, storedHashAnswer); //Compares the parameter with the storedHashAnswer.
     }
 
 }
