@@ -1,3 +1,12 @@
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
 /**
  * Provides account management and auth utilities.
  * 
@@ -7,6 +16,12 @@ public final class AccountServer {
 
 	// Username of signed in user. null when no one is signed in.
 	private static String currentUser = null;
+
+	// PBKDF2 configuration constants
+	private static final String HASH_ALGORITHM = "PBKDF2WithHmacSHA256";
+	private static final int HASH_ITERATIONS = 65536;
+	private static final int KEY_LENGTH = 256;
+	private static final int SALT_BYTES = 16;
 
 	/**
 	 * Private constructor that prevents creation of an AccountServer object.
@@ -34,6 +49,11 @@ public final class AccountServer {
 			return false;
 		}
 
+		
+		// Need a method from storage to actually access the hashed password 
+		// of a given user. 
+		String storedHash = null;
+
 		// If verifyPassword returns false, return false for signIn.
 		if (!verifyPassword(password, storedHash)) {
 			return false;
@@ -60,7 +80,7 @@ public final class AccountServer {
 	 * @author Darren
 	 */
 	public static void signOut() {
-		currentUsername = null;
+		currentUser = null;
 	}
 
 	/**
@@ -146,7 +166,7 @@ public final class AccountServer {
 		Need a method from storage to actually access the hashed password 
 		of a given user. 
 		*/
-		String storedHash;
+		String storedHash = null;
 
 		if (!verifyPassword(password, storedHash)) {
 			return false;
@@ -170,6 +190,17 @@ public final class AccountServer {
 	 * @author Aarush
 	 */
 	public static UserAccount getCurrentUser() {
+
+		// Returns the active user currently signed into the session.
+		if (currentUser == null) {
+			return null;
+		}
+
+		/*
+		Need a method with storage team to load the user record from 
+		storage by username (currentUser) and return a new UserAccount.
+		Returning null for now until storage team implements account loading.
+		 */
 		return null;
 	}
 
@@ -182,7 +213,33 @@ public final class AccountServer {
 	 * @author Aarush
 	 */
 	public static String hashPassword(String password) {
-		return null;
+
+		// Checks that the password argument is not null or empty.
+		if (password == null || password.isEmpty()) {
+			return null;
+		}
+
+		/*
+		Need a method with storage team to actually save this returned 
+		hashed password and salt string to the user accounts file. 
+		Storage team currently only has budget file storage implemented.
+		 */
+		try {
+			// Generates a cryptographically secure random salt.
+			SecureRandom random = new SecureRandom();
+			byte[] salt = new byte[SALT_BYTES];
+			random.nextBytes(salt);
+
+			// Hashes the password with PBKDF2 using the salt.
+			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, HASH_ITERATIONS, KEY_LENGTH);
+			SecretKeyFactory factory = SecretKeyFactory.getInstance(HASH_ALGORITHM);
+			byte[] hash = factory.generateSecret(spec).getEncoded();
+
+			// Combines salt and hash into a string separated by a colon.
+			return Base64.getEncoder().encodeToString(salt) + ":" + Base64.getEncoder().encodeToString(hash);
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -195,6 +252,35 @@ public final class AccountServer {
 	 * @author Aarush
 	 */
 	public static boolean verifyPassword(String password, String storedHash) {
-		return false;
+
+		// Checks that the arguments are not null or empty.
+		if (password == null || storedHash == null || password.isEmpty() || storedHash.isEmpty()) {
+			return false;
+		}
+
+		/*
+		Need a method from storage to actually access the hashed password 
+		of a given user from file to pass as storedHash.
+		 */
+		String[] parts = storedHash.split(":");
+		if (parts.length != 2) {
+			return false;
+		}
+
+		try {
+			// Decodes the stored salt and hash from Base64.
+			byte[] salt = Base64.getDecoder().decode(parts[0]);
+			byte[] expectedHash = Base64.getDecoder().decode(parts[1]);
+
+			// Hashes the input password using the stored salt to verify against expected hash.
+			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, HASH_ITERATIONS, expectedHash.length * 8);
+			SecretKeyFactory factory = SecretKeyFactory.getInstance(HASH_ALGORITHM);
+			byte[] candidateHash = factory.generateSecret(spec).getEncoded();
+
+			// Compares the generated hash with the stored hash using constant-time comparison.
+			return MessageDigest.isEqual(candidateHash, expectedHash);
+		} catch (IllegalArgumentException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+			return false;
+		}
 	}
 }
