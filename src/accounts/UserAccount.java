@@ -44,10 +44,13 @@ public class UserAccount {
      * @author Ronnie
      */
     public boolean changePass(String oldPass, String newPass){
-       if(oldPass == null || newPass == null || newPass.isEmpty()){ return false;}
-       if(newPass.equals(oldPass)){ return false;}
+        /* 
+         * Needs a method to pull the hashed password from storage.   
+         */
+       String hashedpassword;
 
-       password = newPass; //"password" written as how Vic wrote it in UserAccount Constructor.
+       AccountServer.verifyPassword(oldPass, hashedpassword); //Verify that the password is the oldPassword is the correct one 
+       AccountServer.hashPassword(newPass); //Hashes the new password given.
        return true;
     }
 
@@ -58,7 +61,11 @@ public class UserAccount {
     *  @author Ronnie
     */
     public String securityQuestion(){
-        return question; //Same reasoning as "password".
+        /*
+        *   Need method from storage to pull the question, or if hashed.
+        */
+        String storedHashQuestion;
+        return storedHashQuestion; //Same reasoning as "password".
     }
 
     /** 
@@ -69,8 +76,12 @@ public class UserAccount {
     *  @author Ronnie
     */
     public boolean securityAnswer(String answer){
-        if(answer == null || this.answer == null){ return false;}
-        return this.answer.equals(answer);
+        /*
+        Need a method from storage to get the stored hashed security answer
+         */
+        
+        String storedHashAnswer;
+        return AccountServer.verifyPassword(answer, storedHashAnswer); //Compares the parameter with the storedHashAnswer.
     }
 
 }
