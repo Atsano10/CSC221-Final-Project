@@ -5,6 +5,8 @@
  */
 public class UserAccount {
 
+    private String username;
+
     /**
      * Public constructor that allows for the creation of a UserAccount object.
      * 
@@ -18,7 +20,11 @@ public class UserAccount {
     public UserAccount(String username, String password, 
             String question, String answer) 
     {
-        
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     /**
@@ -31,7 +37,29 @@ public class UserAccount {
      * @author Vic
      */
     public boolean setSecurity(String question, String answer) {
-        return false;
+
+        // Checks if the arguments are null
+        if ((question == null) || (answer == null)) {
+            return false;
+        }
+
+        // Checks that there is an active user and it matches the accessing user.
+        UserAccount currentUser = AccountServer.getCurrentUser();
+
+        if (currentUser == null) {
+            return false;
+        }
+
+        if (!currentUser.username.equals(this.username)){
+            return false;
+        }
+
+        /*
+        Need a method from storage team to access a given user's information 
+        to set the security question and answer.
+         */
+
+        return true;
     }
 
     /**
