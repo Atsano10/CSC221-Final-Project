@@ -44,7 +44,11 @@ public class UserAccount {
      * @author Ronnie
      */
     public boolean changePass(String oldPass, String newPass){
-        return false;
+       if(oldPass == null || newPass == null || newPass.isEmpty()){ return false;}
+       if(newPass.equals(oldPass)){ return false;}
+
+       password = newPass; //"password" written as how Vic wrote it in UserAccount Constructor.
+       return true;
     }
 
     /**
@@ -54,7 +58,7 @@ public class UserAccount {
     *  @author Ronnie
     */
     public String securityQuestion(){
-        return null;
+        return question; //Same reasoning as "password".
     }
 
     /** 
@@ -65,7 +69,8 @@ public class UserAccount {
     *  @author Ronnie
     */
     public boolean securityAnswer(String answer){
-        return false;
+        if(answer == null || this.answer == null){ return false;}
+        return this.answer.equals(answer);
     }
 
 }
