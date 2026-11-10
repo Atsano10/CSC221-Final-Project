@@ -52,7 +52,7 @@ public class DataAudit {
      * @author Haoyang
      */
     public void chooseExcludedCategories() {
-        return new ArrayList<categories>;
+        return new ArrayList<>();
     }
     /**
      * print what the audit found
