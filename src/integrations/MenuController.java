@@ -14,7 +14,14 @@ class MenuController {
 	* @author Bilal
 	*/
 	static void displayMainMenu() {
-		
+		System.out.println("Welcome to Personal Finance Manager!\n\n");
+		System.out.println("1. ");
+		System.out.println("2. ");
+		System.out.println("3. ");
+		System.out.println("4. Options");
+		System.out.println("5. Exit");
+	
+		MenuController.getMenuSelection();
 	}
 	
   /** 
@@ -24,6 +31,12 @@ class MenuController {
 	* @author Bilal
 	*/
 	static int getMenuSelection() {
+		Scanner input = new Scanner(System.in);
+		int selection;
+		
+		System.out.println("Select from the menu: ");
+		selection = input.nextLine();
+		
 		return selection;
 	}
 
@@ -45,7 +58,13 @@ class MenuController {
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) {
-		
+		if (selection == 4) {
+			System.out.println("1. Change password");
+			System.out.println("2. Set security question");
+			System.out.println("3. Logout");
+		} else if (selection == 5) {
+			System.exit(0);
+		}
 	}
 	
   /**
