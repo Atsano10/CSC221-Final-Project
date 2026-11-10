@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Locale.Category;
 
 /**
  * Allows user to audit their data and see any potential anomalies and categorize data 
@@ -51,7 +52,7 @@ public class DataAudit {
      * 
      * @author Haoyang
      */
-    public void chooseExcludedCategories() {
+    public ArrayList<Category> chooseExcludedCategories() {
         return new ArrayList<>();
     }
     /**
