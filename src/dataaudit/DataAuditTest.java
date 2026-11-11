@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ public class DataAuditTest {
 
         DataAudit audit = new DataAudit();
         System.out.println(audit.findDuplicates(budget));
-        System.out.println(audit.findAnomalies(budget, Set.of()));
+        ArrayList<String> Exclude = new ArrayList<>();
+        System.out.println(audit.findAnomalies(budget, Exclude));
     }
 }
