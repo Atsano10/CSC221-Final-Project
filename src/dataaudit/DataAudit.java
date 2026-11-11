@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Locale.Category;
 
+
 /**
  * Allows user to audit their data and see any potential anomalies and categorize data 
  * 
@@ -24,7 +25,7 @@ public class DataAudit {
     public void runAudit(Budget budgetFile){};
 
     /**
-     * Finds transations that are the same
+     * Finds transactions that are the same
      * 
      * @param budgetFile transaction data
      * @return list of entries for each duplicate
@@ -40,11 +41,13 @@ public class DataAudit {
      * Finds outlier data
      * 
      * @param budgetFile transaction data
-     * @return list of anamoly entries
+     * @return list of anomaly entries
      * 
      * @author Haoyang 
      */
-    public ArrayList<AuditFinding> findAnomalies(Budget budgetFile){};
+    public ArrayList<AuditFinding> findAnomalies(Budget budgetFile, ArrayList<String> exclusion){
+        return new ArrayList<>();
+    };
     /**
      * Asks user which categories they want to leave out in audit
      * 
@@ -61,22 +64,27 @@ public class DataAudit {
      * 
      * @author Joseph
      */
-    public void printFindings(AuditFinding[] records) {};
+    public void printFindings(ArrayList<AuditFinding> recordList) {
+        String formatting;
+    };
     
     /**
      * Record of the flagged transaction from an audit
      * @param entry which transaction was marked
-     * @param type was it anamoly or duplicate
-     * @param reason explaination of flagging
+     * @param type was it anomaly or duplicate
+     * @param reason explanation of flagging
      * 
      * @author Joseph
      */
     public record AuditFinding(String entry, FindingType type, String reason) {};
     /**
-     * Mark a transaction as a duplicate or anamoly/outlier
+     * Mark a transaction as a duplicate or anomaly/outlier
      * @author Hamet
      */
     public enum FindingType { DUPLICATE, ANOMALY };
 
-    
+    public static void main(String[] args) {
+        
+    }
 }
+
