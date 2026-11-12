@@ -1,23 +1,23 @@
 /**
  * Represents the preset security questions available for user accounts.
  * 
- * @author
+ * @author Ronnie
  */
 public enum SecurityQuestion {
 
-	/** Question about user's first pet */
+	// Question about user's first pet
 	FIRST_PET("What was the name of your first pet?"),
 
-	/** Question about user's mother's maiden name */
+	// Question about user's mother's maiden name
 	MOTHER_MAIDEN_NAME("What is your mother's maiden name?"),
 
-	/** Question about user's birthplace */
+	// Question about user's birthplace
 	BIRTH_CITY("In what city were you born?"),
 
-	/** Question about user's elementary school */
+	// Question about user's elementary school
 	ELEMENTARY_SCHOOL("What elementary school did you attend?"),
 
-	/** Question about user's first car */
+	// Question about user's first car
 	FIRST_CAR("What was the make of your first car?");
 
 	private final String questionText;
@@ -26,7 +26,7 @@ public enum SecurityQuestion {
 	 * Constructor for SecurityQuestion enum.
 	 * 
 	 * @param questionText The full question text.
-	 * @author
+	 * @author Ronnie
 	 */
 	SecurityQuestion(String questionText) {
 		this.questionText = questionText;
@@ -36,10 +36,9 @@ public enum SecurityQuestion {
 	 * Returns the user-readable question text.
 	 * 
 	 * @return The question string.
-	 * @author
+	 * @author Ronnie
 	 */
 	public String getQuestionText() {
 		return questionText;
 	}
 }
-

@@ -10,21 +10,21 @@ import javax.crypto.spec.PBEKeySpec;
 /**
  * Provides account management operations and authentication utilities.
  * 
- * @author
+ * @author Darren
  */
 public final class AccountManager {
 
 	/**
 	 * Defines whether authentication is checking a password or a security answer.
 	 * 
-	 * @author
+	 * @author Vic
 	 */
 	public enum AuthType {
 
-		/** Verify identity using password */
+		// Verify identity using password
 		PASSWORD,
 
-		/** Verify identity using security question answer */
+		// Verify identity using security question answer
 		SECURITY_ANSWER
 	}
 
@@ -40,7 +40,7 @@ public final class AccountManager {
 	/**
 	 * Private constructor that prevents creation of an AccountManager object.
 	 * 
-	 * @author
+	 * @author Aarush
 	 */
 	private AccountManager() {
 
@@ -56,7 +56,7 @@ public final class AccountManager {
 	 * @param answer   The plaintext answer to the security question.
 	 * @return True if the user was successfully registered.
 	 * 
-	 * @author
+	 * @author Vic
 	 */
 	public static boolean registerUser(String username, String password, String question, String answer) {
 		return false;
@@ -70,7 +70,7 @@ public final class AccountManager {
 	 * @param securityAnswer The plaintext security answer to verify.
 	 * @return True if the user account was successfully deleted.
 	 * 
-	 * @author
+	 * @author Vic
 	 */
 	public static boolean deleteUser(String password, String securityAnswer) {
 		String username = getCurrentUser();
@@ -89,7 +89,7 @@ public final class AccountManager {
 	 * @param password The plaintext password to verify.
 	 * @return True if the user was successfully signed in.
 	 * 
-	 * @author
+	 * @author Darren
 	 */
 	public static boolean signIn(String username, String password) {
 		return false;
@@ -112,7 +112,7 @@ public final class AccountManager {
 	 * @param newPassword The new plaintext password to set.
 	 * @return True if the password was successfully changed.
 	 * 
-	 * @author
+	 * @author Darren
 	 */
 	public static boolean changePassword(String username, String answer, String newPassword) {
 		return false;
@@ -127,7 +127,7 @@ public final class AccountManager {
 	 * @param newAnswer   The new plaintext security answer to set.
 	 * @return True if the security setup was successfully updated.
 	 * 
-	 * @author
+	 * @author Darren
 	 */
 	public static boolean changeSecuritySetup(String password, String newQuestion, String newAnswer) {
 		String username = getCurrentUser();
@@ -144,7 +144,7 @@ public final class AccountManager {
 	 * 
 	 * @return The security question, or null if no user is signed in.
 	 * 
-	 * @author
+	 * @author Ronnie
 	 */
 	public static String getSecurityQuestion() {
 		String username = getCurrentUser();
@@ -161,7 +161,7 @@ public final class AccountManager {
 	 * 
 	 * @return The username of the active session, or null if no user is signed in.
 	 * 
-	 * @author Aarush
+	 * @author Ronnie
 	 */
 	public static String getCurrentUser() {
 		return currentUser;
@@ -175,6 +175,7 @@ public final class AccountManager {
 	 * @return The salted hash string, or null if input is invalid.
 	 * 
 	 * @author Aarush
+	 * @author Vic
 	 */
 	static String hashPlaintext(String plaintext) {
 		// Checks that the plaintext argument is not null or empty.
@@ -209,6 +210,7 @@ public final class AccountManager {
 	 * @return True if the plaintext matches the stored hash, false otherwise.
 	 * 
 	 * @author Aarush
+	 * @author Vic
 	 */
 	static boolean comparePlaintextToHash(String plaintext, String storedHash) {
 		// Checks that the arguments are not null or empty.
@@ -299,7 +301,7 @@ public final class AccountManager {
 	 * @param input The string to validate.
 	 * @return The trimmed string, or null if invalid.
 	 * 
-	 * @author Aarush
+	 * @author Ronnie
 	 */
 	static String validateString(String input) {
 		// Checks if the input string is null, empty, or whitespace-only.
