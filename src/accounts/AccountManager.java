@@ -58,8 +58,49 @@ public final class AccountManager {
 	 * 
 	 * @author Vic
 	 */
-	public static boolean registerUser(String username, String password, String question, String answer) {
-		return false;
+	public static boolean registerUser(String username, String password, SecurityQuestion question, String answer) {
+
+		// Unsure of whether I need to validate the enum itself for if null or not.
+
+		// Validates not null/empty. 
+		// Subject to change depending on integration team's decisions.
+		String[] strParams = {username, password, answer};
+
+		for (int i = 0; i < strParams.length; i++) {
+			String oldArg = strParams[i];
+			String newArg = validateString(oldArg);
+			if (newArg == null){
+				return false;
+			}
+			strParams[i] = newArg;
+		}
+
+		// Validation loop from validation team. 
+		// Subject to change depending on integration team's decisions.
+		String newUsername = strParams[0];
+		String newPassword = strParams[1];
+		String newAnswer = strParams[2];
+
+		if (!validationValidateUserName(username))
+			return false;
+		if (!validationValidatePassword(password))
+			return false;
+		if (!validationValidateAnswer(answer))
+			return false;
+
+		// Verifies that this username does not exist yet.
+		if (verifyUsername(newUsername))
+			return false;
+
+		// Hashes the necessary text
+		String hashedPassword = hashPlaintext(newPassword);
+		String hashedAnswer = hashPlaintext(newAnswer);
+
+		// Creates user in persistent record, or fails and stops this operation.
+		if (!storageSaveUser(newUsername, hashedPassword, question.getQuestionText(), hashedAnswer))
+			return false;
+
+		return true;
 	}
 
 	/**
@@ -73,7 +114,29 @@ public final class AccountManager {
 	 * @author Vic
 	 */
 	public static boolean deleteUser(String password, String securityAnswer) {
+
+		// Validates not null/empty. 
+		// Subject to change depending on integration team's decisions.
 		String username = getCurrentUser();
+		String[] strParams = {username, password, securityAnswer};
+
+		for (int i = 0; i < strParams.length; i++) {
+			String oldArg = strParams[i];
+			String newArg = validateString(oldArg);
+			if (newArg == null){
+				return false;
+			}
+			strParams[i] = newArg;
+		}
+
+		String newUsername = strParams[0];
+		String newPassword = strParams[1];
+		String newAnswer = strParams[2];
+
+		if (!verifyIdentity(newUsername, newPassword, AuthType.PASSWORD))
+			return false;
+		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
+			return false;
 
 		if (username == null) {
 			return false;
@@ -294,6 +357,13 @@ public final class AccountManager {
 		return comparePlaintextToHash(plaintext, storedHash);
 	}
 
+	// TODO: Consider changing the return values to not return null but instead,
+	// raise an error so that logic on "if null" does not have to be rewritten
+	// every time this function is called to validate general string inputs.
+	// ANOTHER consideration could be to write another helper function that accepts
+	// any number of arguments through varargs and returns a string ArrayList 
+	// that will raise an error to avoid rewriting the loop.
+	// Subject to change depending on integration team's decisions.
 	/**
 	 * Checks that a string is not null, empty, or only whitespace, and returns
 	 * the trimmed string.
