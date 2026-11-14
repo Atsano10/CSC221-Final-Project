@@ -96,7 +96,7 @@ public final class AccountManager {
 		// DO NOT FORGET TO IMPORT VALIDATION IN THE STUBS WHEN VALIDATE IS DONE.
 	
 		// This will check false for the validation teams methods
-		if (validateUsername(username) == false || validatePassword(password) == false) {
+		if (validationValidateUserName(username) == false || validationValidatePassword(password) == false) {
 			return false;
 		}
 		
@@ -104,12 +104,13 @@ public final class AccountManager {
 		String validatedUser = username.trim();
 		String validatedPass = password.trim();
 		
-		// 
+		// Double check if AuthType.PASSWORD is correct.
 		if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
 			return false;
 		}
 		
 		currentUser = validatedUser;
+		
 		return true;
 	}
 
@@ -133,7 +134,23 @@ public final class AccountManager {
 	 * @author Darren
 	 */
 	public static boolean changePassword(String username, String answer, String newPassword) {
-		return false;
+		
+		if (validationValidateUserName(username) == false || validationValidateAnswer(answer) == false || validationValidatePassword(newPassword)) {
+			return false;
+		}
+		
+		String validatedUser = username.trim();
+		String validatedAnswer = answer.trim();
+		String validatedPass = newPassword.trim();	
+		
+		if (!verifyIdentity(validatedUser, validatedAnswer, AuthType.SECURITY_ANSWER)) {
+			return false;
+		}
+		
+		String hashedPass = hashPlaintext(validatedPass);
+		storageUpdatePass(validatedUser, hashedPass);
+		
+		return true;
 	}
 
 	/**
@@ -147,14 +164,28 @@ public final class AccountManager {
 	 * 
 	 * @author Darren
 	 */
-	public static boolean changeSecuritySetup(String password, String newQuestion, String newAnswer) {
+	public static boolean changeSecuritySetup(String password, SecurityQuestion newQuestion, String newAnswer) {
 		String username = getCurrentUser();
 
-		if (username == null) {
+		if (username == null || newQuestion == null) {
 			return false;
 		}
-
-		return false;
+		
+		if (!validationValidateAnswer(newAnswer) == false || validationValidatePassword(password)) {
+			return false;
+		}
+		
+		String validatedAnswer = newAnswer.trim();
+		String validatedPass = password.trim();	
+		
+		if (!verifyIdentity(username, validatedPass, AuthType.PASSWORD)) {
+			return false;
+		}
+		
+		String hashedAnswer = hashPlaintext(validatedAnswer);
+		storageUpdateQnA(username, newQuestion, hashedAnswer);
+		
+		return true;
 	}
 
 	/**
