@@ -155,7 +155,25 @@ public final class AccountManager {
 	 * @author Darren
 	 */
 	public static boolean signIn(String username, String password) {
-		return false;
+		
+		// DO NOT FORGET TO IMPORT VALIDATION IN THE STUBS WHEN VALIDATE IS DONE.
+	
+		// This will check false for the validation teams methods
+		if (validateUsername(username) == false || validatePassword(password) == false) {
+			return false;
+		}
+		
+		// We will be trimming personally since they aren't working with the DB, they are only checking if it works or not.
+		String validatedUser = username.trim();
+		String validatedPass = password.trim();
+		
+		// 
+		if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
+			return false;
+		}
+		
+		currentUser = validatedUser;
+		return true;
 	}
 
 	/**
