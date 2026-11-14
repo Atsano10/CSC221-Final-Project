@@ -24,7 +24,7 @@ class MenuController {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!");
 			System.out.println("1. ");
 			System.out.println("2. ");
-			System.out.println("3. Help");
+			System.out.println("3. Options");
 			System.out.println("4. Exit");
 		} doMenuAction(getMenuSelection());
 	}
@@ -37,19 +37,25 @@ class MenuController {
 	*/
 	static int getMenuSelection() {
 		Scanner input = new Scanner(System.in);
-		String selection;
-	
-		System.out.println("Select from the menu");
+		String strSelection;
+		int selection;
+		
+		System.out.println("\nSelect from the menu");
 	
 		while (true) {
-			selection = input.nextLine();
-		
-			if (selection.matches("[1-4]+")) {
-		    	return Integer.parseInt(selection);
-			} else {
-				System.out.println("Try again");
+			strSelection = input.nextLine();
+			try {
+				 selection = Integer.parseInt(strSelection);
+			} catch (NumberFormatException e) {
+				System.out.println("try again");
+				continue;
 			} 
-		} 
+			if (selection > 4 || selection < 1) {
+				System.out.println("try again");
+				continue;
+			} input.close();
+			return selection;
+		}
 	}
 
  /**
