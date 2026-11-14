@@ -14,14 +14,19 @@ class MenuController {
 	* @author Bilal
 	*/
 	static void displayMainMenu() {
-		System.out.println("Welcome to Personal Finance Manager!\n\n");
-		System.out.println("1. ");
-		System.out.println("2. ");
-		System.out.println("3. ");
-		System.out.println("4. Options");
-		System.out.println("5. Exit");
-	
-		MenuController.getMenuSelection();
+		if (AccountManager.getCurrentUser() == null) {
+			System.out.println("Welcome to Personal Finance Manager!\n");
+			System.out.println("1. Register");
+			System.out.println("2. Login");
+			System.out.println("3. Help");
+			System.out.println("4. Exit");
+		} else {
+			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!");
+			System.out.println("1. ");
+			System.out.println("2. ");
+			System.out.println("3. Help");
+			System.out.println("4. Exit");
+		} doMenuAction(getMenuSelection());
 	}
 	
   /** 
@@ -32,12 +37,19 @@ class MenuController {
 	*/
 	static int getMenuSelection() {
 		Scanner input = new Scanner(System.in);
-		int selection;
+		String selection;
+	
+		System.out.println("Select from the menu");
+	
+		while (true) {
+			selection = input.nextLine();
 		
-		System.out.println("Select from the menu: ");
-		selection = input.nextLine();
-		
-		return selection;
+			if (selection.matches("[1-4]+")) {
+		    	return Integer.parseInt(selection);
+			} else {
+				System.out.println("Try again");
+			} 
+		} 
 	}
 
  /**
