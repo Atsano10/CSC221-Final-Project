@@ -21,7 +21,7 @@ class MenuController {
 			System.out.println("3. Help");
 			System.out.println("4. Exit");
 		} else {
-			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!");
+			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. ");
 			System.out.println("2. ");
 			System.out.println("3. Options");
