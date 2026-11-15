@@ -9,6 +9,8 @@ import java.util.Locale.Category;
  * @author Hamet
  */
 public class DataAudit {
+    private final double ANOMALYBOUND = 0.05;  
+
     /**
      * Create data audit object
      * 
