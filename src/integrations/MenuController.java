@@ -1,3 +1,5 @@
+import java.utils.Scanner;
+
 /**
   * Displays the main user menu and actions post authentication such as file reading
   *
