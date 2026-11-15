@@ -49,11 +49,11 @@ class MenuController {
 			try {
 				 selection = Integer.parseInt(strSelection);
 			} catch (NumberFormatException e) {
-				System.out.println("try again");
+				System.out.println("Try again.");
 				continue;
 			} 
 			if (selection > 4 || selection < 1) {
-				System.out.println("try again");
+				System.out.println("Try again.");
 				continue;
 			} input.close();
 			return selection;
