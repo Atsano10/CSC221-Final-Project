@@ -3,6 +3,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Locale.Category;
+import java.util.HashSet;
 
 
 /**
@@ -25,7 +26,7 @@ public class DataAudit {
      * 
      * @param budgetFile transaction data
      * 
-     * @author Javier
+     * @author Haoyang
      */
     public void runAudit(Budget budgetFile){};
 
@@ -37,9 +38,25 @@ public class DataAudit {
      * 
      * @author Javier
      */
-    public ArrayList<AuditFinding> findDuplicates(Budget budgetFile){
-        return new ArrayList<>();
-    };
+    public ArrayList<AuditFinding> findDuplicates(Budget budgetFile)
+{
+    ArrayList<AuditFinding> duplicates = new ArrayList<>();
+    HashSet<BudgetTransaction> seen = new HashSet<>();
+
+    for (BudgetTransaction transaction : budgetFile.transactions())
+    {
+        if (!seen.add(transaction))
+        {
+            String reason = "Transaction has already appeared";
+            AuditFinding finding = new AuditFinding(
+                transaction.toString(), FindingType.DUPLICATE, reason);
+
+            duplicates.add(finding);
+        }
+    }
+
+    return duplicates;
+}
 
     /**
      * 
