@@ -100,6 +100,8 @@ public final class AccountManager {
 		if (!storageSaveUser(newUsername, hashedPassword, question.getQuestionText(), hashedAnswer))
 			return false;
 
+		currentUser = newUsername;
+
 		return true;
 	}
 
@@ -133,16 +135,18 @@ public final class AccountManager {
 		String newPassword = strParams[1];
 		String newAnswer = strParams[2];
 
+		if (!verifyUsername(newUsername))
+			return false;
 		if (!verifyIdentity(newUsername, newPassword, AuthType.PASSWORD))
 			return false;
 		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
 			return false;
 
-		if (username == null) {
+		if (!storageDeleteUser(newUsername))
 			return false;
-		}
 
-		return false;
+		signOut();
+		return true;
 	}
 
 	/**
