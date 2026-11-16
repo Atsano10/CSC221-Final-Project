@@ -1,5 +1,6 @@
 package integration;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 import accounts.AccountManager;
 import accounts.SecurityQuestion;
 
@@ -39,22 +40,20 @@ class MenuController {
   /** 
     * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
 	* 
-	* @param The number of choices the menu will have. This allows this function to be used for menus with varying sizes.
+	* @param The number of choices the menu will have. This allows this function to be used for menus with varying choice sizes.
 	* @return An int from 1 - [number of menu options] chosen by the user
 	* @author Bilal
 	*/
 	static int getMenuSelection(int choices) {
-		Scanner input = new Scanner(System.in);
-		String strSelection;
 		int selection;
 		
 		System.out.println("\nSelect: ");
 	
 		while (true) {
-			strSelection = input.nextLine();
+			Scanner input = new Scanner(System.in);
 			try {
-				 selection = Integer.parseInt(strSelection);
-			} catch (NumberFormatException e) {
+				 selection = input.nextInt();
+			} catch (InputMismatchException e) {
 				System.out.println("Try again.");
 				continue;
 			} 
