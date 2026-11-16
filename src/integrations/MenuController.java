@@ -1,5 +1,7 @@
 package integration;
 import java.util.Scanner;
+import accounts.AccountManager;
+import accounts.SecurityQuestion;
 
 /**
   * Displays the main user menu and actions post authentication such as file reading
@@ -62,7 +64,7 @@ class MenuController {
 	}
 
  /**
-   * Calls this function if the user selects register. This method called the registerUser method from the AccountManager class after getting parameters.
+   * Calls this function if the user selects register. This method calls the registerUser method from the AccountManager class after getting parameters.
    *
    * @author Bilal
    */
