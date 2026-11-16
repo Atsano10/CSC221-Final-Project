@@ -100,6 +100,8 @@ public final class AccountManager {
 		if (!storageSaveUser(newUsername, hashedPassword, question.getQuestionText(), hashedAnswer))
 			return false;
 
+		currentUser = newUsername;
+
 		return true;
 	}
 
@@ -140,7 +142,11 @@ public final class AccountManager {
 		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
 			return false;
 
-		return storageDeleteUser(newUsername);
+		if (!storageDeleteUser(newUsername))
+			return false;
+
+		signOut();
+		return true;
 	}
 
 	/**
