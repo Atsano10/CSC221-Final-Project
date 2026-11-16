@@ -1,4 +1,8 @@
 import java.util.List;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Formats reports to console or files so that everything is readable.
@@ -56,7 +60,9 @@ public class Reports {
      * @param report The report to display.
      * @author Lhamu
      */
-    public void displayReport(String report) {}
+    public void displayReport(String report) {
+		System.out.println(report);
+	}
 
     
     /**
@@ -66,7 +72,19 @@ public class Reports {
      * @param fileName The name of the output file.
      * @author Lhamu
      */
-    public void exportReport(String report, String fileName) {}
+    public void exportReport(String report, String fileName) {
+		try (BufferedWriter writer =
+            Files.newBufferedWriter(Path.of(fileName))) {
+
+        writer.write(report);
+
+    } catch (IOException e) {
+        System.err.println("Error exporting report: " + e.getMessage());
+        return;
+    }
+
+    System.out.println("Report exported successfully.");
+	}
 
     
     /**
