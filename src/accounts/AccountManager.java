@@ -62,20 +62,20 @@ public final class AccountManager {
 
 		// Unsure of whether I need to validate the enum itself for if null or not.
 
-		// Validates not null/empty. 
+		// Validates not null/empty.
 		// Subject to change depending on integration team's decisions.
-		String[] strParams = {username, password, answer};
+		String[] strParams = { username, password, answer };
 
 		for (int i = 0; i < strParams.length; i++) {
 			String oldArg = strParams[i];
-			String newArg = validateString(oldArg);
-			if (newArg == null){
+			String newArg = validationValidateString(oldArg);
+			if (newArg == null) {
 				return false;
 			}
 			strParams[i] = newArg;
 		}
 
-		// Validation loop from validation team. 
+		// Validation loop from validation team.
 		// Subject to change depending on integration team's decisions.
 		String newUsername = strParams[0];
 		String newPassword = strParams[1];
@@ -100,6 +100,8 @@ public final class AccountManager {
 		if (!storageSaveUser(newUsername, hashedPassword, question.getQuestionText(), hashedAnswer))
 			return false;
 
+		currentUser = newUsername;
+
 		return true;
 	}
 
@@ -115,15 +117,15 @@ public final class AccountManager {
 	 */
 	public static boolean deleteUser(String password, String securityAnswer) {
 
-		// Validates not null/empty. 
+		// Validates not null/empty.
 		// Subject to change depending on integration team's decisions.
 		String username = getCurrentUser();
-		String[] strParams = {username, password, securityAnswer};
+		String[] strParams = { username, password, securityAnswer };
 
 		for (int i = 0; i < strParams.length; i++) {
 			String oldArg = strParams[i];
-			String newArg = validateString(oldArg);
-			if (newArg == null){
+			String newArg = validationValidateString(oldArg);
+			if (newArg == null) {
 				return false;
 			}
 			strParams[i] = newArg;
@@ -133,16 +135,18 @@ public final class AccountManager {
 		String newPassword = strParams[1];
 		String newAnswer = strParams[2];
 
+		if (!verifyUsername(newUsername))
+			return false;
 		if (!verifyIdentity(newUsername, newPassword, AuthType.PASSWORD))
 			return false;
 		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
 			return false;
 
-		if (username == null) {
+		if (!storageDeleteUser(newUsername))
 			return false;
-		}
 
-		return false;
+		signOut();
+		return true;
 	}
 
 	/**
@@ -155,25 +159,21 @@ public final class AccountManager {
 	 * @author Darren
 	 */
 	public static boolean signIn(String username, String password) {
-		
-		// DO NOT FORGET TO IMPORT VALIDATION IN THE STUBS WHEN VALIDATE IS DONE.
-	
-		// This will check false for the validation teams methods
-		if (validateUsername(username) == false || validatePassword(password) == false) {
-			return false;
-		}
-		
-		// We will be trimming personally since they aren't working with the DB, they are only checking if it works or not.
-		String validatedUser = username.trim();
-		String validatedPass = password.trim();
-		
-		// 
-		if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
-			return false;
-		}
-		
-		currentUser = validatedUser;
-		return true;
+
+	    String validatedUser = validationValidateString(username);
+	    String validatedPass = validationValidateString(password);
+
+	    if (validatedUser == null || validatedPass == null) {
+	        return false;
+	    }
+
+	    if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
+	        return false;
+	    }
+
+	    currentUser = validatedUser;
+
+	    return true;
 	}
 
 	/**
@@ -196,7 +196,27 @@ public final class AccountManager {
 	 * @author Darren
 	 */
 	public static boolean changePassword(String username, String answer, String newPassword) {
-		return false;
+
+	    String validatedUser = validationValidateString(username);
+	    String validatedAnswer = validationValidateString(answer);
+	    String validatedPass = validationValidateString(newPassword);
+
+	    if (validatedUser == null || validatedAnswer == null || validatedPass == null) {
+	        return false;
+	    }
+
+	    if (!validationValidatePassword(validatedPass)) {
+	        return false;
+	    }
+
+	    if (!verifyIdentity(validatedUser, validatedAnswer, AuthType.SECURITY_ANSWER)) {
+	        return false;
+	    }
+
+	    String hashedPass = hashPlaintext(validatedPass);
+	    storageUpdatePass(validatedUser, hashedPass);
+
+	    return true;
 	}
 
 	/**
@@ -210,14 +230,32 @@ public final class AccountManager {
 	 * 
 	 * @author Darren
 	 */
-	public static boolean changeSecuritySetup(String password, String newQuestion, String newAnswer) {
-		String username = getCurrentUser();
+	public static boolean changeSecuritySetup(String password, SecurityQuestion newQuestion, String newAnswer) {
+	    String username = getCurrentUser();
 
-		if (username == null) {
-			return false;
-		}
+	    if (username == null || newQuestion == null) {
+	        return false;
+	    }
 
-		return false;
+	    String validatedPass = validationValidateString(password);
+	    String validatedAnswer = validationValidateString(newAnswer);
+
+	    if (validatedPass == null || validatedAnswer == null) {
+	        return false;
+	    }
+
+	    if (!validationValidateAnswer(validatedAnswer)) {
+	        return false;
+	    }
+
+	    if (!verifyIdentity(username, validatedPass, AuthType.PASSWORD)) {
+	        return false;
+	    }
+
+	    String hashedAnswer = hashPlaintext(validatedAnswer);
+	    storageUpdateQnA(username, newQuestion.getQuestionText(), hashedAnswer);
+
+	    return true;
 	}
 
 	/**
@@ -375,31 +413,7 @@ public final class AccountManager {
 		return comparePlaintextToHash(plaintext, storedHash);
 	}
 
-	// TODO: Consider changing the return values to not return null but instead,
-	// raise an error so that logic on "if null" does not have to be rewritten
-	// every time this function is called to validate general string inputs.
-	// ANOTHER consideration could be to write another helper function that accepts
-	// any number of arguments through varargs and returns a string ArrayList 
-	// that will raise an error to avoid rewriting the loop.
-	// Subject to change depending on integration team's decisions.
-	/**
-	 * Checks that a string is not null, empty, or only whitespace, and returns
-	 * the trimmed string.
-	 * 
-	 * @param input The string to validate.
-	 * @return The trimmed string, or null if invalid.
-	 * 
-	 * @author Ronnie
-	 */
-	static String validateString(String input) {
-		// Checks if the input string is null, empty, or whitespace-only.
-		if (input == null || input.trim().isEmpty()) {
-			return null;
-		}
-		return input.trim();
-	}
-
-	// ---------------- STORAGE STUBS NEEDED -----------------
+i	// ---------------- STORAGE STUBS NEEDED -----------------
 
 	// Container for user credentials returned from storage.
 	static record StoredUser(String hashedPassword, String question, String hashedAnswer) {
@@ -438,6 +452,11 @@ public final class AccountManager {
 	}
 
 	// --------------- VALIDATION STUBS NEEDED ---------------
+
+	// Validates and sanitizes general string requirements with validation team.
+	private static String validationValidateString(String input) {
+    	return input;
+	}
 
 	// Validates username requirements with validation team.
 	private static boolean validationValidateUserName(String username) {
