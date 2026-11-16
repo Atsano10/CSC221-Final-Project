@@ -12,6 +12,8 @@ public enum SecurityQuestion {
     BIRTH_CITY("In what city were you born?"),
 
     ELEMENTARY_SCHOOL("What elementary school did you attend?"),
+
+	FAV_POKEMON("What is your favorite pokemon?"),	
 	
     HS_MASCOT("What creature was your high school mascot?"),
 
