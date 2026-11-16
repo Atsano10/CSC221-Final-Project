@@ -1,5 +1,6 @@
 package integration;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 import accounts.AccountManager;
 import accounts.SecurityQuestion;
 
@@ -25,37 +26,38 @@ class MenuController {
 			System.out.println("2. Login");
 			System.out.println("3. Help");
 			System.out.println("4. Exit");
+			MenuController.doMenuAction(MenuController.getMenuSelection(4));
 		} else {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. ");
 			System.out.println("2. ");
 			System.out.println("3. Options");
 			System.out.println("4. Exit");
-		} MenuController.doMenuAction(MenuController.getMenuSelection());
+			MenuController.doMenuAction(MenuController.getMenuSelection(4));
+		} 
 	}
 	
   /** 
     * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
 	* 
+	* @param The number of choices the menu will have. This allows this function to be used for menus with varying choice sizes.
 	* @return An int from 1 - [number of menu options] chosen by the user
 	* @author Bilal
 	*/
-	static int getMenuSelection() {
-		Scanner input = new Scanner(System.in);
-		String strSelection;
+	static int getMenuSelection(int choices) {
 		int selection;
 		
-		System.out.println("\nSelect from the menu");
+		System.out.println("\nSelect: ");
 	
 		while (true) {
-			strSelection = input.nextLine();
+			Scanner input = new Scanner(System.in);
 			try {
-				 selection = Integer.parseInt(strSelection);
-			} catch (NumberFormatException e) {
+				 selection = input.nextInt();
+			} catch (InputMismatchException e) {
 				System.out.println("Try again.");
 				continue;
 			} 
-			if (selection > 4 || selection < 1) {
+			if (selection > choices || selection < 1) {
 				System.out.println("Try again.");
 				continue;
 			} input.close();
@@ -63,27 +65,6 @@ class MenuController {
 		}
 	}
 
- /**
-   * Calls this function if the user selects register. This method calls the registerUser method from the AccountManager class after getting parameters.
-   *
-   * @author Bilal
-   */
-	static void handleRegister() {
-		Scanner input = new Scanner(System.in);
-		String username;
-		String password;
-		
-		System.out.println("Username: ");
-		username = input.nextLine();
-		System.out.println("Password: ");
-		password = input.nextLine();
-
-		input.close();
-
-		AccountManager.registerUser(username, password);
-			
-	}
-	
   /** 
     * Prints the next menu based on selection parameter if applicable,
     * otherwise does the relevant menu action by calling methods from other classes
@@ -92,10 +73,9 @@ class MenuController {
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) {
-		if (selection == 1) {
-			MenuController.handleRegister();
-		} else if (selection == 4) {
-			MenuController.handleExit();
+		switch (selection) {
+			case 1 -> MenuController.handleRegister();
+			case 4 -> MenuController.handleExit();
 		}
 	}
 	
@@ -110,6 +90,50 @@ class MenuController {
     */
 	static String promptForFilePath() {
 		return path;
+	}
+	
+ /**
+   * Calls this function if the user selects register. This method takes input from the user 
+   * for username, password, security question, and answer. Then it passes these as parameters 
+   * to the registerUser method from the AccountManager class.
+   *
+   * @author Bilal
+   */
+	static void handleRegister() {
+		String username = null;
+		String password = null;
+		SecurityQuestion question = null;
+		String answer = null;
+		
+		Scanner input = new Scanner(System.in);
+		
+		System.out.println("Choose a username: ");
+		username = input.nextLine();
+		System.out.println("Choose a password: ");
+		password = input.nextLine();
+		
+		int i = 0;
+		for (SecurityQuestion sq : SecurityQuestion.values()) {
+			i++;
+			System.out.println(i + ". " + sq.getQuestionText());
+		} 
+		
+		int selection = MenuController.getMenuSelection(i)
+
+		switch (selection) {
+			case 1 -> question = SecurityQuestion.FIRST_PET;
+			case 2 -> question = SecurityQuestion.MOTHER_MAIDEN_NAME;
+			case 3 -> question = SecurityQuestion.BIRTH_CITY;
+			case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
+			case 5 -> question = SecurityQuestion.FIRST_CAR;
+		}
+
+		System.out.println("Answer for your security question: ");
+		answer = input.nextLine();
+		
+		input.close();
+		
+		AccountManager.registerUser(username, password, question, answer);
 	}
 	
 	/**
