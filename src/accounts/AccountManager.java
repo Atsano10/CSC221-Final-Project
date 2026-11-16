@@ -282,7 +282,7 @@ public final class AccountManager {
 			}
 
 
-			return question;
+			return user.question();
 		}
 
 	/**
