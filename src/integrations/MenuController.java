@@ -89,8 +89,19 @@ class MenuController {
 	* @author Apostolos Tsano
     */
 	static String promptForFilePath() {
-		return path;
+		while ( true ){
+			System.out.println( "Enter the path of the file you wish to look for: " );
+			String path = input.nextLine().trim();
+
+			// Trims white space and quotes.
+			if ( path.startsWith("\"") && path.endsWith("\"") && path.length() > 1 ) {
+				path = path.substring( 1, path.length() - 1 )
+			}
+			if (!path.isEmpty()) return path;
+        	System.out.println("Path cannot be empty. Try again.");
+    	}
 	}
+			
 	
  /**
    * Calls this function if the user selects register. This method takes input from the user 
@@ -208,7 +219,28 @@ class MenuController {
      * @author Apostolos Tsano
      */
 	static void handleDeleteAccount() {
+		String username = AccountManager.getCurrentUser();
+		System.out.println("This permanently deletes your account and all its data.");
+	    System.out.println("Are you sure? (y/n)");
+	    if (!promptYesOrNo()) {
+	        System.out.println("Account deletion cancelled.");
+	        return;
+	    }
 
+		// If yes
+	    System.out.println("Enter your password: ");
+	    String password = input.nextLine();
+	    String question = AccountManager.getSecurityQuestion();
+	    System.out.println(question != null ? question : "Enter your security answer: ");
+	    String answer = input.nextLine();
+	
+	    if (AccountManager.deleteUser(password, answer)) {
+	        // Somehow delete the data stored for the username.
+	        System.out.println("Your account has been deleted.");
+	        handleLogout();
+	    } else {
+	        System.out.println("Deletion failed: incorrect password or security answer.");
+	    }
 	}
 	
 	/**
@@ -222,7 +254,9 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleLogout() {
-
+		AccountManager.singOut();
+		// Need to clear the data somehow.
+		Sysmte.out.println( "You have logged out.\n");
 	}
 
 	/**
@@ -235,6 +269,27 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleExit() {
-	
+		if (AccountManager.getCurrentUser() != null) {
+	        AccountManager.signOut();
+	    }
+	    System.out.println("Goodbye, hope to see you soon!");
+	    input.close();
+	    System.exit(0);
 	}
+
+	/**
+	 * Allows the user to make choices.
+	 * 
+	 * Yes or no prompting,
+	 *
+	 * @author Apostolos Tsano
+	 */
+	static boolean promptYesOrNo() {
+    while (true) {
+        String response = input.nextLine().trim().toLowerCase();
+        if (response.equals("y") || response.equals("yes")) return true;
+        if (response.equals("n") || response.equals("no")) return false;
+        System.out.println("Please enter y or n: ");
+    }
+}
 }
