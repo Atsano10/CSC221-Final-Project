@@ -1,5 +1,7 @@
 package integration;
-import java.utils.Scanner;
+import java.util.Scanner;
+import accounts.AccountManager;
+import accounts.SecurityQuestion;
 
 /**
   * Displays the main user menu and actions post authentication such as file reading
@@ -29,7 +31,7 @@ class MenuController {
 			System.out.println("2. ");
 			System.out.println("3. Options");
 			System.out.println("4. Exit");
-		} doMenuAction(getMenuSelection());
+		} MenuController.doMenuAction(MenuController.getMenuSelection());
 	}
 	
   /** 
@@ -62,13 +64,24 @@ class MenuController {
 	}
 
  /**
-   * Prompt the user to confirm (yes) or deny (no) with user input; helper function for many menu interactions
+   * Calls this function if the user selects register. This method calls the registerUser method from the AccountManager class after getting parameters.
    *
-   * @return Either the string "yes" or the string "no" chosen by the user
    * @author Bilal
    */
-	static String promptYesOrNo() {
-		return choice;
+	static void handleRegister() {
+		Scanner input = new Scanner(System.in);
+		String username;
+		String password;
+		
+		System.out.println("Username: ");
+		username = input.nextLine();
+		System.out.println("Password: ");
+		password = input.nextLine();
+
+		input.close();
+
+		AccountManager.registerUser(username, password);
+			
 	}
 	
   /** 
@@ -79,12 +92,10 @@ class MenuController {
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) {
-		if (selection == 4) {
-			System.out.println("1. Change password");
-			System.out.println("2. Set security question");
-			System.out.println("3. Logout");
-		} else if (selection == 5) {
-			System.exit(0);
+		if (selection == 1) {
+			MenuController.handleRegister();
+		} else if (selection == 4) {
+			MenuController.handleExit();
 		}
 	}
 	
