@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.List;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,8 +14,14 @@ import java.nio.file.Path;
  * @author Tasfia
  */
 
-public class Reports {
-
+public final class Reports {
+	
+	/**
+	 * Private constructor so Reports class cannot be instantiated.
+	 */
+	
+	private Reports() {}
+	
 	/**
 	 * Generates a formatted annual summary analysis report.
 	 * The report will have monthly income and expense totals,
@@ -23,9 +30,197 @@ public class Reports {
 	 * @param budget The annual budget being analyzed.
 	 * @return A formatted annual summary report.
 	 * @author Rehmil
+	 * @author Lhamu
 	 */
 	public String formatSummaryAnalysis(Budget budget) {
-		return null;}
+		
+		// CALCULATIONS ---
+		String[] months = {
+			"January", "February", "March", "April", "May", "June",
+			"July", "August", "September", "October", "November", "December"
+		};
+		
+		int[] monthlyExpenses = new int[12];
+		int[] monthlyIncome = new int[12];
+		
+		int totalExpenses = 0;
+		int totalIncome = 0;
+		
+		
+		String[] expensesCategories = {
+			"Home", "Utilities", "Food", "Appearance", "Work", "Education",
+			"Transportation", "Entertainment", "Professional Services", "Other"
+		};
+		
+		String[] incomeCategories = {
+			"Compensation", "Allowance", "Investments", "Other"
+		};
+		
+		int[] incomeCategoryTotals = new int[incomeCategories.length];
+		int[] expensesCategoryTotals = new int[expensesCategories.length];
+		
+		
+		
+		int n = budget.transactions().size();
+		int month;
+		List<BudgetTransaction> transaction = budget.transactions();
+		
+
+		for (int i = 0; i < n; ++i) {
+			
+			BudgetTransaction t = transaction.get(i);
+			month = (t.date().getMonthValue()) - 1;
+			
+			// Calculations for monthly income totals. ---
+			if (t.amount() > 0) {
+				monthlyIncome[month] += t.amount();
+
+				// Calculations for income category totals. ---
+				for (int j = 0; j < incomeCategories.length; ++j) {
+					if (t.category().equals(incomeCategories[j])) {
+						incomeCategoryTotals[j] += t.amount();
+						break;
+					}
+				}
+			}
+			
+			// Calculations for monthly income totals. ---
+			else {
+				monthlyExpenses[month] += transaction.get(i).amount();
+				
+				// Calculations for expenses category totals. ---
+				for (int j = 0; j < expensesCategories.length; ++j) {
+					if (t.category().equals(expensesCategories[j])) {
+						expensesCategoryTotals[j] += t.amount();
+						break;
+					}
+				}
+			}
+		}
+		
+		
+		// Calculations for monthly totals. ---
+		
+		for (int i = 0; i < 12; ++i) {
+			totalExpenses += monthlyExpenses[i];
+			totalIncome += monthlyIncome[i];
+		}
+		
+		// FORMATTING ---
+		StringBuilder report = new StringBuilder();
+		String newLine = System.lineSeparator();
+		
+		report.append("======== ANNUAL SUMMARY ANALYSIS REPORT ========").append(newLine).append(newLine);
+		report.append("Year: "+ budget.year()).append(newLine).append(newLine).append(newLine);
+		
+		// Formatting monthly totals. ---
+		report.append("MONTHLY TOTALS --------------").append(newLine).append(newLine);
+		
+		for (int i = 0; i < 12; ++i) {
+			report.append(months[i]).append(newLine);
+			
+			// Format monthly income. ---
+			report.append("Income: ");
+			if (monthlyIncome[i] == 0) {
+				report.append("Information unavailable").append(newLine);
+			}
+			else {
+				report.append("$" + monthlyIncome[i]).append(newLine);
+			}
+			
+			// Format monthly expenses. ---
+			report.append("Expenses: ");
+			if (monthlyExpenses[i] == 0) {
+				report.append("Information unavailable").append(newLine);
+			}
+			else {
+				report.append("$" + Math.abs(monthlyExpenses[i])).append(newLine);
+			}
+			
+			// Format net monthly income. --- 
+			report.append("Net: ");
+			if ((monthlyIncome[i] == 0) && (monthlyExpenses[i] == 0)) {
+				report.append("Information unavailable").append(newLine);
+			}
+			else {
+				int net = monthlyIncome[i] + monthlyExpenses[i];
+				if (net < 0) {
+					report.append("-$" + Math.abs(net)).append(newLine);
+				}
+				else {
+					report.append("$" + net).append(newLine);
+				}
+			}
+			
+			report.append(newLine);
+		}
+		
+		report.append(newLine);
+		
+		  // Format category totals. ---
+	    report.append("CATEGORY TOTALS ----------------")
+	          .append(newLine).append(newLine);
+
+	    // Format income category totals. ---
+	    report.append("Income by Category:")
+	          .append(newLine);
+
+	    for (int i = 0; i < incomeCategories.length; i++) {
+	        report.append(incomeCategories[i])
+	        report.append(": $")
+	        report.append(incomeCategoryTotals[i])
+	        report.append(newLine);
+	    }
+
+	    report.append(newLine);
+
+	    // Format expenses category totals. ---
+	    report.append("Expenses by Category:")
+	    report.append(newLine);
+
+	    for (int i = 0; i < expensesCategories.length; i++) {
+	        report.append(expensesCategories[i])
+	        report.append(": $")
+	        report.append(Math.abs(expensesCategoryTotals[i]))
+	        report.append(newLine);
+	    }
+
+	    report.append(newLine);
+
+	    // Format overall performance. ---
+	    report.append("OVERALL PERFORMANCE ----------------")
+	    report.append(newLine).append(newLine);
+
+	    // Format total income. ---
+	    report.append("Total Income: $")
+	    report.append(totalIncome)
+	    report.append(newLine);
+
+	    // Format total expenses. ---
+	    report.append("Total Expenses: $")
+	    report.append(Math.abs(totalExpenses))
+	    report.append(newLine);
+
+	    // Determine + format if surplus or deficit. ---
+	    int net = totalIncome + totalExpenses;
+
+	    if (net > 0) {
+	        report.append("Surplus: $")
+	        report.append(net)
+	        report.append(newLine);
+	    }
+	    else if (net < 0) {
+	        report.append("Deficit: $")
+	        report.append(Math.abs(net))
+	        report.append(newLine);
+	    }
+	    else {
+	        report.append("Balanced: $0")
+	        report.append(newLine);
+	    }
+	    
+		return report.toString();
+	}
 
 
     /**
@@ -37,8 +232,10 @@ public class Reports {
      * @return A formatted validation report.
      * @author Chime
      */
-    public String formatValidationReport(List<String> validationErrors) {
-		return null;}
+	public String formatValidationReport(List<String> validationErrors) {
+		return null;
+	}
+
 
     
     /**
@@ -61,8 +258,8 @@ public class Reports {
      * @author Lhamu
      */
     public void displayReport(String report) {
-		System.out.println(report);
-	}
+    	System.out.println(report);
+    }
 
     
     /**
@@ -73,18 +270,19 @@ public class Reports {
      * @author Lhamu
      */
     public void exportReport(String report, String fileName) {
-		try (BufferedWriter writer =
-            Files.newBufferedWriter(Path.of(fileName))) {
+    	try (BufferedWriter writer =
+                Files.newBufferedWriter(Path.of(fileName))) {
 
-        writer.write(report);
+            writer.write(report);
 
-    } catch (IOException e) {
-        System.err.println("Error exporting report: " + e.getMessage());
-        return;
-    }
+        } catch (IOException e) {
+            System.err.println("Error exporting report: " + e.getMessage());
+            return;
+        }
 
-    System.out.println("Report exported successfully.");
-	}
+        System.out.println("Report exported successfully.");
+    	}
+    
 
     
     /**
@@ -96,7 +294,8 @@ public class Reports {
      * @author Rehmil
      */
     public String cancelStatement(String operation) {
-		return null;}
+		return "Operation Cancelled: " + operation;
+		}
 
 
 }
