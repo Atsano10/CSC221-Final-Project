@@ -209,11 +209,11 @@ class MenuController {
 	/**
      * Handles the deletion of the currently logged in account.
 	 *
-	 * Prompts the user to confirm the deletion using {@link #promptYesOrNo()}.
+	 * Prompts the user to confirm the deletion using {@link #isYesNo()}.
 	 * If the user confirms, then all the data associated with the account is deleted, and the user is logged out.
 	 * If the user clicks "no", no further changes are made.
 	 *
-	 * @see #promptYesOrNo()
+	 * @see #isYesNo()
 	 * @see #handleLogout()
      * 
      * @author Apostolos Tsano
@@ -222,7 +222,7 @@ class MenuController {
 		String username = AccountManager.getCurrentUser();
 		System.out.println("This permanently deletes your account and all its data.");
 	    System.out.println("Are you sure? (y/n)");
-	    if (!promptYesOrNo()) {
+	    if (!isYesNo()) {
 	        System.out.println("Account deletion cancelled.");
 	        return;
 	    }
@@ -284,7 +284,7 @@ class MenuController {
 	 *
 	 * @author Apostolos Tsano
 	 */
-	static boolean promptYesOrNo() {
+	static boolean isYesNo() {
     while (true) {
         String response = input.nextLine().trim().toLowerCase();
         if (response.equals("y") || response.equals("yes")) return true;
