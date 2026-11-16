@@ -413,7 +413,7 @@ public final class AccountManager {
 		return comparePlaintextToHash(plaintext, storedHash);
 	}
 
-i	// ---------------- STORAGE STUBS NEEDED -----------------
+	// ---------------- STORAGE STUBS NEEDED -----------------
 
 	// Container for user credentials returned from storage.
 	static record StoredUser(String hashedPassword, String question, String hashedAnswer) {
