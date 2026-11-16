@@ -62,20 +62,20 @@ public final class AccountManager {
 
 		// Unsure of whether I need to validate the enum itself for if null or not.
 
-		// Validates not null/empty. 
+		// Validates not null/empty.
 		// Subject to change depending on integration team's decisions.
-		String[] strParams = {username, password, answer};
+		String[] strParams = { username, password, answer };
 
 		for (int i = 0; i < strParams.length; i++) {
 			String oldArg = strParams[i];
-			String newArg = validateString(oldArg);
-			if (newArg == null){
+			String newArg = validationValidateString(oldArg);
+			if (newArg == null) {
 				return false;
 			}
 			strParams[i] = newArg;
 		}
 
-		// Validation loop from validation team. 
+		// Validation loop from validation team.
 		// Subject to change depending on integration team's decisions.
 		String newUsername = strParams[0];
 		String newPassword = strParams[1];
@@ -115,15 +115,15 @@ public final class AccountManager {
 	 */
 	public static boolean deleteUser(String password, String securityAnswer) {
 
-		// Validates not null/empty. 
+		// Validates not null/empty.
 		// Subject to change depending on integration team's decisions.
 		String username = getCurrentUser();
-		String[] strParams = {username, password, securityAnswer};
+		String[] strParams = { username, password, securityAnswer };
 
 		for (int i = 0; i < strParams.length; i++) {
 			String oldArg = strParams[i];
-			String newArg = validateString(oldArg);
-			if (newArg == null){
+			String newArg = validationValidateString(oldArg);
+			if (newArg == null) {
 				return false;
 			}
 			strParams[i] = newArg;
@@ -155,25 +155,26 @@ public final class AccountManager {
 	 * @author Darren
 	 */
 	public static boolean signIn(String username, String password) {
-		
+
 		// DO NOT FORGET TO IMPORT VALIDATION IN THE STUBS WHEN VALIDATE IS DONE.
-	
+
 		// This will check false for the validation teams methods
 		if (validationValidateUserName(username) == false || validationValidatePassword(password) == false) {
 			return false;
 		}
-		
-		// We will be trimming personally since they aren't working with the DB, they are only checking if it works or not.
+
+		// We will be trimming personally since they aren't working with the DB, they
+		// are only checking if it works or not.
 		String validatedUser = username.trim();
 		String validatedPass = password.trim();
-		
+
 		// Double check if AuthType.PASSWORD is correct.
 		if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
 			return false;
 		}
-		
+
 		currentUser = validatedUser;
-		
+
 		return true;
 	}
 
@@ -197,22 +198,23 @@ public final class AccountManager {
 	 * @author Darren
 	 */
 	public static boolean changePassword(String username, String answer, String newPassword) {
-		
-		if (validationValidateUserName(username) == false || validationValidateAnswer(answer) == false || validationValidatePassword(newPassword)) {
+
+		if (validationValidateUserName(username) == false || validationValidateAnswer(answer) == false
+				|| validationValidatePassword(newPassword)) {
 			return false;
 		}
-		
+
 		String validatedUser = username.trim();
 		String validatedAnswer = answer.trim();
-		String validatedPass = newPassword.trim();	
-		
+		String validatedPass = newPassword.trim();
+
 		if (!verifyIdentity(validatedUser, validatedAnswer, AuthType.SECURITY_ANSWER)) {
 			return false;
 		}
-		
+
 		String hashedPass = hashPlaintext(validatedPass);
 		storageUpdatePass(validatedUser, hashedPass);
-		
+
 		return true;
 	}
 
@@ -233,21 +235,21 @@ public final class AccountManager {
 		if (username == null || newQuestion == null) {
 			return false;
 		}
-		
+
 		if (!validationValidateAnswer(newAnswer) == false || validationValidatePassword(password)) {
 			return false;
 		}
-		
+
 		String validatedAnswer = newAnswer.trim();
-		String validatedPass = password.trim();	
-		
+		String validatedPass = password.trim();
+
 		if (!verifyIdentity(username, validatedPass, AuthType.PASSWORD)) {
 			return false;
 		}
-		
+
 		String hashedAnswer = hashPlaintext(validatedAnswer);
 		storageUpdateQnA(username, newQuestion, hashedAnswer);
-		
+
 		return true;
 	}
 
@@ -406,30 +408,6 @@ public final class AccountManager {
 		return comparePlaintextToHash(plaintext, storedHash);
 	}
 
-	// TODO: Consider changing the return values to not return null but instead,
-	// raise an error so that logic on "if null" does not have to be rewritten
-	// every time this function is called to validate general string inputs.
-	// ANOTHER consideration could be to write another helper function that accepts
-	// any number of arguments through varargs and returns a string ArrayList 
-	// that will raise an error to avoid rewriting the loop.
-	// Subject to change depending on integration team's decisions.
-	/**
-	 * Checks that a string is not null, empty, or only whitespace, and returns
-	 * the trimmed string.
-	 * 
-	 * @param input The string to validate.
-	 * @return The trimmed string, or null if invalid.
-	 * 
-	 * @author Ronnie
-	 */
-	static String validateString(String input) {
-		// Checks if the input string is null, empty, or whitespace-only.
-		if (input == null || input.trim().isEmpty()) {
-			return null;
-		}
-		return input.trim();
-	}
-
 	// ---------------- STORAGE STUBS NEEDED -----------------
 
 	// Container for user credentials returned from storage.
@@ -469,6 +447,11 @@ public final class AccountManager {
 	}
 
 	// --------------- VALIDATION STUBS NEEDED ---------------
+
+	// Validates and sanitizes general string requirements with validation team.
+	private static String validationValidateString(String input) {
+    	return null;
+	}
 
 	// Validates username requirements with validation team.
 	private static boolean validationValidateUserName(String username) {
