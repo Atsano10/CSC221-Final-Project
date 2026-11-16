@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Locale.Category;
 
@@ -9,7 +11,7 @@ import java.util.Locale.Category;
  * @author Hamet
  */
 public class DataAudit {
-    private final double ANOMALYBOUND = 0.05;  
+    private final double ANOMALYBOUND = 2.5;  
 
     /**
      * Create data audit object
@@ -46,10 +48,36 @@ public class DataAudit {
      * @param budgetFile transaction data
      * @return list of anomaly entries
      * 
-     * @author Haoyang 
+     * @author Hamet 
      */
     public ArrayList<AuditFinding> findAnomalies(Budget budgetFile, ArrayList<String> exclusion){
-        return new ArrayList<>();
+        ArrayList<AuditFinding> anamolies = new ArrayList<>();
+        double median;
+        List<BudgetTransaction> copy = new ArrayList<>(budgetFile.transactions());
+        for (int i = 0; i < copy.size(); i++) {
+            if (exclusion.contains(copy.get(i).category())) {
+                copy.remove(i);
+                i--;
+                continue;
+            }
+        }
+        Collections.sort(copy, (a, b) -> Integer.compare(Math.abs(a.amount()), Math.abs(b.amount())));
+        if (copy.size() % 2 == 0) {
+            median = (Math.abs(copy.get((copy.size() / 2) - 1).amount()) + Math.abs(copy.get(copy.size() / 2).amount())) / 2.0;
+        }
+        else {
+            median = Math.abs(copy.get(copy.size() / 2).amount());
+        }
+        double bound = ANOMALYBOUND * median;
+        for (int i = 0; i < copy.size(); i++) {
+            if (Math.abs(copy.get(i).amount()) > bound) {
+                FindingType type = FindingType.ANOMALY;
+                String reason = String.format("Amount %d is out of normal range", copy.get(i).amount());
+                AuditFinding temp = new AuditFinding(copy.get(i).category(), type, reason );
+                anamolies.add(temp);
+            }
+        }
+        return anamolies;
     };
     /**
      * Asks user which categories they want to leave out in audit
