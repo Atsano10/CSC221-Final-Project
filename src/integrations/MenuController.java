@@ -65,6 +65,33 @@ class MenuController {
 		}
 	}
 
+  /** 
+    * Prints the next menu based on selection parameter if applicable,
+    * otherwise does the relevant menu action by calling methods from other classes
+	*
+	* @param The selection the user made fetched by the getMenuSelection method
+	* @author Bilal
+	*/
+	static void doMenuAction(int selection) {
+		switch (selection) {
+			case 1 -> MenuController.handleRegister();
+			case 4 -> MenuController.handleExit();
+		}
+	}
+	
+  /**
+	* 
+    * Prompts the user to enter the path of the file to be read.
+	* 
+	*
+	* @return The file path which is set by the user.
+	* 
+	* @author Apostolos Tsano
+    */
+	static String promptForFilePath() {
+		return path;
+	}
+	
  /**
    * Calls this function if the user selects register. This method takes input from the user 
    * for username, password, security question, and answer. Then it passes these as parameters 
@@ -107,33 +134,6 @@ class MenuController {
 		input.close();
 		
 		AccountManager.registerUser(username, password, question, answer);
-	}
-	
-  /** 
-    * Prints the next menu based on selection parameter if applicable,
-    * otherwise does the relevant menu action by calling methods from other classes
-	*
-	* @param The selection the user made fetched by the getMenuSelection method
-	* @author Bilal
-	*/
-	static void doMenuAction(int selection) {
-		switch (selection) {
-			case 1 -> MenuController.handleRegister();
-			case 4 -> MenuController.handleExit();
-		}
-	}
-	
-  /**
-	* 
-    * Prompts the user to enter the path of the file to be read.
-	* 
-	*
-	* @return The file path which is set by the user.
-	* 
-	* @author Apostolos Tsano
-    */
-	static String promptForFilePath() {
-		return path;
 	}
 	
 	/**
