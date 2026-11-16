@@ -5,20 +5,23 @@
  */
 public enum SecurityQuestion {
 
-	// Question about user's first pet
-	FIRST_PET("What was the name of your first pet?"),
+    FIRST_PET("What was the name of your first pet?"),
 
-	// Question about user's mother's maiden name
-	MOTHER_MAIDEN_NAME("What is your mother's maiden name?"),
+    TASTY_ROCK("In your questionable mind, what is the tastiest looking rock?"),
 
-	// Question about user's birthplace
-	BIRTH_CITY("In what city were you born?"),
+    BIRTH_CITY("In what city were you born?"),
 
-	// Question about user's elementary school
-	ELEMENTARY_SCHOOL("What elementary school did you attend?"),
+    ELEMENTARY_SCHOOL("What elementary school did you attend?"),
+	
+    HS_MASCOT("What creature was your high school mascot?"),
 
-	// Question about user's first car
-	FIRST_CAR("What was the make of your first car?");
+    SOCCER_PLAYER("Look its as simple as: Messi or Ronaldo?"),
+
+    DONE_DREAMS("In what year did you abandon your dreams?"),
+
+    BEST_FRIEND("What is the name of your best friend?"),
+
+    FOX_WORDS("You definitely know this one, or you don't, but what does the fox say?");
 
 	private final String questionText;
 
