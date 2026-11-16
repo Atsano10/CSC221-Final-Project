@@ -133,16 +133,14 @@ public final class AccountManager {
 		String newPassword = strParams[1];
 		String newAnswer = strParams[2];
 
+		if (!verifyUsername(newUsername))
+			return false;
 		if (!verifyIdentity(newUsername, newPassword, AuthType.PASSWORD))
 			return false;
 		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
 			return false;
 
-		if (username == null) {
-			return false;
-		}
-
-		return false;
+		return storageDeleteUser(newUsername);
 	}
 
 	/**
