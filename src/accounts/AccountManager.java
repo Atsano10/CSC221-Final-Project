@@ -156,26 +156,20 @@ public final class AccountManager {
 	 */
 	public static boolean signIn(String username, String password) {
 
-		// DO NOT FORGET TO IMPORT VALIDATION IN THE STUBS WHEN VALIDATE IS DONE.
+	    String validatedUser = validationValidateString(username);
+	    String validatedPass = validationValidateString(password);
 
-		// This will check false for the validation teams methods
-		if (validationValidateUserName(username) == false || validationValidatePassword(password) == false) {
-			return false;
-		}
+	    if (validatedUser == null || validatedPass == null) {
+	        return false;
+	    }
 
-		// We will be trimming personally since they aren't working with the DB, they
-		// are only checking if it works or not.
-		String validatedUser = username.trim();
-		String validatedPass = password.trim();
+	    if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
+	        return false;
+	    }
 
-		// Double check if AuthType.PASSWORD is correct.
-		if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
-			return false;
-		}
+	    currentUser = validatedUser;
 
-		currentUser = validatedUser;
-
-		return true;
+	    return true;
 	}
 
 	/**
@@ -199,23 +193,26 @@ public final class AccountManager {
 	 */
 	public static boolean changePassword(String username, String answer, String newPassword) {
 
-		if (validationValidateUserName(username) == false || validationValidateAnswer(answer) == false
-				|| validationValidatePassword(newPassword)) {
-			return false;
-		}
+	    String validatedUser = validationValidateString(username);
+	    String validatedAnswer = validationValidateString(answer);
+	    String validatedPass = validationValidateString(newPassword);
 
-		String validatedUser = username.trim();
-		String validatedAnswer = answer.trim();
-		String validatedPass = newPassword.trim();
+	    if (validatedUser == null || validatedAnswer == null || validatedPass == null) {
+	        return false;
+	    }
 
-		if (!verifyIdentity(validatedUser, validatedAnswer, AuthType.SECURITY_ANSWER)) {
-			return false;
-		}
+	    if (!validationValidatePassword(validatedPass)) {
+	        return false;
+	    }
 
-		String hashedPass = hashPlaintext(validatedPass);
-		storageUpdatePass(validatedUser, hashedPass);
+	    if (!verifyIdentity(validatedUser, validatedAnswer, AuthType.SECURITY_ANSWER)) {
+	        return false;
+	    }
 
-		return true;
+	    String hashedPass = hashPlaintext(validatedPass);
+	    storageUpdatePass(validatedUser, hashedPass);
+
+	    return true;
 	}
 
 	/**
@@ -230,27 +227,31 @@ public final class AccountManager {
 	 * @author Darren
 	 */
 	public static boolean changeSecuritySetup(String password, SecurityQuestion newQuestion, String newAnswer) {
-		String username = getCurrentUser();
+	    String username = getCurrentUser();
 
-		if (username == null || newQuestion == null) {
-			return false;
-		}
+	    if (username == null || newQuestion == null) {
+	        return false;
+	    }
 
-		if (!validationValidateAnswer(newAnswer) == false || validationValidatePassword(password)) {
-			return false;
-		}
+	    String validatedPass = validationValidateString(password);
+	    String validatedAnswer = validationValidateString(newAnswer);
 
-		String validatedAnswer = newAnswer.trim();
-		String validatedPass = password.trim();
+	    if (validatedPass == null || validatedAnswer == null) {
+	        return false;
+	    }
 
-		if (!verifyIdentity(username, validatedPass, AuthType.PASSWORD)) {
-			return false;
-		}
+	    if (!validationValidateAnswer(validatedAnswer)) {
+	        return false;
+	    }
 
-		String hashedAnswer = hashPlaintext(validatedAnswer);
-		storageUpdateQnA(username, newQuestion, hashedAnswer);
+	    if (!verifyIdentity(username, validatedPass, AuthType.PASSWORD)) {
+	        return false;
+	    }
 
-		return true;
+	    String hashedAnswer = hashPlaintext(validatedAnswer);
+	    storageUpdateQnA(username, newQuestion.getQuestionText(), hashedAnswer);
+
+	    return true;
 	}
 
 	/**
@@ -408,7 +409,7 @@ public final class AccountManager {
 		return comparePlaintextToHash(plaintext, storedHash);
 	}
 
-	// ---------------- STORAGE STUBS NEEDED -----------------
+i	// ---------------- STORAGE STUBS NEEDED -----------------
 
 	// Container for user credentials returned from storage.
 	static record StoredUser(String hashedPassword, String question, String hashedAnswer) {
