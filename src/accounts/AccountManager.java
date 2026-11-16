@@ -455,7 +455,7 @@ i	// ---------------- STORAGE STUBS NEEDED -----------------
 
 	// Validates and sanitizes general string requirements with validation team.
 	private static String validationValidateString(String input) {
-    	return null;
+    	return input;
 	}
 
 	// Validates username requirements with validation team.
