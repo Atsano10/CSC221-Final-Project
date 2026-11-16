@@ -152,8 +152,5 @@ public void printFindings(ArrayList<AuditFinding> records)
      */
     public enum FindingType { DUPLICATE, ANOMALY };
 
-    public static void main(String[] args) {
-        
-    }
 }
 
