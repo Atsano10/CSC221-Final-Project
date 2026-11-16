@@ -159,11 +159,11 @@ public final class Reports {
 		
 		  // Format category totals. ---
 	    report.append("CATEGORY TOTALS ----------------")
-	          .append(newLine).append(newLine);
+	    report.append(newLine).append(newLine);
 
 	    // Format income category totals. ---
 	    report.append("Income by Category:")
-	          .append(newLine);
+	    report.append(newLine);
 
 	    for (int i = 0; i < incomeCategories.length; i++) {
 	        report.append(incomeCategories[i])
@@ -218,6 +218,8 @@ public final class Reports {
 	        report.append("Balanced: $0")
 	        report.append(newLine);
 	    }
+		report.append(newLine);
+		report.append("=========================================");
 	    
 		return report.toString();
 	}
