@@ -1,5 +1,15 @@
-  /**
-  * Provides the user menu and actions post authentication
+package integration;
+import java.util.Scanner;
+import java.util.InputMismatchException;
+import accounts.AccountManager;
+import accounts.SecurityQuestion;
+
+/**
+  * Displays the main user menu and actions post authentication such as file reading
+  *
+  * @author Bilal Ansar
+  * @author Apostolos Tsano
+  * @author Junyu Chen
   */
 
 class MenuController {
@@ -9,72 +19,228 @@ class MenuController {
 	*
 	* @author Bilal
 	*/
-	static void displayMainMenu() 
-	{
-		
+	static void displayMainMenu() {
+		if (AccountManager.getCurrentUser() == null) {
+			System.out.println("Welcome to Personal Finance Manager!\n");
+			System.out.println("1. Register");
+			System.out.println("2. Login");
+			System.out.println("3. Help");
+			System.out.println("4. Exit");
+			MenuController.doMenuAction(MenuController.getMenuSelection(4));
+		} else {
+			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
+			System.out.println("1. ");
+			System.out.println("2. ");
+			System.out.println("3. Options");
+			System.out.println("4. Exit");
+			MenuController.doMenuAction(MenuController.getMenuSelection(4));
+		} 
 	}
 	
   /** 
     * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
-	*
+	* 
+	* @param The number of choices the menu will have. This allows this function to be used for menus with varying choice sizes.
+	* @return An int from 1 - [number of menu options] chosen by the user
 	* @author Bilal
 	*/
-	static int getMenuSelection() 
-	{
-		return selection;
+	static int getMenuSelection(int choices) {
+		int selection;
+		
+		System.out.println("\nSelect: ");
+	
+		while (true) {
+			Scanner input = new Scanner(System.in);
+			try {
+				 selection = input.nextInt();
+			} catch (InputMismatchException e) {
+				System.out.println("Try again.");
+				continue;
+			} 
+			if (selection > choices || selection < 1) {
+				System.out.println("Try again.");
+				continue;
+			} input.close();
+			return selection;
+		}
 	}
 
+  /** 
+    * Prints the next menu based on selection parameter if applicable,
+    * otherwise does the relevant menu action by calling methods from other classes
+	*
+	* @param The selection the user made fetched by the getMenuSelection method
+	* @author Bilal
+	*/
+	static void doMenuAction(int selection) {
+		switch (selection) {
+			case 1 -> MenuController.handleRegister();
+			case 4 -> MenuController.handleExit();
+		}
+	}
+	
+  /**
+	* 
+    * Prompts the user to enter the path of the file to be read.
+	* 
+	*
+	* @return The file path which is set by the user.
+	* 
+	* @author Apostolos Tsano
+    */
+	static String promptForFilePath() {
+		while ( true ){
+			System.out.println( "Enter the path of the file you wish to look for: " );
+			String path = input.nextLine().trim();
+
+			// Trims white space and quotes.
+			if ( path.startsWith("\"") && path.endsWith("\"") && path.length() > 1 ) {
+				path = path.substring( 1, path.length() - 1 )
+			}
+			if (!path.isEmpty()) return path;
+        	System.out.println("Path cannot be empty. Try again.");
+    	}
+	}
+			
+	
  /**
-   * Asks the user to confirm (yes) or deny (no); helper function for many menu interactions
+   * Calls this function if the user selects register. This method takes input from the user 
+   * for username, password, security question, and answer. Then it passes these as parameters 
+   * to the registerUser method from the AccountManager class.
    *
    * @author Bilal
    */
-	static String promptYesOrNo() 
-	{
-		return choice;
+	static void handleRegister() {
+		String username = null;
+		String password = null;
+		SecurityQuestion question = null;
+		String answer = null;
+		
+		Scanner input = new Scanner(System.in);
+		
+		System.out.println("Choose a username: ");
+		username = input.nextLine();
+		System.out.println("Choose a password: ");
+		password = input.nextLine();
+		
+		int i = 0;
+		for (SecurityQuestion sq : SecurityQuestion.values()) {
+			i++;
+			System.out.println(i + ". " + sq.getQuestionText());
+		} 
+		
+		int selection = MenuController.getMenuSelection(i)
+
+		switch (selection) {
+			case 1 -> question = SecurityQuestion.FIRST_PET;
+			case 2 -> question = SecurityQuestion.MOTHER_MAIDEN_NAME;
+			case 3 -> question = SecurityQuestion.BIRTH_CITY;
+			case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
+			case 5 -> question = SecurityQuestion.FIRST_CAR;
+		}
+
+		System.out.println("Answer for your security question: ");
+		answer = input.nextLine();
+		
+		input.close();
+		
+		AccountManager.registerUser(username, password, question, answer);
 	}
 	
-  /** 
-    * Prints the next menu based on selection parameter
-    *
-	* @author Bilal
-	*/
-	static void doMenuAction(int selection) 
-	{
+	/**
+     * Handles reading data from a user-specified file.
+     *
+     * Gets the file path from {@link #promptForFilePath()}.
+     * Reads the file line by line, parses year and numeric data pairs, and stores them.
+     * Skips invalid or malformed lines without crashing the program.
+     * Shows a success message and the total number of loaded records when finished.
+     * If the file cannot be found, displays an error message.
+     *
+     * @see #promptForFilePath()
+     * 
+     * @author Junyu Chen
+     */
+	static void handleReadFile() {
 		
 	}
 
-	static String promptForFilePath() {
-		return "";
-	}
-
-	static void handleReadFile() {
-	}
-
+	/**
+     * Handles checking and displaying data anomalies.
+     *
+     * Checks if data has been loaded first; if no data exists, prints a warning message.
+     * Iterates through stored data and finds values outside the valid range.
+     * Prints each anomalous record with its year and value, and counts total anomalies found.
+     * If no anomalies are found, informs the user accordingly.
+     *
+     * @author Junyu Chen
+     */
 	static void handleAnomalies() {
+		
 	}
 
+	/**
+     * Handles deleting all data for a specified year.
+     *
+     * Checks if data has been loaded first; if no data exists, prints a warning message.
+     * Prompts the user to enter the target year to delete.
+     * Removes all matching year records and their associated data value.
+     * Notifies the user whether the year was found and deleted or not found.
+     *
+     * @author Junyu Chen
+     */
 	static void handleDeleteYear() {
+		
 	}
 
+	/**
+     * Handles changing the current user's password.
+     *
+     * Prompts the user for the old password and verifies it against the stored password.
+     * If the old password matches, asks for a new password and a confirmation of the new password.
+     * Updates the stored password only if the new password and confirmation match.
+     * Prints success or error messages based on validation results.
+     *
+     * @author Junyu Chen
+     */
 	static void handleChangePassword() {
+		
 	}
 
 	/**
      * Handles the deletion of the currently logged in account.
 	 *
-	 * Prompts the user to confirm the deletion using {@link #promptYesOrNo()}.
+	 * Prompts the user to confirm the deletion using {@link #isYesNo()}.
 	 * If the user confirms, then all the data associated with the account is deleted, and the user is logged out.
 	 * If the user clicks "no", no further changes are made.
 	 *
-	 * @see #promptYesOrNo()
+	 * @see #isYesNo()
 	 * @see #handleLogout()
      * 
      * @author Apostolos Tsano
      */
 	static void handleDeleteAccount() {
+		String username = AccountManager.getCurrentUser();
+		System.out.println("This permanently deletes your account and all its data.");
+	    System.out.println("Are you sure? (y/n)");
+	    if (!isYesNo()) {
+	        System.out.println("Account deletion cancelled.");
+	        return;
+	    }
 
-		
+		// If yes
+	    System.out.println("Enter your password: ");
+	    String password = input.nextLine();
+	    String question = AccountManager.getSecurityQuestion();
+	    System.out.println(question != null ? question : "Enter your security answer: ");
+	    String answer = input.nextLine();
+	
+	    if (AccountManager.deleteUser(password, answer)) {
+	        // Somehow delete the data stored for the username.
+	        System.out.println("Your account has been deleted.");
+	        handleLogout();
+	    } else {
+	        System.out.println("Deletion failed: incorrect password or security answer.");
+	    }
 	}
 	
 	/**
@@ -88,8 +254,9 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleLogout() {
-
-		
+		AccountManager.singOut();
+		// Need to clear the data somehow.
+		Sysmte.out.println( "You have logged out.\n");
 	}
 
 	/**
@@ -102,7 +269,27 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleExit() {
-
-		
+		if (AccountManager.getCurrentUser() != null) {
+	        AccountManager.signOut();
+	    }
+	    System.out.println("Goodbye, hope to see you soon!");
+	    input.close();
+	    System.exit(0);
 	}
+
+	/**
+	 * Allows the user to make choices.
+	 * 
+	 * Yes or no prompting,
+	 *
+	 * @author Apostolos Tsano
+	 */
+	static boolean isYesNo() {
+    while (true) {
+        String response = input.nextLine().trim().toLowerCase();
+        if (response.equals("y") || response.equals("yes")) return true;
+        if (response.equals("n") || response.equals("no")) return false;
+        System.out.println("Please enter y or n: ");
+    }
+}
 }
