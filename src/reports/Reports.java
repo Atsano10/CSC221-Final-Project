@@ -1,8 +1,12 @@
 // adding the package
 package <reports>;
 
-import java.util.List;
 import java.time.LocalDate;
+import java.util.List;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Formats reports to console or files so that everything is readable.
@@ -156,19 +160,82 @@ public final class Reports {
 		
 		report.append(newLine);
 		
-		// Format category totals. ---
-			// Format income category totals. ---
-			// Format expenses category totals. ---
+		  // Format category totals. ---
+	    report.append("CATEGORY TOTALS ----------------")
+	    report.append(newLine).append(newLine);
+
+	    // Format income category totals. ---
+	    report.append("Income by Category:")
+	    report.append(newLine);
+
+	    for (int i = 0; i < incomeCategories.length; i++) {
+	        report.append(incomeCategories[i])
+	        report.append(": $")
+	        report.append(incomeCategoryTotals[i])
+	        report.append(newLine);
+	    }
+
+	    report.append(newLine);
+
+	    // Format expenses category totals. ---
+	    report.append("Expenses by Category:")
+	    report.append(newLine);
+
+	    for (int i = 0; i < expensesCategories.length; i++) {
+	        report.append(expensesCategories[i])
+	        report.append(": $")
+	        report.append(Math.abs(expensesCategoryTotals[i]))
+	        report.append(newLine);
+	    }
+
+	    report.append(newLine);
+
+	    // Format overall performance. ---
+	    report.append("OVERALL PERFORMANCE ----------------")
+	    report.append(newLine).append(newLine);
+
+	    // Format total income. ---
+	    report.append("Total Income: $")
+	    report.append(totalIncome)
+	    report.append(newLine);
+
+	    // Format total expenses. ---
+	    report.append("Total Expenses: $")
+	    report.append(Math.abs(totalExpenses))
+	    report.append(newLine);
+
+	    // Determine + format if surplus or deficit. ---
+	    int net = totalIncome + totalExpenses;
+
+	    if (net > 0) {
+	        report.append("Surplus: $")
+	        report.append(net)
+	        report.append(newLine);
+	    }
+	    else if (net < 0) {
+	        report.append("Deficit: $")
+	        report.append(Math.abs(net))
+	        report.append(newLine);
+	    }
+	    else {
+	        report.append("Balanced: $0")
+	        report.append(newLine);
+	    }
+		report.append(newLine);
+		report.append("=========================================");
+    // Format category totals. ---
+		// Format income category totals. ---
+		// Format expenses category totals. ---
 		
-		// Format overall performance. ---
-			// Format total income. ---
-			// Format total expenses. ---
+		// Format overall performance. ---			
+    // Format total income. ---
+		// Format total expenses. ---
 		
 		// Determine + Format if surplus or deficit. ---
-		
+	    
 		return report.toString();
 	}
-
+		
     /**
 	 * Generates a report that describes all the validation
 	 * errors and warnings in a budget file.
@@ -203,49 +270,51 @@ public final class Reports {
 				  .append(validationErrors.size())
 				  .append(newline);
 
-			for (int i = 0; i < validationErrors.size(); i++) {
-				report.append(i + 1)
-					  .append(". ")
-					  .append(validationErrors.get(i))
-					  .append(newline);
-			}
+    /**
+     * Displays a report to the console.
+     * 
+     * @param report The report to display.
+     * @author Lhamu
+     */
+    public void displayReport(String report) {
+    	System.out.println(report);
+    }
+
+    
+    /**
+     * Exports a report to a file.
+     * 
+     * @param report The report to export.
+     * @param fileName The name of the output file.
+     * @author Lhamu
+     */
+    public void exportReport(String report, String fileName) {
+    	try (BufferedWriter writer =
+                Files.newBufferedWriter(Path.of(fileName))) {
+
+            writer.write(report);
+
+        } catch (IOException e) {
+            System.err.println("Error exporting report: " + e.getMessage());
+            return;
+        }
+
+        System.out.println("Report exported successfully.");
+    	}
+    
+
+    
+    /**
+     * Creates a message that indicates that the current
+     * reporting operation was cancelled.
+     * 
+     * @param operation Name of the cancelled operation.
+     * @return A cancellation message.
+     * @author Rehmil
+     */
+    public String cancelStatement(String operation) {
+		return "Operation Cancelled: " + operation;
 		}
-
-		report.append(newline)
-			  .append("==============================================");
-		return report.toString();
-	}
-
-	/**
-	 * Creates a report that contains the duplicates and anomalous budgets
-	 * identified during the data audit.
-	 * 
-	 * @param findings The audit findings generates by the Data Audit module.
-	 * @return A formatted audit report.
-	 * @author Tasfia
-	 */
-	public String formatAuditReport(List<AuditFinding> findings) {
-		return null;
-	}
-
-	/**
-	 * Displays a report to the console.
-	 * 
-	 * @param report The report to display.
-	 * @author Lhamu
-	 */
-	public void displayReport(String report) {
-	}
-
-	/**
-	 * Exports a report to a file.
-	 * 
-	 * @param report   The report to export.
-	 * @param fileName The name of the output file.
-	 * @author Lhamu
-	 */
-	public void exportReport(String report, String fileName) {
-	}
 
 	/**
 	 * Creates a message that indicates that the current reporting operation was
