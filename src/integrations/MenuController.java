@@ -13,7 +13,7 @@ import accounts.SecurityQuestion;
   */
 
 class MenuController {
-	
+	static java.util.List<String> recordList = new java.util.ArrayList<>();
   /** 
 	* Prints the options available to the user for the main menu
 	*
@@ -161,6 +161,35 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleReadFile() {
+		String path = promptForFilePath();
+		java.io.File file = new java.io.File(path);
+		java.util.List<String> recordList = new java.util.ArrayList<>();
+
+		try (java.util.Scanner fileScan = new java.util.Scanner(file)) {
+			int count = 0;
+			while (fileScan.hasNextLine()) {
+				String line = fileScan.nextLine().trim();
+				if (line.isEmpty()) {
+					continue;
+				}
+				String[] parts = line.split(",");
+				if (parts.length != 2) {
+					System.out.println("Skipping invalid line: " + line);
+					continue;
+				}
+				try {
+					Integer.parseInt(parts[0].trim());
+					Double.parseDouble(parts[1].trim());
+					recordList.add(line);
+					count++;
+				} catch (NumberFormatException e) {
+					System.out.println("Skipping bad number line: " + line);
+				}
+			}
+			System.out.println("File read complete. Total records loaded: " + count);
+		} catch (java.io.FileNotFoundException e) {
+			System.out.println("Error: File not found at the given path.");
+		}
 		
 	}
 
@@ -175,7 +204,25 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleAnomalies() {
-		
+		if (recordList.isEmpty()) {
+			System.out.println("Warning: No data loaded yet. Please load a file first.");
+			return;
+		}
+		int anomalyCount = 0;
+		for (String line : recordList) {
+			String[] parts = line.split(",");
+			double value = Double.parseDouble(parts[1].trim());
+			int year = Integer.parseInt(parts[0].trim());
+			if (value < 0 || value > 100000) {
+				System.out.println("Anomaly found: Year " + year + ", Value " + value);
+				anomalyCount++;
+			}
+		}
+		if (anomalyCount == 0) {
+			System.out.println("No anomalies found in the loaded data.");
+		} else {
+			System.out.println("Total anomalies: " + anomalyCount);
+		}
 	}
 
 	/**
@@ -189,7 +236,38 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleDeleteYear() {
-		
+		if (recordList.isEmpty()) {
+			System.out.println("Warning: No data loaded yet. Please load a file first.");
+			return;
+		}
+		Scanner input = new Scanner(System.in);
+		System.out.println("Enter the year you want to delete:");
+		int targetYear;
+		try {
+			targetYear = input.nextInt();
+		} catch (InputMismatchException e) {
+			System.out.println("Invalid year input.");
+			input.close();
+			return;
+		}
+		input.close();
+
+		int beforeSize = recordList.size();
+		java.util.Iterator<String> it = recordList.iterator();
+		while (it.hasNext()) {
+			String line = it.next();
+			String[] parts = line.split(",");
+			int year = Integer.parseInt(parts[0].trim());
+			if (year == targetYear) {
+				it.remove();
+			}
+		}
+		int deleted = beforeSize - recordList.size();
+		if (deleted > 0) {
+			System.out.println("Deleted " + deleted + " record(s) for year " + targetYear);
+		} else {
+			System.out.println("No records found for year " + targetYear);
+		}
 	}
 
 	/**
@@ -203,7 +281,34 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleChangePassword() {
-		
+		if (AccountManager.getCurrentUser() == null) {
+			System.out.println("Error: No user logged in.");
+			return;
+		}
+		Scanner input = new Scanner(System.in);
+		System.out.println("Enter your old password:");
+		String oldPw = input.nextLine();
+		if (!AccountManager.verifyPassword(oldPw)) {
+			System.out.println("Old password is incorrect. Password change cancelled.");
+			input.close();
+			return;
+		}
+		System.out.println("Enter your new password:");
+		String newPw = input.nextLine();
+		System.out.println("Confirm your new password:");
+		String confirmPw = input.nextLine();
+		input.close();
+
+		if (!newPw.equals(confirmPw)) {
+			System.out.println("New password and confirmation do not match. Password change cancelled.");
+			return;
+		}
+		boolean success = AccountManager.updatePassword(newPw);
+		if (success) {
+			System.out.println("Password updated successfully!");
+		} else {
+			System.out.println("Password update failed.");
+		}
 	}
 
 	/**
