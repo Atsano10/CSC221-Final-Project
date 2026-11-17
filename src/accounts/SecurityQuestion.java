@@ -13,15 +13,19 @@ public enum SecurityQuestion {
 
     ELEMENTARY_SCHOOL("What elementary school did you attend?"),
 
-	FAV_POKEMON("What is your favorite pokemon?"),	
+	FAV_POKEMON("What is your favorite Pokemon?"),	
 	
     HS_MASCOT("What creature was your high school mascot?"),
 
-    SOCCER_PLAYER("Look its as simple as: Messi or Ronaldo?"),
+	FAV_ATHLETE("Who is your favorite sports athlete?"),
+
+	CHILDHOOD_TEAM("What was the name of your first youth sports team?"),
 
     DONE_DREAMS("In what year did you abandon your dreams?"),
 
     BEST_FRIEND("What is the name of your best friend?"),
+
+	WORST_GROUP_PROJECT("Which historical figure would be the worst group project partner?"),
 
     FOX_WORDS("You definitely know this one, or you don't, but what does the fox say?");
 
