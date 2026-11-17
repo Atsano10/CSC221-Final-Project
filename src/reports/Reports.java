@@ -256,7 +256,7 @@ public final class Reports {
 	 * @author Rehmil
 	 */
 	public String cancelStatement(String operation) {
-		return null;
+		return "Operation Cancelled: " + operation;
 	}
 
 }
