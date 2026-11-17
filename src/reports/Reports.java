@@ -1,4 +1,3 @@
-// adding the package
 package <reports>;
 
 import java.time.LocalDate;
@@ -235,7 +234,9 @@ public final class Reports {
 	    
 		return report.toString();
 	}
-		
+
+
+	
     /**
 	 * Generates a report that describes all the validation
 	 * errors and warnings in a budget file.
@@ -364,6 +365,7 @@ public final class Reports {
 	}
 
 
+	
 	/**
 	 * Adds a numbered section of audit findings to the report.
 	 *
@@ -403,6 +405,8 @@ public final class Reports {
 			sb.append(String.format("     Reason: %s%n", reason));
 		}
 	}
+
+	
     
     /**
      * Displays a report to the console.
@@ -415,6 +419,7 @@ public final class Reports {
     }
 
 
+	
     /**
      * Exports a report to a file.
      *
@@ -450,16 +455,3 @@ public final class Reports {
 		return "Operation Cancelled: " + operation;
 		}
 
-	/**
-	 * Creates a message that indicates that the current reporting operation was
-	 * cancelled.
-	 * 
-	 * @param operation Name of the cancelled operation.
-	 * @return A cancellation message.
-	 * @author Rehmil
-	 */
-	public String cancelStatement(String operation) {
-		return null;
-	}
-
-}
