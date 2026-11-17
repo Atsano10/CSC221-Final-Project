@@ -437,4 +437,63 @@ public final class AccountManager {
 		return comparePlaintextToHash(plaintext, storedHash);
 	}
 
+	// ---------------- STORAGE STUBS NEEDED -----------------
+
+	// Container for user credentials returned from storage.
+	static record StoredUser(String hashedPassword, String question, String hashedAnswer) {
+	}
+
+	// Checks if a username exists in storage.
+	private static boolean storageFindUser(String username) {
+		return false;
+	}
+
+	// Gets user credentials and security question/answer from storage.
+	private static StoredUser storageGetUserInfo(String username) {
+		return null;
+	}
+
+	// Saves a new user record to storage.
+	private static boolean storageSaveUser(String username, String hashedPassword,
+			String question, String hashedAnswer) {
+		return false;
+	}
+
+	// Updates the stored password for a user.
+	private static boolean storageUpdatePass(String username, String hashedPassword) {
+		return false;
+	}
+
+	// Updates the security question and answer for a user.
+	private static boolean storageUpdateQnA(String username, String question,
+			String hashedAnswer) {
+		return false;
+	}
+
+	// Deletes a user record from storage.
+	private static boolean storageDeleteUser(String username) {
+		return false;
+	}
+
+	// --------------- VALIDATION STUBS NEEDED ---------------
+
+	// Validates and sanitizes general string requirements with validation team.
+	private static String validationValidateString(String input) {
+    	return AccountValidator.validateString(input);
+	}
+
+	// Validates username requirements with validation team.
+	private static boolean validationValidateUserName(String username) {
+		return AccountValidator.validateUserName(username);
+	}
+
+	// Validates password requirements with validation team.
+	private static boolean validationValidatePassword(String password) {
+		return AccountValidator.validatePassword(password);
+	}
+
+	// Validates security answer requirements with validation team.
+	private static boolean validationValidateAnswer(String answer) {
+		return AccountValidator.validateSecretAnswer(answer);
+	}
 }
