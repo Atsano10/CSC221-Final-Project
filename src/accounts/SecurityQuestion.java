@@ -1,3 +1,5 @@
+package accounts;
+
 /**
  * Represents the preset security questions available for user accounts.
  * 
