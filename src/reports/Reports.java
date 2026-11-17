@@ -1,6 +1,6 @@
-package <reports>;
-
-import java.time.LocalDate;
+package reports;
+// import storage.Budget;
+// import storage.BudgetTransaction;
 import java.util.List;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -34,9 +34,9 @@ public final class Reports {
 	 * @author Rehmil
 	 * @author Lhamu
 	 */
-	public String formatSummaryAnalysis(Budget budget) {
+	public static String formatSummaryAnalysis(Budget budget) {
 		
-		// CALCULATIONS ---
+		// --- CALCULATIONS ---
 		String[] months = {
 			"January", "February", "March", "April", "May", "June",
 			"July", "August", "September", "October", "November", "December"
@@ -62,15 +62,14 @@ public final class Reports {
 		int[] expensesCategoryTotals = new int[expensesCategories.length];
 		
 		
-		
-		int n = budget.transactions().size();
+		List<BudgetTransaction> transactions = budget.transactions();
+		int n = transactions().size();
 		int month;
-		List<BudgetTransaction> transaction = budget.transactions();
-		
 
+		
 		for (int i = 0; i < n; ++i) {
 			
-			BudgetTransaction t = transaction.get(i);
+			BudgetTransaction t = transactions.get(i);
 			month = (t.date().getMonthValue()) - 1;
 			
 			// Calculations for monthly income totals. ---
@@ -87,8 +86,8 @@ public final class Reports {
 			}
 			
 			// Calculations for monthly income totals. ---
-			else {
-				monthlyExpenses[month] += transaction.get(i).amount();
+			else if (t.amount() < 0) {
+				monthlyExpenses[month] += t.amount();
 				
 				// Calculations for expenses category totals. ---
 				for (int j = 0; j < expensesCategories.length; ++j) {
@@ -107,12 +106,16 @@ public final class Reports {
 			totalIncome += monthlyIncome[i];
 		}
 		
-		// FORMATTING ---
+		// --- FORMATTING ---
 		StringBuilder report = new StringBuilder();
 		String newLine = System.lineSeparator();
 		
-		report.append("======== ANNUAL SUMMARY ANALYSIS REPORT ========").append(newLine).append(newLine);
-		report.append("Year: "+ budget.year()).append(newLine).append(newLine).append(newLine);
+		report.append("======== ANNUAL SUMMARY ANALYSIS REPORT ========")
+			  .append(newLine)
+			  .append(newLine);
+		
+		report.append("Year: ").append(budget.year())
+			  .append(newLine).append(newLine).append(newLine);
 		
 		// Formatting monthly totals. ---
 		report.append("MONTHLY TOTALS --------------").append(newLine).append(newLine);
@@ -121,36 +124,19 @@ public final class Reports {
 			report.append(months[i]).append(newLine);
 			
 			// Format monthly income. ---
-			report.append("Income: ");
-			if (monthlyIncome[i] == 0) {
-				report.append("Information unavailable").append(newLine);
-			}
-			else {
-				report.append("$" + monthlyIncome[i]).append(newLine);
-			}
+			report.append("Income: $").append(monthlyIncome[i]).append(newLine);
 			
 			// Format monthly expenses. ---
-			report.append("Expenses: ");
-			if (monthlyExpenses[i] == 0) {
-				report.append("Information unavailable").append(newLine);
-			}
-			else {
-				report.append("$" + Math.abs(monthlyExpenses[i])).append(newLine);
-			}
+			report.append("Expenses: $").append(Math.abs(monthlyExpenses[i])).append(newLine);
 			
 			// Format net monthly income. --- 
+			int net = monthlyIncome[i] + monthlyExpenses[i];
 			report.append("Net: ");
-			if ((monthlyIncome[i] == 0) && (monthlyExpenses[i] == 0)) {
-				report.append("Information unavailable").append(newLine);
+			if (net < 0) {
+				report.append("-$").append(Math.abs(net)).append(newLine);
 			}
 			else {
-				int net = monthlyIncome[i] + monthlyExpenses[i];
-				if (net < 0) {
-					report.append("-$" + Math.abs(net)).append(newLine);
-				}
-				else {
-					report.append("$" + net).append(newLine);
-				}
+				report.append("$").append(net).append(newLine);
 			}
 			
 			report.append(newLine);
@@ -176,7 +162,7 @@ public final class Reports {
 	    report.append(newLine);
 
 	    // Format expenses category totals. ---
-	    report.append("Expenses by Category:")
+	    report.append("Expenses by Category:");
 	    report.append(newLine);
 
 	    for (int i = 0; i < expensesCategories.length; i++) {
@@ -236,7 +222,7 @@ public final class Reports {
      * @return A formatted validation report.
      * @author Chime
      */
-	public String formatValidationReport(List<String> validationErrors) {
+	public static String formatValidationReport(List<String> validationErrors) {
     // Create a StringBuilder to construct the report
 		StringBuilder report = new StringBuilder();
 		String newline = System.lineSeparator();
@@ -289,7 +275,7 @@ public final class Reports {
 	 * @return A formatted audit report.
 	 * @author Tasfia
 	 */
-	public String formatAuditReport(List<AuditFinding> findings) {
+	public static String formatAuditReport(List<AuditFinding> findings) {
 		StringBuilder sb = new StringBuilder();
 
 		// Header
@@ -365,7 +351,7 @@ public final class Reports {
 	 * @param heading The heading of the report section.
 	 * @author Tasfia
 	 */
-	private void appendFindingSection(StringBuilder sb, List<AuditFinding> findings,
+	private static void appendFindingSection(StringBuilder sb, List<AuditFinding> findings,
 			FindingType type, String heading) {
 
 		// Blank line, then the section heading.
@@ -404,7 +390,7 @@ public final class Reports {
      * @param report The report to display.
      * @author Lhamu
      */
-    public void displayReport(String report) {
+    public static void displayReport(String report) {
     	System.out.println(report);
     }
 
@@ -417,7 +403,7 @@ public final class Reports {
      * @param fileName The name of the output file.
      * @author Lhamu
      */
-    public void exportReport(String report, String fileName) {
+    public static void exportReport(String report, String fileName) {
     	try (BufferedWriter writer =
                 Files.newBufferedWriter(Path.of(fileName))) {
 
@@ -441,7 +427,7 @@ public final class Reports {
      * @return A cancellation message.
      * @author Rehmil
      */
-    public String cancelStatement(String operation) {
+    public static String cancelStatement(String operation) {
 		return "Operation Cancelled: " + operation;
 	}
 
