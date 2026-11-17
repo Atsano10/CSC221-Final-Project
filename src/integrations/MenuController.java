@@ -159,7 +159,7 @@ class MenuController {
 				AccountManager.signIn(username, password);
 				break;
 			} else {
-				System.out.println("There was a problem with one or more of choices. Please try again.");
+				System.out.println("There was a problem with one or more of your choices. Please try again.");
 				continue;
 			}
 		}
