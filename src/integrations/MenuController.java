@@ -22,19 +22,20 @@ public class MenuController {
 	*/
 	public static void displayMainMenu() {
 		if (AccountManager.getCurrentUser() == null) {
-			System.out.println("\nWelcome to Personal Finance Manager!\n");
+			System.out.println("Welcome to Personal Finance Manager!\n");
 			System.out.println("1. Register");
 			System.out.println("2. Login");
 			System.out.println("3. Help");
 			System.out.println("4. Exit");
 			doMenuAction(getMenuSelection(4));
 		} else {
-			System.out.println("\nWelcome, " + AccountManager.getCurrentUser() + "!\n");
+			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. ");
 			System.out.println("2. ");
 			System.out.println("3. Options");
-			System.out.println("4. Exit");
-			doMenuAction(getMenuSelection(4));
+			System.out.println("4. Exit\n");
+			System.out.println("TODO: Working menu post login.\n");
+			System.exit(0);
 		} 
 	}
 	
@@ -126,14 +127,14 @@ public class MenuController {
 			SecurityQuestion question = null;
 			String answer = null;
 		
-			System.out.println("Your username must be at least 3 characters and at most 20 characters.");
+			System.out.println("\nYour username must be at least 3 characters and at most 20 characters.\n");
 			System.out.println("Choose a username: ");
 			username = input.nextLine();
-			System.out.println("Your password must be at least 8 characters long.");
+			System.out.println("\nYour password must be at least 8 characters long and contain one number and one letter.\n");
 			System.out.println("Choose a password: ");
 			password = input.nextLine();
 
-			System.out.println("Pick a security question: \n");
+			System.out.println("\nPick a security question: \n");
 		
 			int j = 0;
 			for (SecurityQuestion sq : SecurityQuestion.values()) {
@@ -158,16 +159,16 @@ public class MenuController {
 				case 12 -> question = SecurityQuestion.FOX_WORDS;
 			}
 			
-			System.out.println("\nYour answer must be at least 2 characters long.");
+			System.out.println("\nYour answer must be at least 2 characters long.\n");
 			System.out.println("Enter the answer for your security question: ");
 			answer = input.nextLine();
 		
 			if (AccountManager.registerUser(username, password, question, answer)) {
-				System.out.println("Account created!");
+				System.out.println("\nAccount created! You are now logged in.\n");
 				AccountManager.signIn(username, password);
 				break;
 			} else {
-				System.out.println("There was a problem with one or more of your choices. Would you like to try again?");
+				System.out.println("\nThere was a problem with one or more of your choices. Would you like to try again? y/n");
 				if (isYes()) {
 					continue;
 				} break;
