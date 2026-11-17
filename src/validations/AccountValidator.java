@@ -1,3 +1,4 @@
+package validations;
 
 /**
  * Provides validation utilities for user account information entered during
