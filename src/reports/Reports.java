@@ -102,7 +102,6 @@ public final class Reports {
 		
 		
 		// Calculations for monthly totals. ---
-		
 		for (int i = 0; i < 12; ++i) {
 			totalExpenses += monthlyExpenses[i];
 			totalIncome += monthlyIncome[i];
@@ -159,18 +158,18 @@ public final class Reports {
 		
 		report.append(newLine);
 		
-		  // Format category totals. ---
-	    report.append("CATEGORY TOTALS ----------------")
+		// Format category totals. ---
+	    report.append("CATEGORY TOTALS ----------------");
 	    report.append(newLine).append(newLine);
 
 	    // Format income category totals. ---
-	    report.append("Income by Category:")
+	    report.append("Income by Category:");
 	    report.append(newLine);
 
 	    for (int i = 0; i < incomeCategories.length; i++) {
-	        report.append(incomeCategories[i])
-	        report.append(": $")
-	        report.append(incomeCategoryTotals[i])
+	        report.append(incomeCategories[i]);
+	        report.append(": $");
+	        report.append(incomeCategoryTotals[i]);
 	        report.append(newLine);
 	    }
 
@@ -181,57 +180,48 @@ public final class Reports {
 	    report.append(newLine);
 
 	    for (int i = 0; i < expensesCategories.length; i++) {
-	        report.append(expensesCategories[i])
-	        report.append(": $")
-	        report.append(Math.abs(expensesCategoryTotals[i]))
+	        report.append(expensesCategories[i]);
+	        report.append(": $");
+	        report.append(Math.abs(expensesCategoryTotals[i]));
 	        report.append(newLine);
 	    }
 
-	    report.append(newLine);
+	    report.append(newLine).append(newLine);
 
 	    // Format overall performance. ---
-	    report.append("OVERALL PERFORMANCE ----------------")
+	    report.append("OVERALL PERFORMANCE ----------------");
 	    report.append(newLine).append(newLine);
 
 	    // Format total income. ---
-	    report.append("Total Income: $")
-	    report.append(totalIncome)
+	    report.append("Total Income: $");
+	    report.append(totalIncome);
 	    report.append(newLine);
 
 	    // Format total expenses. ---
-	    report.append("Total Expenses: $")
-	    report.append(Math.abs(totalExpenses))
+	    report.append("Total Expenses: $");
+	    report.append(Math.abs(totalExpenses));
 	    report.append(newLine);
 
 	    // Determine + format if surplus or deficit. ---
 	    int net = totalIncome + totalExpenses;
 
 	    if (net > 0) {
-	        report.append("Surplus: $")
-	        report.append(net)
+	        report.append("Surplus: $");
+	        report.append(net);
 	        report.append(newLine);
 	    }
 	    else if (net < 0) {
-	        report.append("Deficit: $")
-	        report.append(Math.abs(net))
+	        report.append("Deficit: $");
+	        report.append(Math.abs(net));
 	        report.append(newLine);
 	    }
 	    else {
-	        report.append("Balanced: $0")
+	        report.append("Balanced: $0");
 	        report.append(newLine);
 	    }
 		report.append(newLine);
 		report.append("=========================================");
-    // Format category totals. ---
-		// Format income category totals. ---
-		// Format expenses category totals. ---
 		
-		// Format overall performance. ---			
-    // Format total income. ---
-		// Format total expenses. ---
-		
-		// Determine + Format if surplus or deficit. ---
-	    
 		return report.toString();
 	}
 
