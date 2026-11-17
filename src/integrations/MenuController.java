@@ -111,47 +111,58 @@ class MenuController {
    * @author Bilal
    */
 	static void handleRegister() {
-		String username = null;
-		String password = null;
-		SecurityQuestion question = null;
-		String answer = null;
+		while (true) {
+			String username = null;
+			String password = null;
+			SecurityQuestion question = null;
+			String answer = null;
 		
-		Scanner input = new Scanner(System.in);
+			Scanner input = new Scanner(System.in);
 		
-		System.out.println("Choose a username: ");
-		username = input.nextLine();
-		System.out.println("Choose a password: ");
-		password = input.nextLine();
+			System.out.println("Choose a username: ");
+			username = input.nextLine();
+			System.out.println("Choose a password: ");
+			password = input.nextLine();
 
-		System.out.println("Pick a security question: \n");
+			System.out.println("Pick a security question: \n");
 		
-		int j = 0;
-		for (SecurityQuestion sq : SecurityQuestion.values()) {
-			j++;
-			System.out.println(j + ". " + sq.getQuestionText());
-		} 
+			int j = 0;
+			for (SecurityQuestion sq : SecurityQuestion.values()) {
+				j++;
+				System.out.println(j + ". " + sq.getQuestionText());
+			} 
 		
-		int selection = MenuController.getMenuSelection(j)
+			int selection = MenuController.getMenuSelection(j)
 
-		switch (selection) {
-			case 1 -> question = SecurityQuestion.FIRST_PET;
-			case 2 -> question = SecurityQuestion.TASTY.ROCK;
-			case 3 -> question = SecurityQuestion.BIRTH_CITY;
-			case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
-			case 5 -> question = SecurityQuestion.FAV_POKEMON;
-			case 6 -> question = SecurityQuestion.HS_MASCOT;
-			case 7 -> question = SecurityQuestion.SOCCER_PLAYER;
-			case 8 -> question = SecurityQuestion.DONE_DREAMS;
-			case 9 -> question = SecurityQuestion.BEST_FRIEND;
-			case 10 -> question = SecurityQuestion.FOX_WORDS;
+			switch (selection) {
+				case 1 -> question = SecurityQuestion.FIRST_PET;
+				case 2 -> question = SecurityQuestion.TASTY.ROCK;
+				case 3 -> question = SecurityQuestion.BIRTH_CITY;
+				case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
+				case 5 -> question = SecurityQuestion.FAV_POKEMON;
+				case 6 -> question = SecurityQuestion.HS_MASCOT;
+				case 7 -> question = SecurityQuestion.FAV_ATHLETE;
+				case 8 -> question = SecurityQuestion.CHILDHOOD_TEAM;
+				case 9 -> question = SecurityQuestion.DONE_DREAMS;
+				case 10 -> question = SecurityQuestion.BEST_FRIEND;
+				case 11 -> question = SecurityQuestion.WORST_GROUP_PROJECT;
+				case 12 -> question = SecurityQuestion.FOX_WORDS;
+			}
+
+			System.out.println("Answer for your security question: ");
+			answer = input.nextLine();
+		
+			input.close();
+		
+			if (AccountManager.registerUser(username, password, question, answer)) {
+				System.out.println("Account created!");
+				AccountManager.signIn(username, password);
+				break;
+			} else {
+				System.out.println("There was a problem with one or more of choices. Please try again.");
+				continue;
+			}
 		}
-
-		System.out.println("Answer for your security question: ");
-		answer = input.nextLine();
-		
-		input.close();
-		
-		AccountManager.registerUser(username, password, question, answer);
 	}
     /**
     * Handles user login.
@@ -163,18 +174,19 @@ class MenuController {
 	* @author Junyu Chen
 	*/
 	static void handleLogin() {
-	Scanner input = new Scanner(System.in);
-	System.out.println("Enter username: ");
-	String username = input.nextLine();
-	System.out.println("Enter password: ");
-	String password = input.nextLine();
-	input.close();
+		
+		Scanner input = new Scanner(System.in);
+		System.out.println("Enter username: ");
+		String username = input.nextLine();
+		System.out.println("Enter password: ");
+		String password = input.nextLine();
+		input.close();
 
-	if (AccountManager.loginUser(username, password)) {
-		System.out.println("Login successful!");
-	} else {
-		System.out.println("Invalid username or password.");
-	  }
+		if (AccountManager.signIn(username, password)) {
+			System.out.println("Login successful!");
+		} else {
+			System.out.println("Invalid username or password.");
+	 	}
 	}
 	
 	/**
