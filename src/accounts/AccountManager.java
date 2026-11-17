@@ -1,3 +1,5 @@
+package accounts;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -266,14 +268,24 @@ public final class AccountManager {
 	 * @author Ronnie
 	 */
 	public static String getSecurityQuestion() {
-		String username = getCurrentUser();
+			String username = getCurrentUser();
 
-		if (username == null) {
-			return null;
+			if (username == null) {
+				return null;
+			}
+			/* 
+			*The current issue with this is that we don't have a way 
+			*to take out specifically the security question instead of say
+			*the hashed password, so it will depend on how Storage implements.
+			*/
+			StoredUser user = storageGetUserInfo(username);
+			if(user.question() == null){
+				return null;
+			}
+
+
+			return user.question();
 		}
-
-		return null;
-	}
 
 	/**
 	 * Returns the username of the currently signed-in user.
@@ -283,8 +295,18 @@ public final class AccountManager {
 	 * @author Ronnie
 	 */
 	public static String getCurrentUser() {
-		return currentUser;
-	}
+        String username = currentUser;
+        //Uses the validation stub to validate the username
+        if(!validationValidateUserName(username)){
+            return null;
+        }
+
+        //Checks to make sure a username is in the current system
+        if(!verifyUsername(username)){
+            return null;
+        }
+        return username;
+    }
 
 	/**
 	 * Hashes a plaintext password or answer using the PBKDF2 algorithm with a
