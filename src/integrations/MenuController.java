@@ -89,17 +89,22 @@ class MenuController {
 	* @author Apostolos Tsano
     */
 	static String promptForFilePath() {
+		Scanner input = new Scanner(System.in);
+		
 		while ( true ) {
 			System.out.println( "Enter the path of the file you wish to look for: " );
 			String path = input.nextLine().trim();
 
 			// Removes quotes.
 			if ( path.startsWith("\"") && path.endsWith("\"") && path.length() > 1 ) {
-				path = path.substring( 1, path.length() - 1 )
+				path = path.substring( 1, path.length() - 1 );
 			}
-			if (!path.isEmpty()) return path;
-        	System.out.println("Path cannot be empty. Try again.");
-    	}
+			if (!path.isEmpty()) {
+				input.close();
+				return path;
+			} 
+			System.out.println("Path cannot be empty. Try again.");
+    	} 
 	}
 			
 	
@@ -132,11 +137,11 @@ class MenuController {
 				System.out.println(j + ". " + sq.getQuestionText());
 			} 
 		
-			int selection = MenuController.getMenuSelection(j)
+			int selection = MenuController.getMenuSelection(j);
 
 			switch (selection) {
 				case 1 -> question = SecurityQuestion.FIRST_PET;
-				case 2 -> question = SecurityQuestion.TASTY.ROCK;
+				case 2 -> question = SecurityQuestion.TASTY_ROCK;
 				case 3 -> question = SecurityQuestion.BIRTH_CITY;
 				case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
 				case 5 -> question = SecurityQuestion.FAV_POKEMON;
@@ -329,23 +334,23 @@ class MenuController {
 		}
 		Scanner input = new Scanner(System.in);
 		System.out.println("Enter your old password:");
-		String oldPw = input.nextLine();
-		if (!AccountManager.verifyPassword(oldPw)) {
+		String oldPassword = input.nextLine();
+		if (!AccountManager.verifyPassword(oldPassword)) {
 			System.out.println("Old password is incorrect. Password change cancelled.");
 			input.close();
 			return;
 		}
 		System.out.println("Enter your new password:");
-		String newPw = input.nextLine();
+		String newPassword = input.nextLine();
 		System.out.println("Confirm your new password:");
 		String confirmPw = input.nextLine();
 		input.close();
 
-		if (!newPw.equals(confirmPw)) {
+		if (!newPassword.equals(confirmPw)) {
 			System.out.println("New password and confirmation do not match. Password change cancelled.");
 			return;
 		}
-		boolean success = AccountManager.updatePassword(newPw);
+		boolean success = AccountManager.changePassword(AccountManager.getCurrentUser(), newPassword);
 		if (success) {
 			System.out.println("Password updated successfully!");
 		} else {
@@ -366,11 +371,13 @@ class MenuController {
      * @author Apostolos Tsano
      */
 	static void handleDeleteAccount() {
-		String username = AccountManager.getCurrentUser();
+		Scanner input = new Scanner(System.in);
+		
 		System.out.println("This permanently deletes your account and all its data.");
 	    System.out.println("Are you sure? (y/n)");
 	    if (!isYes()) {
 	        System.out.println("Account deletion cancelled.");
+	        input.close();
 	        return;
 	    }
 
@@ -385,8 +392,10 @@ class MenuController {
 	        // Somehow delete the data stored for the username.
 	        System.out.println("Your account has been deleted.");
 	        handleLogout();
+	        input.close();
 	    } else {
 	        System.out.println("Deletion failed: incorrect password or security answer.");
+	        input.close();
 	    }
 	}
 	
@@ -403,7 +412,7 @@ class MenuController {
 	static void handleLogout() {
 		AccountManager.signOut();
 		// Need to clear the data somehow.
-		Sysmte.out.println( "You have logged out.\n");
+		System.out.println( "You have logged out.\n");
 	}
 
 	/**
@@ -420,7 +429,6 @@ class MenuController {
 	        AccountManager.signOut();
 	    }
 	    System.out.println("Goodbye, hope to see you soon!");
-	    input.close();
 	    System.exit(0);
 	}
 
@@ -433,9 +441,17 @@ class MenuController {
 	 */
 	static boolean isYes() {
     while (true) {
+    	
+    	Scanner input = new Scanner(System.in);
         String response = input.nextLine().trim().toLowerCase();
-        if (response.equals("y") || response.equals("yes")) return true;
-        if (response.equals("n") || response.equals("no")) return false;
+        input.close();
+        
+        if (response.equals("y") || response.equals("yes")) {
+        	return true;
+        }
+        if (response.equals("n") || response.equals("no")) {
+        	return false;
+        }
         System.out.println("Please enter y or n: ");
     }
 }
