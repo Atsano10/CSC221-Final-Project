@@ -1,3 +1,6 @@
+// adding the package
+package <reports>;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.io.BufferedWriter;
@@ -23,9 +26,9 @@ public final class Reports {
 	private Reports() {}
 	
 	/**
-	 * Generates a formatted annual summary analysis report.
-	 * The report will have monthly income and expense totals,
-	 * category totals, and overall budget performance (surplus or deficit).
+	 * Generates a formatted annual summary analysis report. The report will have
+	 * monthly income and expense totals, category totals, and overall budget
+	 * performance (surplus or deficit).
 	 *
 	 * @param budget The annual budget being analyzed.
 	 * @return A formatted annual summary report.
@@ -220,11 +223,19 @@ public final class Reports {
 	    }
 		report.append(newLine);
 		report.append("=========================================");
+    // Format category totals. ---
+		// Format income category totals. ---
+		// Format expenses category totals. ---
+		
+		// Format overall performance. ---			
+    // Format total income. ---
+		// Format total expenses. ---
+		
+		// Determine + Format if surplus or deficit. ---
 	    
 		return report.toString();
 	}
-
-
+		
     /**
 	 * Generates a report that describes all the validation
 	 * errors and warnings in a budget file.
@@ -235,23 +246,29 @@ public final class Reports {
      * @author Chime
      */
 	public String formatValidationReport(List<String> validationErrors) {
-		return null;
-	}
+    // Create a StringBuilder to construct the report
+		StringBuilder report = new StringBuilder();
+		String newline = System.lineSeparator();
 
+		report.append("============== VALIDATION REPORT ==============")
+			  .append(newline);
 
-    
-    /**
-     * Creates a report that contains the duplicates and
-     * anomalous budgets identified during the data audit.
-     * 
-     * @param findings The audit findings generates by the Data
-     * 				   Audit module. 
-     * @return A formatted audit report.
-     * @author Tasfia
-     */
-    public String formatAuditReport(List<AuditFinding> findings) {
-		return null;}
-
+		// Check whether the error list is null or empty
+		if (validationErrors == null) {
+			report.append("Validation results are unavailable.")
+				  .append(newline);
+		}
+		
+		else if (validationErrors.isEmpty()) {
+			report.append("No validation errors or warnings found.")
+			      .append(newline);
+	
+		} 
+		
+		else {
+			report.append("Total Validation Issues Found: ")
+				  .append(validationErrors.size())
+				  .append(newline);
 
     /**
      * Displays a report to the console.
@@ -299,5 +316,16 @@ public final class Reports {
 		return "Operation Cancelled: " + operation;
 		}
 
+	/**
+	 * Creates a message that indicates that the current reporting operation was
+	 * cancelled.
+	 * 
+	 * @param operation Name of the cancelled operation.
+	 * @return A cancellation message.
+	 * @author Rehmil
+	 */
+	public String cancelStatement(String operation) {
+		return null;
+	}
 
 }
