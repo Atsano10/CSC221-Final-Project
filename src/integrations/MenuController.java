@@ -89,11 +89,11 @@ class MenuController {
 	* @author Apostolos Tsano
     */
 	static String promptForFilePath() {
-		while ( true ){
+		while ( true ) {
 			System.out.println( "Enter the path of the file you wish to look for: " );
 			String path = input.nextLine().trim();
 
-			// Trims white space and quotes.
+			// Removes quotes.
 			if ( path.startsWith("\"") && path.endsWith("\"") && path.length() > 1 ) {
 				path = path.substring( 1, path.length() - 1 )
 			}
@@ -122,21 +122,28 @@ class MenuController {
 		username = input.nextLine();
 		System.out.println("Choose a password: ");
 		password = input.nextLine();
+
+		System.out.println("Pick a security question: \n");
 		
-		int i = 0;
+		int j = 0;
 		for (SecurityQuestion sq : SecurityQuestion.values()) {
-			i++;
-			System.out.println(i + ". " + sq.getQuestionText());
+			j++;
+			System.out.println(j + ". " + sq.getQuestionText());
 		} 
 		
-		int selection = MenuController.getMenuSelection(i)
+		int selection = MenuController.getMenuSelection(j)
 
 		switch (selection) {
 			case 1 -> question = SecurityQuestion.FIRST_PET;
-			case 2 -> question = SecurityQuestion.MOTHER_MAIDEN_NAME;
+			case 2 -> question = SecurityQuestion.TASTY.ROCK;
 			case 3 -> question = SecurityQuestion.BIRTH_CITY;
 			case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
-			case 5 -> question = SecurityQuestion.FIRST_CAR;
+			case 5 -> question = SecurityQuestion.FAV_POKEMON;
+			case 6 -> question = SecurityQuestion.HS_MASCOT;
+			case 7 -> question = SecurityQuestion.SOCCER_PLAYER;
+			case 8 -> question = SecurityQuestion.DONE_DREAMS;
+			case 9 -> question = SecurityQuestion.BEST_FRIEND;
+			case 10 -> question = SecurityQuestion.FOX_WORDS;
 		}
 
 		System.out.println("Answer for your security question: ");
@@ -145,6 +152,13 @@ class MenuController {
 		input.close();
 		
 		AccountManager.registerUser(username, password, question, answer);
+	}
+
+   /*
+	* @author Junyu Chen
+	*/
+	static void handleLogin() {
+	
 	}
 	
 	/**
@@ -327,7 +341,7 @@ class MenuController {
 		String username = AccountManager.getCurrentUser();
 		System.out.println("This permanently deletes your account and all its data.");
 	    System.out.println("Are you sure? (y/n)");
-	    if (!isYesNo()) {
+	    if (!isYes()) {
 	        System.out.println("Account deletion cancelled.");
 	        return;
 	    }
@@ -359,7 +373,7 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleLogout() {
-		AccountManager.singOut();
+		AccountManager.signOut();
 		// Need to clear the data somehow.
 		Sysmte.out.println( "You have logged out.\n");
 	}
@@ -389,7 +403,7 @@ class MenuController {
 	 *
 	 * @author Apostolos Tsano
 	 */
-	static boolean isYesNo() {
+	static boolean isYes() {
     while (true) {
         String response = input.nextLine().trim().toLowerCase();
         if (response.equals("y") || response.equals("yes")) return true;
