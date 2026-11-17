@@ -1,5 +1,6 @@
 package accounts;
-
+import validations.AccountValidator;
+import storage.AccountStorage;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -70,7 +71,7 @@ public final class AccountManager {
 
 		for (int i = 0; i < strParams.length; i++) {
 			String oldArg = strParams[i];
-			String newArg = validationValidateString(oldArg);
+			String newArg = AccountValidator.validateString(oldArg);
 			if (newArg == null) {
 				return false;
 			}
@@ -83,11 +84,11 @@ public final class AccountManager {
 		String newPassword = strParams[1];
 		String newAnswer = strParams[2];
 
-		if (!validationValidateUserName(username))
+		if (!AccountValidator.validateUserName(newUsername))
 			return false;
-		if (!validationValidatePassword(password))
+		if (!AccountValidator.validatePassword(newPassword))
 			return false;
-		if (!validationValidateAnswer(answer))
+		if (!AccountValidator.validateSecretAnswer(newAnswer))
 			return false;
 
 		// Verifies that this username does not exist yet.
@@ -99,7 +100,7 @@ public final class AccountManager {
 		String hashedAnswer = hashPlaintext(newAnswer);
 
 		// Creates user in persistent record, or fails and stops this operation.
-		if (!storageSaveUser(newUsername, hashedPassword, question.getQuestionText(), hashedAnswer))
+		if (!AccountStorage.saveUser(newUsername, hashedPassword, question.getQuestionText(), hashedAnswer))
 			return false;
 
 		currentUser = newUsername;
@@ -126,7 +127,7 @@ public final class AccountManager {
 
 		for (int i = 0; i < strParams.length; i++) {
 			String oldArg = strParams[i];
-			String newArg = validationValidateString(oldArg);
+			String newArg = AccountValidator.validateString(oldArg);
 			if (newArg == null) {
 				return false;
 			}
@@ -144,7 +145,7 @@ public final class AccountManager {
 		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
 			return false;
 
-		if (!storageDeleteUser(newUsername))
+		if (!AccountStorage.deleteUser(newUsername))
 			return false;
 
 		signOut();
@@ -162,8 +163,8 @@ public final class AccountManager {
 	 */
 	public static boolean signIn(String username, String password) {
 
-	    String validatedUser = validationValidateString(username);
-	    String validatedPass = validationValidateString(password);
+	    String validatedUser = AccountValidator.validateString(username);
+	    String validatedPass = AccountValidator.validateString(password);
 
 	    if (validatedUser == null || validatedPass == null) {
 	        return false;
@@ -199,15 +200,15 @@ public final class AccountManager {
 	 */
 	public static boolean changePassword(String username, String answer, String newPassword) {
 
-	    String validatedUser = validationValidateString(username);
-	    String validatedAnswer = validationValidateString(answer);
-	    String validatedPass = validationValidateString(newPassword);
+	    String validatedUser = AccountValidator.validateString(username);
+	    String validatedAnswer = AccountValidator.validateString(answer);
+	    String validatedPass = AccountValidator.validateString(newPassword);
 
 	    if (validatedUser == null || validatedAnswer == null || validatedPass == null) {
 	        return false;
 	    }
 
-	    if (!validationValidatePassword(validatedPass)) {
+	    if (!AccountValidator.validatePassword(validatedPass)) {
 	        return false;
 	    }
 
@@ -216,7 +217,7 @@ public final class AccountManager {
 	    }
 
 	    String hashedPass = hashPlaintext(validatedPass);
-	    storageUpdatePass(validatedUser, hashedPass);
+	    AccountStorage.updatePassword(validatedUser, hashedPass);
 
 	    return true;
 	}
@@ -239,14 +240,14 @@ public final class AccountManager {
 	        return false;
 	    }
 
-	    String validatedPass = validationValidateString(password);
-	    String validatedAnswer = validationValidateString(newAnswer);
+	    String validatedPass = AccountValidator.validateString(password);
+	    String validatedAnswer = AccountValidator.validateString(newAnswer);
 
 	    if (validatedPass == null || validatedAnswer == null) {
 	        return false;
 	    }
 
-	    if (!validationValidateAnswer(validatedAnswer)) {
+	    if (!AccountValidator.validateSecretAnswer(validatedAnswer)) {
 	        return false;
 	    }
 
@@ -255,7 +256,7 @@ public final class AccountManager {
 	    }
 
 	    String hashedAnswer = hashPlaintext(validatedAnswer);
-	    storageUpdateQnA(username, newQuestion.getQuestionText(), hashedAnswer);
+	    AccountStorage.updateQuestionAndAnswer(username, newQuestion.getQuestionText(), hashedAnswer);
 
 	    return true;
 	}
@@ -278,7 +279,8 @@ public final class AccountManager {
 			*to take out specifically the security question instead of say
 			*the hashed password, so it will depend on how Storage implements.
 			*/
-			StoredUser user = storageGetUserInfo(username);
+			AccountStorage.StoredUser user = AccountStorage.getUserInfo(username);
+			
 			if(user.question() == null){
 				return null;
 			}
@@ -297,7 +299,7 @@ public final class AccountManager {
 	public static String getCurrentUser() {
         String username = currentUser;
         //Uses the validation stub to validate the username
-        if(!validationValidateUserName(username)){
+        if(!AccountValidator.validateUserName(username)){
             return null;
         }
 
@@ -396,7 +398,7 @@ public final class AccountManager {
 		if (username == null || username.trim().isEmpty()) {
 			return false;
 		}
-		return storageFindUser(username.trim());
+		return AccountStorage.findUser(username.trim());
 	}
 
 	/**
@@ -420,7 +422,7 @@ public final class AccountManager {
 		}
 
 		// Calls storage stub to access the stored hash for this user.
-		StoredUser user = storageGetUserInfo(username);
+		AccountStorage.StoredUser user = AccountStorage.getUserInfo(username);
 		if (user == null) {
 			return false;
 		}
