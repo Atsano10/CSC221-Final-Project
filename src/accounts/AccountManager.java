@@ -84,11 +84,11 @@ public final class AccountManager {
 		String newPassword = strParams[1];
 		String newAnswer = strParams[2];
 
-		if (!AccountValidator.validateUserName(username))
+		if (!AccountValidator.validateUserName(newUsername))
 			return false;
-		if (!AccountValidator.validatePassword(password))
+		if (!AccountValidator.validatePassword(newPassword))
 			return false;
-		if (!AccountValidator.validateSecretAnswer(answer))
+		if (!AccountValidator.validateSecretAnswer(newAnswer))
 			return false;
 
 		// Verifies that this username does not exist yet.
@@ -435,40 +435,6 @@ public final class AccountManager {
 		}
 
 		return comparePlaintextToHash(plaintext, storedHash);
-	}
-
-	// ---------------- STORAGE STUBS NEEDED -----------------
-
-	// Checks if a username exists in storage.
-	private static boolean storageFindUser(String username) {
-		return AccountStorage.findUser(username);
-	}
-
-	// Gets user credentials and security question/answer from storage.
-	private static StoredUser storageGetUserInfo(String username) {
-		return AccountStorage.getUserInfo(username);
-	}
-
-	// Saves a new user record to storage.
-	private static boolean storageSaveUser(String username, String hashedPassword,
-			String question, String hashedAnswer) {
-		return AccountStorage.saveUser(username, hashedPassword, question, hashedAnswer);
-	}
-
-	// Updates the stored password for a user.
-	private static boolean storageUpdatePass(String username, String hashedPassword) {
-		return AccountStorage.updatePassword(username, hashedPassword);
-	}
-
-	// Updates the security question and answer for a user.
-	private static boolean storageUpdateQnA(String username, String question,
-			String hashedAnswer) {
-		return AccountStorage.updateQuestionAndAnswer(username, question, hashedAnswer);
-	}
-
-	// Deletes a user record from storage.
-	private static boolean storageDeleteUser(String username) {
-		return AccountStorage.deleteUser(username);
 	}
 
 }
