@@ -236,7 +236,7 @@ class MenuController {
 		String username = AccountManager.getCurrentUser();
 		System.out.println("This permanently deletes your account and all its data.");
 	    System.out.println("Are you sure? (y/n)");
-	    if (!isYesNo()) {
+	    if (!isYes()) {
 	        System.out.println("Account deletion cancelled.");
 	        return;
 	    }
