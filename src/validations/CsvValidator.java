@@ -7,6 +7,16 @@ import java.util.List;
  */
 public final class CsvValidator {
 
+	private static final List<String> INCOME_CATEGORIES = List.of(
+			"Compensation", "Allowance", "Investments", "Other");
+
+	private static final List<String> EXPENSE_CATEGORIES = List.of(
+			"Home", "Utilities", "Food", "Appearance", "Work", "Education",
+			"Transportation", "Entertainment", "Professional Services", "Other");
+
+	/** Days in each month, January to December. February is fixed up for leap years. */
+	private static final int[] DAYS_IN_MONTH = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
 	/**
 	 * Private constructor that prevents creation of a CsvValidator object.
 	 *
@@ -25,7 +35,22 @@ public final class CsvValidator {
 	 * @author Shadman
 	 */
 	public static boolean validateHeader(String headerLine) {
-		return false;
+		if (headerLine == null) {
+			return false;
+		}
+		// Some editors (like Excel) add an invisible byte order mark to the
+		// start of the file. Remove it so the header still matches.
+		String line = headerLine;
+		if (line.startsWith("\uFEFF")) {
+			line = line.substring(1);
+		}
+		String[] columns = line.split(",", -1);
+		if (columns.length != 3) {
+			return false;
+		}
+		return columns[0].trim().equals("Date")
+				&& columns[1].trim().equals("Category")
+				&& columns[2].trim().equals("Amount");
 	}
 
 	/**
@@ -38,7 +63,41 @@ public final class CsvValidator {
 	 * @author Shadman
 	 */
 	public static boolean validateDate(String date) {
-		return false;
+		// Regex enforces leading zeros, so 2/3/2025 fails.
+		if (date == null || !date.matches("\\d{2}/\\d{2}/\\d{4}")) {
+			return false;
+		}
+
+		int month = Integer.parseInt(date.substring(0, 2));
+		int day = Integer.parseInt(date.substring(3, 5));
+		int year = Integer.parseInt(date.substring(6, 10));
+
+		if (month < 1 || month > 12) {
+			return false;
+		}
+
+		int maxDay = DAYS_IN_MONTH[month - 1];
+		if (month == 2 && leapYear(year)) {
+			maxDay = 29;
+		}
+
+		return day >= 1 && day <= maxDay;
+	}
+
+	/**
+	 * Checks whether a year is a leap year.
+	 *
+	 * @param year The year to check.
+	 * @return True if the year is a leap year.
+	 *
+	 * @author Shadman
+	 */
+	private static boolean leapYear(int year) {
+		boolean divisibleBy4 = year % 4 == 0;
+		boolean divisibleBy100 = year % 100 == 0;
+		boolean divisibleBy400 = year % 400 == 0;
+
+		return divisibleBy4 && (!divisibleBy100 || divisibleBy400);
 	}
 
 	/**
@@ -55,7 +114,11 @@ public final class CsvValidator {
 	 * @author Shadman
 	 */
 	public static boolean validateCategory(String category) {
-		return false;
+		if (category == null) {
+			return false;
+		}
+		return INCOME_CATEGORIES.contains(category)
+				|| EXPENSE_CATEGORIES.contains(category);
 	}
 
 	/**
