@@ -1,5 +1,6 @@
 package integration;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 import accounts.AccountManager;
 import accounts.SecurityQuestion;
 
@@ -12,7 +13,7 @@ import accounts.SecurityQuestion;
   */
 
 class MenuController {
-	
+	static java.util.List<String> recordList = new java.util.ArrayList<>();
   /** 
 	* Prints the options available to the user for the main menu
 	*
@@ -25,37 +26,38 @@ class MenuController {
 			System.out.println("2. Login");
 			System.out.println("3. Help");
 			System.out.println("4. Exit");
+			MenuController.doMenuAction(MenuController.getMenuSelection(4));
 		} else {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. ");
 			System.out.println("2. ");
 			System.out.println("3. Options");
 			System.out.println("4. Exit");
-		} MenuController.doMenuAction(MenuController.getMenuSelection());
+			MenuController.doMenuAction(MenuController.getMenuSelection(4));
+		} 
 	}
 	
   /** 
     * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
 	* 
+	* @param The number of choices the menu will have. This allows this function to be used for menus with varying choice sizes.
 	* @return An int from 1 - [number of menu options] chosen by the user
 	* @author Bilal
 	*/
-	static int getMenuSelection() {
-		Scanner input = new Scanner(System.in);
-		String strSelection;
+	static int getMenuSelection(int choices) {
 		int selection;
 		
-		System.out.println("\nSelect from the menu");
+		System.out.println("\nSelect: ");
 	
 		while (true) {
-			strSelection = input.nextLine();
+			Scanner input = new Scanner(System.in);
 			try {
-				 selection = Integer.parseInt(strSelection);
-			} catch (NumberFormatException e) {
+				 selection = input.nextInt();
+			} catch (InputMismatchException e) {
 				System.out.println("Try again.");
 				continue;
 			} 
-			if (selection > 4 || selection < 1) {
+			if (selection > choices || selection < 1) {
 				System.out.println("Try again.");
 				continue;
 			} input.close();
@@ -63,27 +65,6 @@ class MenuController {
 		}
 	}
 
- /**
-   * Calls this function if the user selects register. This method calls the registerUser method from the AccountManager class after getting parameters.
-   *
-   * @author Bilal
-   */
-	static void handleRegister() {
-		Scanner input = new Scanner(System.in);
-		String username;
-		String password;
-		
-		System.out.println("Username: ");
-		username = input.nextLine();
-		System.out.println("Password: ");
-		password = input.nextLine();
-
-		input.close();
-
-		AccountManager.registerUser(username, password);
-			
-	}
-	
   /** 
     * Prints the next menu based on selection parameter if applicable,
     * otherwise does the relevant menu action by calling methods from other classes
@@ -92,10 +73,9 @@ class MenuController {
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) {
-		if (selection == 1) {
-			MenuController.handleRegister();
-		} else if (selection == 4) {
-			MenuController.handleExit();
+		switch (selection) {
+			case 1 -> MenuController.handleRegister();
+			case 4 -> MenuController.handleExit();
 		}
 	}
 	
@@ -109,7 +89,109 @@ class MenuController {
 	* @author Apostolos Tsano
     */
 	static String promptForFilePath() {
-		return path;
+		Scanner input = new Scanner(System.in);
+		
+		while ( true ) {
+			System.out.println( "Enter the path of the file you wish to look for: " );
+			String path = input.nextLine().trim();
+
+			// Removes quotes.
+			if ( path.startsWith("\"") && path.endsWith("\"") && path.length() > 1 ) {
+				path = path.substring( 1, path.length() - 1 );
+			}
+			if (!path.isEmpty()) {
+				input.close();
+				return path;
+			} 
+			System.out.println("Path cannot be empty. Try again.");
+    	} 
+	}
+			
+	
+ /**
+   * Calls this function if the user selects register. This method takes input from the user 
+   * for username, password, security question, and answer. Then it passes these as parameters 
+   * to the registerUser method from the AccountManager class.
+   *
+   * @author Bilal
+   */
+	static void handleRegister() {
+		while (true) {
+			String username = null;
+			String password = null;
+			SecurityQuestion question = null;
+			String answer = null;
+		
+			Scanner input = new Scanner(System.in);
+		
+			System.out.println("Choose a username: ");
+			username = input.nextLine();
+			System.out.println("Choose a password: ");
+			password = input.nextLine();
+
+			System.out.println("Pick a security question: \n");
+		
+			int j = 0;
+			for (SecurityQuestion sq : SecurityQuestion.values()) {
+				j++;
+				System.out.println(j + ". " + sq.getQuestionText());
+			} 
+		
+			int selection = MenuController.getMenuSelection(j);
+
+			switch (selection) {
+				case 1 -> question = SecurityQuestion.FIRST_PET;
+				case 2 -> question = SecurityQuestion.TASTY_ROCK;
+				case 3 -> question = SecurityQuestion.BIRTH_CITY;
+				case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
+				case 5 -> question = SecurityQuestion.FAV_POKEMON;
+				case 6 -> question = SecurityQuestion.HS_MASCOT;
+				case 7 -> question = SecurityQuestion.FAV_ATHLETE;
+				case 8 -> question = SecurityQuestion.CHILDHOOD_TEAM;
+				case 9 -> question = SecurityQuestion.DONE_DREAMS;
+				case 10 -> question = SecurityQuestion.BEST_FRIEND;
+				case 11 -> question = SecurityQuestion.WORST_GROUP_PROJECT;
+				case 12 -> question = SecurityQuestion.FOX_WORDS;
+			}
+
+			System.out.println("Answer for your security question: ");
+			answer = input.nextLine();
+		
+			input.close();
+		
+			if (AccountManager.registerUser(username, password, question, answer)) {
+				System.out.println("Account created!");
+				AccountManager.signIn(username, password);
+				break;
+			} else {
+				System.out.println("There was a problem with one or more of your choices. Please try again.");
+				continue;
+			}
+		}
+	}
+    /**
+    * Handles user login.
+    * Prompts user for username and password.
+    * Uses AccountManager to check credentials.
+    * If valid, sets current user and returns to main menu.
+    * Otherwise prints error message.
+    *
+	* @author Junyu Chen
+	*/
+	static void handleLogin() {
+		
+		Scanner input = new Scanner(System.in);
+		System.out.println("Enter username: ");
+		String username = input.nextLine();
+		System.out.println("Enter password: ");
+		String password = input.nextLine();
+		input.close();
+
+		if (AccountManager.signIn(username, password)) {
+			System.out.println("Login successful!");
+		} else {
+			System.out.println("Invalid username or password.");
+	 	}
 	}
 	
 	/**
@@ -126,6 +208,35 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleReadFile() {
+		String path = promptForFilePath();
+		java.io.File file = new java.io.File(path);
+		java.util.List<String> recordList = new java.util.ArrayList<>();
+
+		try (java.util.Scanner fileScan = new java.util.Scanner(file)) {
+			int count = 0;
+			while (fileScan.hasNextLine()) {
+				String line = fileScan.nextLine().trim();
+				if (line.isEmpty()) {
+					continue;
+				}
+				String[] parts = line.split(",");
+				if (parts.length != 2) {
+					System.out.println("Skipping invalid line: " + line);
+					continue;
+				}
+				try {
+					Integer.parseInt(parts[0].trim());
+					Double.parseDouble(parts[1].trim());
+					recordList.add(line);
+					count++;
+				} catch (NumberFormatException e) {
+					System.out.println("Skipping bad number line: " + line);
+				}
+			}
+			System.out.println("File read complete. Total records loaded: " + count);
+		} catch (java.io.FileNotFoundException e) {
+			System.out.println("Error: File not found at the given path.");
+		}
 		
 	}
 
@@ -140,7 +251,25 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleAnomalies() {
-		
+		if (recordList.isEmpty()) {
+			System.out.println("Warning: No data loaded yet. Please load a file first.");
+			return;
+		}
+		int anomalyCount = 0;
+		for (String line : recordList) {
+			String[] parts = line.split(",");
+			double value = Double.parseDouble(parts[1].trim());
+			int year = Integer.parseInt(parts[0].trim());
+			if (value < 0 || value > 100000) {
+				System.out.println("Anomaly found: Year " + year + ", Value " + value);
+				anomalyCount++;
+			}
+		}
+		if (anomalyCount == 0) {
+			System.out.println("No anomalies found in the loaded data.");
+		} else {
+			System.out.println("Total anomalies: " + anomalyCount);
+		}
 	}
 
 	/**
@@ -154,7 +283,38 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleDeleteYear() {
-		
+		if (recordList.isEmpty()) {
+			System.out.println("Warning: No data loaded yet. Please load a file first.");
+			return;
+		}
+		Scanner input = new Scanner(System.in);
+		System.out.println("Enter the year you want to delete:");
+		int targetYear;
+		try {
+			targetYear = input.nextInt();
+		} catch (InputMismatchException e) {
+			System.out.println("Invalid year input.");
+			input.close();
+			return;
+		}
+		input.close();
+
+		int beforeSize = recordList.size();
+		java.util.Iterator<String> it = recordList.iterator();
+		while (it.hasNext()) {
+			String line = it.next();
+			String[] parts = line.split(",");
+			int year = Integer.parseInt(parts[0].trim());
+			if (year == targetYear) {
+				it.remove();
+			}
+		}
+		int deleted = beforeSize - recordList.size();
+		if (deleted > 0) {
+			System.out.println("Deleted " + deleted + " record(s) for year " + targetYear);
+		} else {
+			System.out.println("No records found for year " + targetYear);
+		}
 	}
 
 	/**
@@ -168,23 +328,75 @@ class MenuController {
      * @author Junyu Chen
      */
 	static void handleChangePassword() {
-		
+		if (AccountManager.getCurrentUser() == null) {
+			System.out.println("Error: No user logged in.");
+			return;
+		}
+		Scanner input = new Scanner(System.in);
+		System.out.println("Enter your old password:");
+		String oldPassword = input.nextLine();
+		if (!AccountManager.verifyPassword(oldPassword)) {
+			System.out.println("Old password is incorrect. Password change cancelled.");
+			input.close();
+			return;
+		}
+		System.out.println("Enter your new password:");
+		String newPassword = input.nextLine();
+		System.out.println("Confirm your new password:");
+		String confirmPw = input.nextLine();
+		input.close();
+
+		if (!newPassword.equals(confirmPw)) {
+			System.out.println("New password and confirmation do not match. Password change cancelled.");
+			return;
+		}
+		boolean success = AccountManager.changePassword(AccountManager.getCurrentUser(), newPassword);
+		if (success) {
+			System.out.println("Password updated successfully!");
+		} else {
+			System.out.println("Password update failed.");
+		}
 	}
 
 	/**
      * Handles the deletion of the currently logged in account.
 	 *
-	 * Prompts the user to confirm the deletion using {@link #promptYesOrNo()}.
+	 * Prompts the user to confirm the deletion using {@link #isYesNo()}.
 	 * If the user confirms, then all the data associated with the account is deleted, and the user is logged out.
 	 * If the user clicks "no", no further changes are made.
 	 *
-	 * @see #promptYesOrNo()
+	 * @see #isYesNo()
 	 * @see #handleLogout()
      * 
      * @author Apostolos Tsano
      */
 	static void handleDeleteAccount() {
+		Scanner input = new Scanner(System.in);
+		
+		System.out.println("This permanently deletes your account and all its data.");
+	    System.out.println("Are you sure? (y/n)");
+	    if (!isYes()) {
+	        System.out.println("Account deletion cancelled.");
+	        input.close();
+	        return;
+	    }
 
+		// If yes
+	    System.out.println("Enter your password: ");
+	    String password = input.nextLine();
+	    String question = AccountManager.getSecurityQuestion();
+	    System.out.println(question != null ? question : "Enter your security answer: ");
+	    String answer = input.nextLine();
+	
+	    if (AccountManager.deleteUser(password, answer)) {
+	        // Somehow delete the data stored for the username.
+	        System.out.println("Your account has been deleted.");
+	        handleLogout();
+	        input.close();
+	    } else {
+	        System.out.println("Deletion failed: incorrect password or security answer.");
+	        input.close();
+	    }
 	}
 	
 	/**
@@ -198,7 +410,9 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleLogout() {
-
+		AccountManager.signOut();
+		// Need to clear the data somehow.
+		System.out.println( "You have logged out.\n");
 	}
 
 	/**
@@ -211,6 +425,34 @@ class MenuController {
 	 * @author Apostolos Tsano
 	 */
 	static void handleExit() {
-	
+		if (AccountManager.getCurrentUser() != null) {
+	        AccountManager.signOut();
+	    }
+	    System.out.println("Goodbye, hope to see you soon!");
+	    System.exit(0);
 	}
+
+	/**
+	 * Allows the user to make choices.
+	 * 
+	 * Yes or no prompting,
+	 *
+	 * @author Apostolos Tsano
+	 */
+	static boolean isYes() {
+    while (true) {
+    	
+    	Scanner input = new Scanner(System.in);
+        String response = input.nextLine().trim().toLowerCase();
+        input.close();
+        
+        if (response.equals("y") || response.equals("yes")) {
+        	return true;
+        }
+        if (response.equals("n") || response.equals("no")) {
+        	return false;
+        }
+        System.out.println("Please enter y or n: ");
+    }
+}
 }
