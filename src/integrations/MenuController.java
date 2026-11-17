@@ -153,12 +153,28 @@ class MenuController {
 		
 		AccountManager.registerUser(username, password, question, answer);
 	}
-
-   /*
+    /**
+    * Handles user login.
+    * Prompts user for username and password.
+    * Uses AccountManager to check credentials.
+    * If valid, sets current user and returns to main menu.
+    * Otherwise prints error message.
+    *
 	* @author Junyu Chen
 	*/
 	static void handleLogin() {
-	
+	Scanner input = new Scanner(System.in);
+	System.out.println("Enter username: ");
+	String username = input.nextLine();
+	System.out.println("Enter password: ");
+	String password = input.nextLine();
+	input.close();
+
+	if (AccountManager.loginUser(username, password)) {
+		System.out.println("Login successful!");
+	} else {
+		System.out.println("Invalid username or password.");
+	  }
 	}
 	
 	/**
