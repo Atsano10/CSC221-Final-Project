@@ -17,13 +17,6 @@ public class DataAudit {
     private final double ANOMALYBOUND = 2.5;  
 
     /**
-     * Create data audit object
-     * 
-     * @author Hamet
-     */
-    public DataAudit(){};
-
-    /**
      * Goes through data audit menu and asks the user what they want to do (exclude categories, find dupes/anamolies)
      * 
      * @param budgetFile transaction data
