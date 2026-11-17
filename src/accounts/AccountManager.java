@@ -413,7 +413,7 @@ public final class AccountManager {
 		return comparePlaintextToHash(plaintext, storedHash);
 	}
 
-i	// ---------------- STORAGE STUBS NEEDED -----------------
+	// ---------------- STORAGE STUBS NEEDED -----------------
 
 	// Container for user credentials returned from storage.
 	static record StoredUser(String hashedPassword, String question, String hashedAnswer) {
@@ -455,21 +455,21 @@ i	// ---------------- STORAGE STUBS NEEDED -----------------
 
 	// Validates and sanitizes general string requirements with validation team.
 	private static String validationValidateString(String input) {
-    	return input;
+    	return AccountValidator.validateString(input);
 	}
 
 	// Validates username requirements with validation team.
 	private static boolean validationValidateUserName(String username) {
-		return false;
+		return AccountValidator.validateUserName(username);
 	}
 
 	// Validates password requirements with validation team.
 	private static boolean validationValidatePassword(String password) {
-		return false;
+		return AccountValidator.validatePassword(password);
 	}
 
 	// Validates security answer requirements with validation team.
 	private static boolean validationValidateAnswer(String answer) {
-		return false;
+		return AccountValidator.validateSecretAnswer(answer);
 	}
 }
