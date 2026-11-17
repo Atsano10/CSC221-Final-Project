@@ -1,8 +1,11 @@
+package dataaudit; 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Locale.Category;
+import java.util.HashSet;
 
 
 /**
@@ -14,20 +17,64 @@ public class DataAudit {
     private final double ANOMALYBOUND = 2.5;  
 
     /**
-     * Create data audit object
-     * 
-     * @author Hamet
-     */
-    public DataAudit(){};
-
-    /**
      * Goes through data audit menu and asks the user what they want to do (exclude categories, find dupes/anamolies)
      * 
      * @param budgetFile transaction data
      * 
-     * @author Javier
+     * @author Haoyang
      */
-    public void runAudit(Budget budgetFile){};
+    public void runAudit(Budget budgetFile){
+        //check that the budget file is not empty
+        if(budgetFile == null || budgetFile.transactions() == null){
+            System.err.println("Error: No budget data is available.");
+            return;
+        }
+        
+        // check that there are transactions to audit
+        if(budgetFile.transactions().isEmpty()){
+            System.out.println("There are no transactions to audit.");
+            return;
+        }
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<String> excludedCategories = new ArrayList<>();
+        boolean running = true;
+        while(running){
+            System.out.println("Data Audit Menu:");
+            System.out.println("1. choose excluded categories");
+            System.out.println("2. find duplicates");
+            System.out.println("3. find anomalies");
+            System.out.println("4. exit");
+            System.out.print("Enter your choice: ");
+
+            String choice = scanner.nextLine().trim();
+            switch(choice){
+                case "1":
+                    excludedCategories = chooseExcludedCategories();
+                    System.out.println("Excluded categories:" + excludedCategories);
+                    break;
+
+                case "2":
+                    System.out.println("Finding duplicates...");
+                    ArrayList<AuditFinding> duplicates = findDuplicates(budgetFile);
+                    printFindings(duplicates);
+                    break;
+                
+                case "3": 
+                    System.out.println("Finding anomalies...");
+                    ArrayList<AuditFinding> anomalies = findAnomalies(budgetFile, excludedCategories);
+                    printFindings(anomalies);
+                    break; 
+                     
+                case "4":
+                    running = false;
+                   System.out.println("Exiting Data Audit Menu.");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please try 1-4.");    
+            }
+        }
+    };
 
     /**
      * Finds transactions that are the same
@@ -37,9 +84,25 @@ public class DataAudit {
      * 
      * @author Javier
      */
-    public ArrayList<AuditFinding> findDuplicates(Budget budgetFile){
-        return new ArrayList<>();
-    };
+    public ArrayList<AuditFinding> findDuplicates(Budget budgetFile)
+{
+    ArrayList<AuditFinding> duplicates = new ArrayList<>();
+    HashSet<BudgetTransaction> seen = new HashSet<>();
+
+    for (BudgetTransaction transaction : budgetFile.transactions())
+    {
+        if (!seen.add(transaction))
+        {
+            String reason = "Transaction has already appeared";
+            AuditFinding finding = new AuditFinding(
+                transaction.toString(), FindingType.DUPLICATE, reason);
+
+            duplicates.add(finding);
+        }
+    }
+
+    return duplicates;
+}
 
     /**
      * 
