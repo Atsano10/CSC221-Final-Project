@@ -34,7 +34,7 @@ public class MenuController {
 			System.out.println("2. Edit a file");
 			System.out.println("3. Options");
 			System.out.println("4. Help");
-			System.out.println("5. Exit\n");
+			System.out.println("5. Exit");
 			doMenuAction(getMenuSelection(5));
 		} 
 	}
@@ -56,12 +56,12 @@ public class MenuController {
 				selection = input.nextInt();
 				input.nextLine();
 			} catch (InputMismatchException e) {
-				System.out.println("Please pick a number from 1 to " + choices + ".");
+				System.err.println("Please pick a number from 1 to " + choices + ".");
 				input.nextLine();
 				continue;
 			} 
 			if (selection > choices || selection < 1) {
-				System.out.println("Please pick a number from 1 to " + choices + ".");
+				System.err.println("Please pick a number from 1 to " + choices + ".");
 				input.nextLine();
 				continue;
 			} 
@@ -117,7 +117,10 @@ public class MenuController {
 			if (!path.isEmpty()) {
 				return path;
 			} 
-			System.out.println("Path cannot be empty. Try again.");
+			System.err.println("Path cannot be empty. Try again? y/n");
+			if (!isYes()) {
+				continue;
+			} break;
     	} 
 	}
 			
@@ -133,6 +136,7 @@ public class MenuController {
 		while (true) {
 			String username = null;
 			String password = null;
+			String confirmPassword = null;
 			SecurityQuestion question = null;
 			String answer = null;
 		
@@ -142,6 +146,13 @@ public class MenuController {
 			System.out.println("\nYour password must be at least 8 characters long and contain one number and one letter.\n");
 			System.out.println("Choose a password: ");
 			password = input.nextLine();
+			System.out.println("Confirm your password: ");
+			confirmPassword = input.nextLine();
+			
+			if (!password.equals(confirmPassword)) {
+				System.err.println("\nYour passwords do not match.\n");
+				break;
+			}
 
 			System.out.println("\nPick a security question: \n");
 		
@@ -177,7 +188,7 @@ public class MenuController {
 				AccountManager.signIn(username, password);
 				break;
 			} else {
-				System.out.println("\nThere was a problem with one or more of your choices. Would you like to try again? y/n");
+				System.err.println("\nThere was a problem with one or more of your choices. Try again? y/n");
 				if (isYes()) {
 					continue;
 				} break;
@@ -203,7 +214,7 @@ public class MenuController {
 		if (AccountManager.signIn(username, password)) {
 			System.out.println("\nLogin successful!");
 		} else {
-			System.out.println("Invalid username or password.\n");
+			System.err.println("\nInvalid username or password.\n");
 	 	}
 	}
 	
@@ -234,7 +245,7 @@ public class MenuController {
 				}
 				String[] parts = line.split(",");
 				if (parts.length != 2) {
-					System.out.println("Skipping invalid line: " + line);
+					System.err.println("Skipping invalid line: " + line);
 					continue;
 				}
 				try {
@@ -243,12 +254,12 @@ public class MenuController {
 					recordList.add(line);
 					count++;
 				} catch (NumberFormatException e) {
-					System.out.println("Skipping bad number line: " + line);
+					System.err.println("Skipping bad number line: " + line);
 				}
 			}
-			System.out.println("File read complete. Total records loaded: " + count);
+			System.out.println("\nFile read complete. Total records loaded: " + count);
 		} catch (java.io.FileNotFoundException e) {
-			System.out.println("Error: File not found at the given path.");
+			System.err.println("\nError: File not found at the given path.\n");
 		}
 		
 	}
@@ -265,7 +276,7 @@ public class MenuController {
      */
 	static void handleAnomalies() {
 		if (recordList.isEmpty()) {
-			System.out.println("Warning: No data loaded yet. Please load a file first.");
+			System.err.println("\nWarning: No data loaded yet. Please load a file first.\n");
 			return;
 		}
 		int anomalyCount = 0;
@@ -300,7 +311,7 @@ public class MenuController {
 
 		switch (selection) {
 			case 1 -> handleChangePassword();
-			case 2 -> System.out.println("\nNot functional yet.\n");
+			case 2 -> System.err.println("\nNot functional yet.\n");
 			case 3 -> handleDeleteAccount();
 			case 4 -> handleLogout();
 			case 5 -> handleExit();
@@ -319,7 +330,7 @@ public class MenuController {
      */
 	static void handleDeleteYear() {
 		if (recordList.isEmpty()) {
-			System.out.println("Warning: No data loaded yet. Please load a file first.");
+			System.err.println("\nNo data loaded yet. Please load a file first.\n");
 			return;
 		}
 		
@@ -328,7 +339,7 @@ public class MenuController {
 		try {
 			targetYear = input.nextInt();
 		} catch (InputMismatchException e) {
-			System.out.println("Invalid year input.");
+			System.err.println("\nInvalid year input.\n");
 			return;
 		}
 
@@ -346,7 +357,7 @@ public class MenuController {
 		if (deleted > 0) {
 			System.out.println("Deleted " + deleted + " record(s) for year " + targetYear);
 		} else {
-			System.out.println("No records found for year " + targetYear);
+			System.err.println("\nNo records found for year " + targetYear);
 		}
 	}
 
@@ -362,9 +373,10 @@ public class MenuController {
      */
 	static void handleChangePassword() {
 		if (AccountManager.getCurrentUser() == null) {
-			System.out.println("Error: No user logged in.");
+			System.err.println("\nError: No user logged in.\n");
 			return;
 		}
+		System.out.println("Answer your security question to confirm your identity: ");
 		System.out.println(AccountManager.getSecurityQuestion());
 		String answer = input.nextLine();
 		System.out.println("Enter your new password:");
@@ -373,15 +385,15 @@ public class MenuController {
 		String confirmPassword = input.nextLine();
 
 		if (!newPassword.equals(confirmPassword)) {
-			System.out.println("New password and confirmation do not match. Password change cancelled.");
+			System.err.println("\nNew password and confirmation do not match. Password change cancelled.\n");
 			return;
 		}
 		
 		boolean success = AccountManager.changePassword(AccountManager.getCurrentUser(), answer, newPassword);
 		if (success) {
-			System.out.println("Password updated successfully!");
+			System.out.println("\nPassword updated successfully!\n");
 		} else {
-			System.out.println("One or more of your inputs was invalid. Password update failed.");
+			System.err.println("\nOne or more of your inputs was invalid. Password update failed.\n");
 		}
 	}
 
@@ -413,9 +425,9 @@ public class MenuController {
 	    String answer = input.nextLine();
 	
 	    if (AccountManager.deleteUser(password, answer)) {
-	        System.out.println("Your account has been deleted.\n");
+	        System.out.println("\nYour account has been deleted.\n");
 	    } else {
-	        System.out.println("Deletion failed: Incorrect password or security answer.\n");
+	        System.err.println("\nDeletion failed: Incorrect password or security answer.\n");
 	    }
 	}
 	
@@ -433,9 +445,9 @@ public class MenuController {
 		if (AccountManager.getCurrentUser() != null) {
 			AccountManager.signOut();
 			// Need to clear the data somehow.
-			System.out.println("\nYou have logged out.");
+			System.out.println("\nYou have logged out.\n");
 		} else {
-			System.out.println("\nNo one is logged in.");
+			System.err.println("\nNo one is logged in.\n");
 		}
 	}
 
@@ -453,7 +465,7 @@ public class MenuController {
 	        handleLogout();
 	    }
 		input.close();
-	    System.out.println("\nGoodbye, hope to see you soon!");
+	    System.out.println("Goodbye, hope to see you again soon!");
 	    System.exit(0);
 	}
 
@@ -474,7 +486,7 @@ public class MenuController {
         if (response.equals("n") || response.equals("no")) {
         	return false;
         }
-        System.out.println("\nPlease enter y or n: ");
+        System.err.println("\nPlease enter y or n: ");
     }
 }
 }
