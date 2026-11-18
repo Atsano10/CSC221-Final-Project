@@ -31,10 +31,11 @@ public class MenuController {
 		} else {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. Upload a file");
-			System.out.println("2. ");
+			System.out.println("2. Edit a file");
 			System.out.println("3. Options");
-			System.out.println("4. Exit\n");
-			doMenuAction(getMenuSelection(4));
+			System.out.println("4. Help");
+			System.out.println("5. Exit\n");
+			doMenuAction(getMenuSelection(5));
 		} 
 	}
 	
@@ -76,7 +77,7 @@ public class MenuController {
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) {
-		if (AccountManager.getCurrentUser == null) {
+		if (AccountManager.getCurrentUser() == null) {
 			switch (selection) {
 				case 1 -> handleRegister();
 				case 2 -> handleLogin();
@@ -86,9 +87,10 @@ public class MenuController {
 		} else {
 			switch (selection) {
 				case 1 -> handleReadFile();
-				case 2 -> System.out.println("Feature under construction.");
+				case 2 -> System.out.println("Not functional yet.");
 				case 3 -> handleOptions();
-				case 4 -> handleExit();
+				case 4 -> handleHelp();
+				case 5 -> handleExit();
 			}
 		}
 	}
@@ -113,7 +115,6 @@ public class MenuController {
 				path = path.substring( 1, path.length() - 1 );
 			}
 			if (!path.isEmpty()) {
-				input.close();
 				return path;
 			} 
 			System.out.println("Path cannot be empty. Try again.");
@@ -285,21 +286,24 @@ public class MenuController {
 	}
 
 	static void handleHelp() {
-		System.out.println("\nTODO: Help menu goes here.");
+		System.out.println("\nTODO: Help menu goes here.\n");
 	}
 
 	static void handleOptions() {
-		System.out.println("1. Delete year");
-		System.out.println("2. Logout");
-		System.out.println("3. Exit\n");
-		System.out.println("TODO: This menu should have a way to get back to the previous menu without logging out.");
+		System.out.println("1. Change password");
+		System.out.println("2. Change security question.");
+		System.out.println("3. Delete account");
+		System.out.println("4. Logout");
+		System.out.println("5. Go back");
 
-		int selection = getMenuSelection(2);
+		int selection = getMenuSelection(5);
 
 		switch (selection) {
-			case 1 -> handleDeleteYear();
-			case 2 -> handleLogout();
-			case 3 -> handleExit();
+			case 1 -> handleChangePassword();
+			case 2 -> System.out.println("\nNot functional yet.\n");
+			case 3 -> handleDeleteAccount();
+			case 4 -> handleLogout();
+			case 5 -> handleExit();
 		}
 	}
 
@@ -325,10 +329,8 @@ public class MenuController {
 			targetYear = input.nextInt();
 		} catch (InputMismatchException e) {
 			System.out.println("Invalid year input.");
-			input.close();
 			return;
 		}
-		input.close();
 
 		int beforeSize = recordList.size();
 		java.util.Iterator<String> it = recordList.iterator();
@@ -363,14 +365,12 @@ public class MenuController {
 			System.out.println("Error: No user logged in.");
 			return;
 		}
-		System.out.println("Enter the answer to your security question: ");
+		System.out.println(AccountManager.getSecurityQuestion());
 		String answer = input.nextLine();
 		System.out.println("Enter your new password:");
 		String newPassword = input.nextLine();
 		System.out.println("Confirm your new password:");
 		String confirmPassword = input.nextLine();
-		
-		input.close();
 
 		if (!newPassword.equals(confirmPassword)) {
 			System.out.println("New password and confirmation do not match. Password change cancelled.");
@@ -402,7 +402,6 @@ public class MenuController {
 	    System.out.println("Are you sure? (y/n)");
 	    if (!isYes()) {
 	        System.out.println("Account deletion cancelled.");
-	        input.close();
 	        return;
 	    }
 
@@ -414,13 +413,9 @@ public class MenuController {
 	    String answer = input.nextLine();
 	
 	    if (AccountManager.deleteUser(password, answer)) {
-	        // Somehow delete the data stored for the username.
-	        System.out.println("Your account has been deleted.");
-	        handleLogout();
-	        input.close();
+	        System.out.println("Your account has been deleted.\n");
 	    } else {
-	        System.out.println("Deletion failed: incorrect password or security answer.");
-	        input.close();
+	        System.out.println("Deletion failed: Incorrect password or security answer.\n");
 	    }
 	}
 	
@@ -438,7 +433,7 @@ public class MenuController {
 		if (AccountManager.getCurrentUser() != null) {
 			AccountManager.signOut();
 			// Need to clear the data somehow.
-			System.out.println("\nYou have logged out.\n");
+			System.out.println("\nYou have logged out.");
 		} else {
 			System.out.println("\nNo one is logged in.");
 		}
@@ -455,7 +450,7 @@ public class MenuController {
 	 */
 	static void handleExit() {
 		if (AccountManager.getCurrentUser() != null) {
-	        AccountManager.signOut();
+	        handleLogout();
 	    }
 		input.close();
 	    System.out.println("\nGoodbye, hope to see you soon!");
