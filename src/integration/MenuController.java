@@ -298,8 +298,8 @@ public class MenuController {
 
 		switch (selection) {
 			case 1 -> handleDeleteYear();
-			case 2: -> handleLogout();
-			case 3: -> handleExit();
+			case 2 -> handleLogout();
+			case 3 -> handleExit();
 		}
 	}
 
