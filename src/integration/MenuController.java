@@ -120,8 +120,8 @@ public class MenuController {
 			System.err.println("Path cannot be empty. Try again? y/n");
 			if (!isYes()) {
 				continue;
-			} break;
-    	} 
+			} return "";
+    	}
 	}
 			
 	
