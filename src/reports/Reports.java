@@ -63,7 +63,7 @@ public final class Reports {
 		
 		
 		List<BudgetTransaction> transactions = budget.transactions();
-		int n = transactions().size();
+		int n = transactions.size();
 		int month;
 
 		
