@@ -30,12 +30,11 @@ public class MenuController {
 			doMenuAction(getMenuSelection(4));
 		} else {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
-			System.out.println("1. ");
+			System.out.println("1. Upload a file");
 			System.out.println("2. ");
 			System.out.println("3. Options");
 			System.out.println("4. Exit\n");
-			System.out.println("TODO: Working menu post login.\n");
-			System.exit(0);
+			doMenuAction(getMenuSelection(4));
 		} 
 	}
 	
@@ -61,7 +60,7 @@ public class MenuController {
 				continue;
 			} 
 			if (selection > choices || selection < 1) {
-				System.out.println("Please pick a number from 1 to " + choices + ". Press Enter to retry.");
+				System.out.println("Please pick a number from 1 to " + choices + ".");
 				input.nextLine();
 				continue;
 			} 
@@ -77,11 +76,20 @@ public class MenuController {
 	* @author Bilal
 	*/
 	static void doMenuAction(int selection) {
-		switch (selection) {
-			case 1 -> handleRegister();
-			case 2 -> handleLogin();
-			case 3 -> System.out.println("\nTODO: Help menu goes here.\n");
-			case 4 -> handleExit();
+		if (AccountManager.getCurrentUser == null) {
+			switch (selection) {
+				case 1 -> handleRegister();
+				case 2 -> handleLogin();
+				case 3 -> handleHelp();
+				case 4 -> handleExit();
+			}
+		} else {
+			switch (selection) {
+				case 1 -> handleReadFile();
+				case 2 -> System.out.println("Feature under construction.");
+				case 3 -> handleOptions();
+				case 4 -> handleExit();
+			}
 		}
 	}
 	
@@ -273,6 +281,25 @@ public class MenuController {
 			System.out.println("No anomalies found in the loaded data.");
 		} else {
 			System.out.println("Total anomalies: " + anomalyCount);
+		}
+	}
+
+	static void handleHelp() {
+		System.out.println("\nTODO: Help menu goes here.");
+	}
+
+	static void handleOptions() {
+		System.out.println("1. Delete year");
+		System.out.println("2. Logout");
+		System.out.println("3. Exit\n");
+		System.out.println("TODO: This menu should have a way to get back to the previous menu without logging out.");
+
+		int selection = getMenuSelection(2);
+
+		switch (selection) {
+			case 1 -> handleDeleteYear();
+			case 2: -> handleLogout();
+			case 3: -> handleExit();
 		}
 	}
 
