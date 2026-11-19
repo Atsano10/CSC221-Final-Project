@@ -243,9 +243,9 @@ public class MenuController {
 	}
 	
 	static void handleBudgetActions() throws IOException {
-		System.out.println("1. Upload a file.");
-		System.out.println("2. Load a year.");
-		System.out.println("3. Delete a year.");
+		System.out.println("1. Upload a file");
+		System.out.println("2. Load a year");
+		System.out.println("3. Delete a year");
 		
 		int selection = getMenuSelection(3);
 		
