@@ -1,8 +1,22 @@
 package integration;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
+
 import accounts.AccountManager;
 import accounts.SecurityQuestion;
+import dataaudit.DataAudit;
+import dataaudit.DataAudit.AuditFinding;
+import reports.Reports;
+import storage.Budget;
+import storage.BudgetStorage;
+import storage.BudgetTransaction;
 
 /**
   * Displays the main user menu and actions post authentication such as file reading
@@ -14,13 +28,13 @@ import accounts.SecurityQuestion;
 
 public class MenuController {
 	public static final Scanner input = new Scanner(System.in);
-	static java.util.List<String> recordList = new java.util.ArrayList<>();
   /** 
 	* Prints the options available to the user for the main menu
 	*
-	* @author Bilal
+	* @author Bilal Ansar
+ * @throws IOException 
 	*/
-	public static void displayMainMenu() {
+	public static void displayMainMenu() throws IOException {
 		if (AccountManager.getCurrentUser() == null) {
 			System.out.println("Welcome to Personal Finance Manager!\n");
 			System.out.println("1. Register");
@@ -30,12 +44,11 @@ public class MenuController {
 			doMenuAction(getMenuSelection(4));
 		} else {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
-			System.out.println("1. ");
-			System.out.println("2. ");
-			System.out.println("3. Options");
-			System.out.println("4. Exit\n");
-			System.out.println("TODO: Working menu post login.\n");
-			System.exit(0);
+			System.out.println("1. Budget actions");
+			System.out.println("2. Options");
+			System.out.println("3. Help");
+			System.out.println("4. Exit");
+			doMenuAction(getMenuSelection(4));
 		} 
 	}
 	
@@ -44,7 +57,7 @@ public class MenuController {
 	* 
 	* @param The number of choices the menu will have. This allows this function to be used for menus with varying choice sizes.
 	* @return An int from 1 - [number of menu options] chosen by the user
-	* @author Bilal
+	* @author Bilal Ansar
 	*/
 	static int getMenuSelection(int choices) {
 		int selection = 0;
@@ -56,12 +69,12 @@ public class MenuController {
 				selection = input.nextInt();
 				input.nextLine();
 			} catch (InputMismatchException e) {
-				System.out.println("Please pick a number from 1 to " + choices + ".");
+				System.err.println("Please pick a number from 1 to " + choices + ".");
 				input.nextLine();
 				continue;
 			} 
 			if (selection > choices || selection < 1) {
-				System.out.println("Please pick a number from 1 to " + choices + ". Press Enter to retry.");
+				System.err.println("Please pick a number from 1 to " + choices + ".");
 				input.nextLine();
 				continue;
 			} 
@@ -74,14 +87,25 @@ public class MenuController {
     * otherwise does the relevant menu action by calling methods from other classes
 	*
 	* @param The selection the user made fetched by the getMenuSelection method
-	* @author Bilal
+	* @author Bilal Ansar
+ * @throws IOException 
 	*/
-	static void doMenuAction(int selection) {
-		switch (selection) {
-			case 1 -> handleRegister();
-			case 2 -> handleLogin();
-			case 3 -> System.out.println("\nTODO: Help menu goes here.\n");
-			case 4 -> handleExit();
+	static void doMenuAction(int selection) throws IOException {
+		if (AccountManager.getCurrentUser() == null) {
+			switch (selection) {
+				case 1 -> handleRegister();
+				case 2 -> handleLogin();
+				case 3 -> handleHelp();
+				case 4 -> handleExit();
+			}
+		} else {
+			switch (selection) {
+				case 1 -> handleBudgetActions();
+				case 2 -> handleDeleteYear();
+				case 3 -> handleOptions();
+				case 4 -> handleHelp();
+				case 5 -> handleExit();
+			}
 		}
 	}
 	
@@ -105,11 +129,13 @@ public class MenuController {
 				path = path.substring( 1, path.length() - 1 );
 			}
 			if (!path.isEmpty()) {
-				input.close();
 				return path;
 			} 
-			System.out.println("Path cannot be empty. Try again.");
-    	} 
+			System.err.println("Path cannot be empty. Try again? y/n");
+			if (!isYes()) {
+				continue;
+			} return "";
+    	}
 	}
 			
 	
@@ -118,12 +144,13 @@ public class MenuController {
    * for username, password, security question, and answer. Then it passes these as parameters 
    * to the registerUser method from the AccountManager class.
    *
-   * @author Bilal
+   * @author Bilal Ansar
    */
 	static void handleRegister() {
 		while (true) {
 			String username = null;
 			String password = null;
+			String confirmPassword = null;
 			SecurityQuestion question = null;
 			String answer = null;
 		
@@ -133,6 +160,13 @@ public class MenuController {
 			System.out.println("\nYour password must be at least 8 characters long and contain one number and one letter.\n");
 			System.out.println("Choose a password: ");
 			password = input.nextLine();
+			System.out.println("Confirm your password: ");
+			confirmPassword = input.nextLine();
+			
+			if (!password.equals(confirmPassword)) {
+				System.err.println("\nYour passwords do not match.\n");
+				break;
+			}
 
 			System.out.println("\nPick a security question: \n");
 		
@@ -168,7 +202,7 @@ public class MenuController {
 				AccountManager.signIn(username, password);
 				break;
 			} else {
-				System.out.println("\nThere was a problem with one or more of your choices. Would you like to try again? y/n");
+				System.err.println("\nThere was a problem with one or more of your choices. Try again? y/n");
 				if (isYes()) {
 					continue;
 				} break;
@@ -192,10 +226,34 @@ public class MenuController {
 		String password = input.nextLine();
 
 		if (AccountManager.signIn(username, password)) {
-			System.out.println("\nLogin successful!");
+			System.out.println("\nLogin successful!\n");
 		} else {
-			System.out.println("Invalid username or password.\n");
+			System.err.println("\nInvalid username or password.\n");
 	 	}
+	}
+	
+	static String readNonBlankLine(BufferedReader br) throws IOException {
+	    String line;
+	    while ((line = br.readLine()) != null) {
+	        if (!line.isBlank()) {
+	            return line;
+	        }
+	    }
+	    return null;
+	}
+	
+	static void handleBudgetActions() throws IOException {
+		System.out.println("1. Upload a file");
+		System.out.println("2. Load a year");
+		System.out.println("3. Delete a year");
+		
+		int selection = getMenuSelection(3);
+		
+		switch (selection) {
+			case 1 -> handleReadFile();
+			case 2 -> handleLoadYear();
+			case 3 -> handleDeleteYear();
+		}
 	}
 	
 	/**
@@ -203,121 +261,155 @@ public class MenuController {
      *
      * Gets the file path from {@link #promptForFilePath()}.
      * Reads the file line by line, parses year and numeric data pairs, and stores them.
-     * Skips invalid or malformed lines without crashing the program.
-     * Shows a success message and the total number of loaded records when finished.
      * If the file cannot be found, displays an error message.
      *
      * @see #promptForFilePath()
      * 
-     * @author Junyu Chen
+     * @author Bilal Ansar
+	 * @throws IOException 
      */
-	static void handleReadFile() {
+	static void handleReadFile() throws IOException {
+		
 		String path = promptForFilePath();
-		java.io.File file = new java.io.File(path);
-		java.util.List<String> recordList = new java.util.ArrayList<>();
-
-		try (java.util.Scanner fileScan = new java.util.Scanner(file)) {
-			int count = 0;
-			while (fileScan.hasNextLine()) {
-				String line = fileScan.nextLine().trim();
-				if (line.isEmpty()) {
-					continue;
-				}
-				String[] parts = line.split(",");
-				if (parts.length != 2) {
-					System.out.println("Skipping invalid line: " + line);
-					continue;
-				}
-				try {
-					Integer.parseInt(parts[0].trim());
-					Double.parseDouble(parts[1].trim());
-					recordList.add(line);
-					count++;
-				} catch (NumberFormatException e) {
-					System.out.println("Skipping bad number line: " + line);
-				}
+		
+		Path file = Path.of(path);
+		String line;
+		String header = null;
+		int year = 0;
+		LocalDate date;
+		String category = "";
+		int amount = 0;
+		
+		List<BudgetTransaction> transactions = new ArrayList<>();
+		
+		try (BufferedReader br = Files.newBufferedReader(file)) {
+			
+			header = readNonBlankLine(br);
+			
+			if (header == null) { System.err.println("The file contains no header."); }
+			
+		} catch (IOException e) {
+			System.out.println("the file does not exist.");
+		}
+			 
+		try (BufferedReader br = Files.newBufferedReader(file)) {
+			 
+			readNonBlankLine(br);
+			
+			while ((line = br.readLine()) != null) {
+				 
+			String[] parts = line.split(",");
+			 
+			year = Integer.parseInt(parts[0].substring(6));
+			 
+			String yr = parts[0].substring(6);
+			String day = parts[0].substring(3, 5);
+			String month = parts[0].substring(0, 2);
+			 
+			String tempDate = yr + "-" + month + "-" + day;
+			 
+			date = LocalDate.parse(tempDate);
+			category = parts[1];
+			amount = Integer.parseInt(parts[2]);
+			 
+			storage.BudgetTransaction transaction = new storage.BudgetTransaction(date, category, amount);
+	
+			transactions.add(transaction);
 			}
-			System.out.println("File read complete. Total records loaded: " + count);
-		} catch (java.io.FileNotFoundException e) {
-			System.out.println("Error: File not found at the given path.");
+			 
+		} catch (IOException e) {
+			System.err.println("The file does not exist.");
 		}
 		
+		Budget budget = new Budget(year, transactions);
+		BudgetStorage.saveBudget(AccountManager.getCurrentUser(), budget, false);
+		
+		System.out.println("\nYour file was succesfully read!\n");
+		
+		handleAudit(budget);
+		
+		String report = Reports.formatSummaryAnalysis(budget);
+		
+		System.out.println(report);
 	}
+	
+	/*
+	 * @author Bilal Ansar
+	 */
 
-	/**
-     * Handles checking and displaying data anomalies.
-     *
-     * Checks if data has been loaded first; if no data exists, prints a warning message.
-     * Iterates through stored data and finds values outside the valid range.
-     * Prints each anomalous record with its year and value, and counts total anomalies found.
-     * If no anomalies are found, informs the user accordingly.
-     *
-     * @author Junyu Chen
-     */
-	static void handleAnomalies() {
-		if (recordList.isEmpty()) {
-			System.out.println("Warning: No data loaded yet. Please load a file first.");
+	static void handleHelp() {
+		System.out.println("\nTODO: Help menu goes here.\n");
+	}
+	
+	/*
+	 * @author Bilal Ansar
+	 */
+
+	static void handleOptions() {
+		System.out.println("1. Change password");
+		System.out.println("2. Delete account");
+		System.out.println("3. Logout");
+		System.out.println("4. Go back");
+
+		int selection = getMenuSelection(5);
+
+		switch (selection) {
+			case 1 -> handleChangePassword();
+			case 2 -> handleDeleteAccount();
+			case 3 -> handleLogout();
+			case 4 -> System.out.println();
+		}
+	}
+	
+	static void handleAudit(Budget budget) {
+		DataAudit.runAudit(budget);
+	}
+	
+	static void handleLoadYear() {
+		
+		System.out.println("\nEnter the year you want to load:");
+		int targetYear;
+		try {
+			targetYear = input.nextInt();
+		} catch (InputMismatchException e) {
+			System.err.println("\nInvalid year input.\n");
 			return;
 		}
-		int anomalyCount = 0;
-		for (String line : recordList) {
-			String[] parts = line.split(",");
-			double value = Double.parseDouble(parts[1].trim());
-			int year = Integer.parseInt(parts[0].trim());
-			if (value < 0 || value > 100000) {
-				System.out.println("Anomaly found: Year " + year + ", Value " + value);
-				anomalyCount++;
-			}
-		}
-		if (anomalyCount == 0) {
-			System.out.println("No anomalies found in the loaded data.");
+		
+		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
+			Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear);
+			String report = Reports.formatSummaryAnalysis(budgetToLoad);
+			System.out.println(report);
 		} else {
-			System.out.println("Total anomalies: " + anomalyCount);
+			System.err.println("\nThere is no budget for the specified year.\n");
 		}
 	}
 
 	/**
      * Handles deleting all data for a specified year.
      *
-     * Checks if data has been loaded first; if no data exists, prints a warning message.
      * Prompts the user to enter the target year to delete.
-     * Removes all matching year records and their associated data value.
-     * Notifies the user whether the year was found and deleted or not found.
+     * Removes matching year record.
+     * Notifies the user whether the year was deleted or not found.
      *
      * @author Junyu Chen
+	 * @throws IOException 
      */
-	static void handleDeleteYear() {
-		if (recordList.isEmpty()) {
-			System.out.println("Warning: No data loaded yet. Please load a file first.");
-			return;
-		}
+	static void handleDeleteYear() throws IOException {
 		
-		System.out.println("Enter the year you want to delete:");
+		System.out.println("\nEnter the year you want to delete:");
 		int targetYear;
 		try {
 			targetYear = input.nextInt();
 		} catch (InputMismatchException e) {
-			System.out.println("Invalid year input.");
-			input.close();
+			System.err.println("\nInvalid year input.\n");
 			return;
 		}
-		input.close();
-
-		int beforeSize = recordList.size();
-		java.util.Iterator<String> it = recordList.iterator();
-		while (it.hasNext()) {
-			String line = it.next();
-			String[] parts = line.split(",");
-			int year = Integer.parseInt(parts[0].trim());
-			if (year == targetYear) {
-				it.remove();
-			}
-		}
-		int deleted = beforeSize - recordList.size();
-		if (deleted > 0) {
-			System.out.println("Deleted " + deleted + " record(s) for year " + targetYear);
+		
+		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
+			BudgetStorage.deleteBudget(AccountManager.getCurrentUser(), targetYear);
 		} else {
-			System.out.println("No records found for year " + targetYear);
+			System.err.println("\nThere is no budget for the specified year.\n");
 		}
 	}
 
@@ -333,28 +425,27 @@ public class MenuController {
      */
 	static void handleChangePassword() {
 		if (AccountManager.getCurrentUser() == null) {
-			System.out.println("Error: No user logged in.");
+			System.err.println("\nError: No user logged in.\n");
 			return;
 		}
-		System.out.println("Enter the answer to your security question: ");
+		System.out.println("Answer your security question to confirm your identity: ");
+		System.out.println(AccountManager.getSecurityQuestion());
 		String answer = input.nextLine();
 		System.out.println("Enter your new password:");
 		String newPassword = input.nextLine();
 		System.out.println("Confirm your new password:");
 		String confirmPassword = input.nextLine();
-		
-		input.close();
 
 		if (!newPassword.equals(confirmPassword)) {
-			System.out.println("New password and confirmation do not match. Password change cancelled.");
+			System.err.println("\nNew password and confirmation do not match. Password change cancelled.\n");
 			return;
 		}
 		
 		boolean success = AccountManager.changePassword(AccountManager.getCurrentUser(), answer, newPassword);
 		if (success) {
-			System.out.println("Password updated successfully!");
+			System.out.println("\nPassword updated successfully!\n");
 		} else {
-			System.out.println("One or more of your inputs was invalid. Password update failed.");
+			System.err.println("\nOne or more of your inputs was invalid. Password update failed.\n");
 		}
 	}
 
@@ -375,7 +466,6 @@ public class MenuController {
 	    System.out.println("Are you sure? (y/n)");
 	    if (!isYes()) {
 	        System.out.println("Account deletion cancelled.");
-	        input.close();
 	        return;
 	    }
 
@@ -387,13 +477,9 @@ public class MenuController {
 	    String answer = input.nextLine();
 	
 	    if (AccountManager.deleteUser(password, answer)) {
-	        // Somehow delete the data stored for the username.
-	        System.out.println("Your account has been deleted.");
-	        handleLogout();
-	        input.close();
+	        System.out.println("\nYour account has been deleted.\n");
 	    } else {
-	        System.out.println("Deletion failed: incorrect password or security answer.");
-	        input.close();
+	        System.err.println("\nDeletion failed: Incorrect password or security answer.\n");
 	    }
 	}
 	
@@ -413,7 +499,7 @@ public class MenuController {
 			// Need to clear the data somehow.
 			System.out.println("\nYou have logged out.\n");
 		} else {
-			System.out.println("\nNo one is logged in.");
+			System.err.println("\nNo one is logged in.\n");
 		}
 	}
 
@@ -428,10 +514,10 @@ public class MenuController {
 	 */
 	static void handleExit() {
 		if (AccountManager.getCurrentUser() != null) {
-	        AccountManager.signOut();
+	        handleLogout();
 	    }
 		input.close();
-	    System.out.println("\nGoodbye, hope to see you soon!");
+	    System.out.println("Goodbye, hope to see you again soon!");
 	    System.exit(0);
 	}
 
@@ -452,7 +538,7 @@ public class MenuController {
         if (response.equals("n") || response.equals("no")) {
         	return false;
         }
-        System.out.println("\nPlease enter y or n: ");
+        System.err.println("\nPlease enter y or n: ");
     }
 }
 }
