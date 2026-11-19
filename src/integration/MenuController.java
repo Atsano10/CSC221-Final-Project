@@ -409,7 +409,7 @@ public class MenuController {
 				count++;
 			} else {
 				if (!budgetYear.equals(tempDate[2])) {
-				System.err.println("There are conflicting years in your file.");
+				System.err.println("\nThere are conflicting years in your file.\n");
 				return;
 				}
 			}
