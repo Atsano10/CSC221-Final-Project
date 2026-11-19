@@ -367,10 +367,18 @@ public class MenuController {
 			System.out.println("Total anomalies: " + anomalyCount);
 		}
 	}
+	
+	/*
+	 * @author Bilal Ansar
+	 */
 
 	static void handleHelp() {
 		System.out.println("\nTODO: Help menu goes here.\n");
 	}
+	
+	/*
+	 * @author Bilal Ansar
+	 */
 
 	static void handleOptions() {
 		System.out.println("1. Change password");
