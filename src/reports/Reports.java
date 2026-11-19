@@ -1,11 +1,14 @@
 package reports;
-// import storage.Budget;
-// import storage.BudgetTransaction;
+
 import java.util.List;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import storage.Budget;
+import storage.BudgetTransaction;
+import dataaudit.DataAudit.AuditFinding;
+import dataaudit.DataAudit.FindingType;
 
 /**
  * Formats reports to console or files so that everything is readable.
@@ -63,7 +66,7 @@ public final class Reports {
 		
 		
 		List<BudgetTransaction> transactions = budget.transactions();
-		int n = transactions().size();
+		int n = transactions.size();
 		int month;
 
 		

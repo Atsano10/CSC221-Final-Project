@@ -142,14 +142,6 @@ public class DataAudit {
         }
         return anamolies;
     };
-    /**
-     * Asks user which categories they want to leave out in audit
-     * 
-     * @return categories chosen or empty array
-     * 
-     * @author Haoyang
-     */
-    
    /**Asks the user which categories to exclude from anomaly detection.
      * @return list of excluded categories
      * @author Joseph
