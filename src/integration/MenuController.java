@@ -12,7 +12,6 @@ import java.util.List;
 import accounts.AccountManager;
 import accounts.SecurityQuestion;
 import dataaudit.DataAudit;
-import dataaudit.DataAudit.AuditFinding;
 import reports.Reports;
 import storage.Budget;
 import storage.BudgetStorage;
@@ -27,12 +26,18 @@ import storage.BudgetTransaction;
   */
 
 public class MenuController {
+
+   /*
+	* Local class scanner used for any time user input is required.
+	* Only closed when program exits.
+	*/
 	public static final Scanner input = new Scanner(System.in);
+	
   /** 
 	* Prints the options available to the user for the main menu
 	*
 	* @author Bilal Ansar
- * @throws IOException 
+ 	* @throws IOException when uploading a file through budget options and that file does not exist.
 	*/
 	public static void displayMainMenu() throws IOException {
 		if (AccountManager.getCurrentUser() == null) {
@@ -88,7 +93,7 @@ public class MenuController {
 	*
 	* @param The selection the user made fetched by the getMenuSelection method
 	* @author Bilal Ansar
- * @throws IOException 
+ 	* @throws IOException 
 	*/
 	static void doMenuAction(int selection) throws IOException {
 		if (AccountManager.getCurrentUser() == null) {
@@ -139,13 +144,13 @@ public class MenuController {
 	}
 			
 	
- /**
-   * Calls this function if the user selects register. This method takes input from the user 
-   * for username, password, security question, and answer. Then it passes these as parameters 
-   * to the registerUser method from the AccountManager class.
-   *
-   * @author Bilal Ansar
-   */
+  /**
+    * Calls this function if the user selects register. This method takes input from the user 
+    * for username, password, security question, and answer. Then it passes these as parameters 
+    * to the registerUser method from the AccountManager class.
+    *
+    * @author Bilal Ansar
+    */
 	static void handleRegister() {
 		while (true) {
 			String username = null;
@@ -209,6 +214,40 @@ public class MenuController {
 			} 
 		}
 	}
+
+  /**
+    * This will simply print a help menu to explain the function of the program.
+	*
+	* @author Bilal Ansar
+	*/
+	static void handleHelp() {
+		System.out.println("\nTODO: Help menu goes here.\n");
+	}
+	
+  /**
+	* Prints the options available to the currently logged in user.
+	* Change password will call handleChangePassword()
+	* Delete account will call handleDeleteAccount()
+	* Logout will call handleLogout()
+	*
+	* @author Bilal Ansar
+	*/
+	static void handleOptions() {
+		System.out.println("1. Change password");
+		System.out.println("2. Delete account");
+		System.out.println("3. Logout");
+		System.out.println("4. Go back");
+
+		int selection = getMenuSelection(5);
+
+		switch (selection) {
+			case 1 -> handleChangePassword();
+			case 2 -> handleDeleteAccount();
+			case 3 -> handleLogout();
+			case 4 -> System.out.println();
+		}
+	}
+	
     /**
     * Handles user login.
     * Prompts user for username and password.
@@ -231,17 +270,15 @@ public class MenuController {
 			System.err.println("\nInvalid username or password.\n");
 	 	}
 	}
-	
-	static String readNonBlankLine(BufferedReader br) throws IOException {
-	    String line;
-	    while ((line = br.readLine()) != null) {
-	        if (!line.isBlank()) {
-	            return line;
-	        }
-	    }
-	    return null;
-	}
-	
+
+  /**
+	* This will print the budget options avaliable to the user.
+    * Upload a file will call handleReadFIle()
+	* Load a year will call handleLoadYear()
+	* Delete a year will call handleDeleteYear()
+	*
+	* @author Bilal Ansar
+	*/
 	static void handleBudgetActions() throws IOException {
 		System.out.println("1. Upload a file");
 		System.out.println("2. Load a year");
@@ -257,10 +294,25 @@ public class MenuController {
 	}
 	
 	/**
+	 * This will skip blank lines to find the header line of the to-be-read file.
+	 *
+	 * @author Bilal Ansar
+	*/
+	static String readNonBlankLine(BufferedReader br) throws IOException {
+	    String line;
+	    while ((line = br.readLine()) != null) {
+	        if (!line.isBlank()) {
+	            return line;
+	        }
+	    }
+	    return null;
+	}
+	
+	/**
      * Handles reading data from a user-specified file.
      *
      * Gets the file path from {@link #promptForFilePath()}.
-     * Reads the file line by line, parses year and numeric data pairs, and stores them.
+     * Reads the file line by line, parses year, category and amount to store them in a objects from the Storage modules' classes.
      * If the file cannot be found, displays an error message.
      *
      * @see #promptForFilePath()
@@ -289,7 +341,8 @@ public class MenuController {
 			if (header == null) { System.err.println("The file contains no header."); }
 			
 		} catch (IOException e) {
-			System.out.println("the file does not exist.");
+			System.err.println("the file does not exist.");
+			return;
 		}
 			 
 		try (BufferedReader br = Files.newBufferedReader(file)) {
@@ -318,7 +371,8 @@ public class MenuController {
 			}
 			 
 		} catch (IOException e) {
-			System.err.println("The file does not exist.");
+			System.err.println("the file does not exist.");
+			return;
 		}
 		
 		Budget budget = new Budget(year, transactions);
@@ -332,39 +386,25 @@ public class MenuController {
 		
 		System.out.println(report);
 	}
-	
-	/*
-	 * @author Bilal Ansar
-	 */
 
-	static void handleHelp() {
-		System.out.println("\nTODO: Help menu goes here.\n");
-	}
-	
-	/*
-	 * @author Bilal Ansar
-	 */
-
-	static void handleOptions() {
-		System.out.println("1. Change password");
-		System.out.println("2. Delete account");
-		System.out.println("3. Logout");
-		System.out.println("4. Go back");
-
-		int selection = getMenuSelection(5);
-
-		switch (selection) {
-			case 1 -> handleChangePassword();
-			case 2 -> handleDeleteAccount();
-			case 3 -> handleLogout();
-			case 4 -> System.out.println();
-		}
-	}
-	
+  /**
+	* This will call the runAudit method from the Data Audit module
+	*
+	* @author Bilal Ansar
+	*/
 	static void handleAudit(Budget budget) {
 		DataAudit.runAudit(budget);
 	}
 	
+  /**
+    * Handles deleting all data for a specified year.
+    *
+    * Prompts the user to enter the target year to load.
+    * Loads the matching year record (if there is one).
+    * Notifies the user whether the year was loaded or not found.
+    *
+    * @author Bilal Ansar
+    */
 	static void handleLoadYear() {
 		
 		System.out.println("\nEnter the year you want to load:");
@@ -376,25 +416,44 @@ public class MenuController {
 			return;
 		}
 		
-		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
-			Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear);
-			String report = Reports.formatSummaryAnalysis(budgetToLoad);
-			System.out.println(report);
-		} else {
+		
+		
+		if (!BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
 			System.err.println("\nThere is no budget for the specified year.\n");
+			return;
 		}
+		
+		Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear); 
+		
+		System.out.println("Year found! Would you like to load it here or on to a file?\n");
+		
+		System.out.println("1. Load it here");
+		System.out.println("2. Onto a file");
+		
+		
+		int selection = getMenuSelection(2);
+		
+		switch (selection) {
+			case 1: 
+				String report = Reports.formatSummaryAnalysis(budgetToLoad);
+				System.out.println("\nYear loaded!\n");
+				System.out.println(report);
+				break;
+			case 2:
+				break;
+			}
 	}
 
-	/**
-     * Handles deleting all data for a specified year.
-     *
-     * Prompts the user to enter the target year to delete.
-     * Removes matching year record.
-     * Notifies the user whether the year was deleted or not found.
-     *
-     * @author Junyu Chen
-	 * @throws IOException 
-     */
+  /**
+    * Handles deleting all data for a specified year.
+    *
+    * Prompts the user to enter the target year to delete.
+    * Removes matching year record.
+    * Notifies the user whether the year was deleted or not found.
+    *
+    * @author Junyu Chen
+	* @throws IOException 
+    */
 	static void handleDeleteYear() throws IOException {
 		
 		System.out.println("\nEnter the year you want to delete:");
@@ -413,16 +472,16 @@ public class MenuController {
 		}
 	}
 
-	/**
-     * Handles changing the current user's password.
-     *
-     * Prompts the user for the old password and verifies it against the stored password.
-     * If the old password matches, asks for a new password and a confirmation of the new password.
-     * Updates the stored password only if the new password and confirmation match.
-     * Prints success or error messages based on validation results.
-     *
-     * @author Junyu Chen
-     */
+  /**
+    * Handles changing the current user's password.
+    *
+    * Prompts the user for the old password and verifies it against the stored password.
+    * If the old password matches, asks for a new password and a confirmation of the new password.
+    * Updates the stored password only if the new password and confirmation match.
+    * Prints success or error messages based on validation results.
+    *
+    * @author Junyu Chen
+    */
 	static void handleChangePassword() {
 		if (AccountManager.getCurrentUser() == null) {
 			System.err.println("\nError: No user logged in.\n");
@@ -449,18 +508,18 @@ public class MenuController {
 		}
 	}
 
-	/**
-     * Handles the deletion of the currently logged in account.
-	 *
-	 * Prompts the user to confirm the deletion using {@link #isYesNo()}.
-	 * If the user confirms, then all the data associated with the account is deleted, and the user is logged out.
-	 * If the user clicks "no", no further changes are made.
-	 *
-	 * @see #isYesNo()
-	 * @see #handleLogout()
-     * 
-     * @author Apostolos Tsano
-     */
+  /**
+    * Handles the deletion of the currently logged in account.
+	*
+	* Prompts the user to confirm the deletion using {@link #isYesNo()}.
+	* If the user confirms, then all the data associated with the account is deleted, and the user is logged out.
+	* If the user clicks "no", no further changes are made.
+	*
+	* @see #isYesNo()
+	* @see #handleLogout()
+    * 
+    * @author Apostolos Tsano
+    */
 	static void handleDeleteAccount() {
 		System.out.println("This permanently deletes your account and all its data.");
 	    System.out.println("Are you sure? (y/n)");
@@ -483,16 +542,16 @@ public class MenuController {
 	    }
 	}
 	
-	/**
-	 * Handles the logging out of the current user.
-	 *  
-	 * Ends the current user session and clears any session data,
-	 * then it will take you back to the login screen.
-	 *
-	 * @see #handleExit()
-	 *
-	 * @author Apostolos Tsano
-	 */
+  /**
+	* Handles the logging out of the current user.
+	*  
+	* Ends the current user session and clears any session data,
+	* then it will take you back to the login screen.
+    *
+	* @see #handleExit()
+	*
+	* @author Apostolos Tsano
+	*/
 	static void handleLogout() {
 		if (AccountManager.getCurrentUser() != null) {
 			AccountManager.signOut();
@@ -503,15 +562,15 @@ public class MenuController {
 		}
 	}
 
-	/**
-	 * Handles exiting the program.
-	 * 
-	 * Displays a closing message and terminates the application.
-	 *
-	 * @see #handleLogout()
-	 *
-	 * @author Apostolos Tsano
-	 */
+  /**
+	* Handles exiting the program.
+	* 
+	* Displays a closing message and terminates the application.
+	*
+    * @see #handleLogout()
+	*
+	* @author Apostolos Tsano
+	*/
 	static void handleExit() {
 		if (AccountManager.getCurrentUser() != null) {
 	        handleLogout();
@@ -521,13 +580,13 @@ public class MenuController {
 	    System.exit(0);
 	}
 
-	/**
-	 * Allows the user to make choices.
-	 * 
-	 * Yes or no prompting,
-	 *
-	 * @author Apostolos Tsano
-	 */
+  /**
+	* Allows the user to make choices.
+	* 
+	* Yes or no prompting,
+	*
+	* @author Apostolos Tsano
+	*/
 	static boolean isYes() {
     while (true) {
         String response = input.nextLine().trim().toLowerCase();
