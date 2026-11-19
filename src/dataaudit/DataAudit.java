@@ -15,7 +15,7 @@ import storage.BudgetTransaction;
  * @author Hamet
  */
 public class DataAudit {
-    private final double ANOMALYBOUND = 2.5;  
+    private final static double ANOMALYBOUND = 2.5;  
 
     /**
      * Goes through data audit menu and asks the user what they want to do (exclude categories, find dupes/anamolies)
@@ -25,7 +25,7 @@ public class DataAudit {
      *
      * @author Haoyang
      */
-    public void runAudit(Budget budgetFile, Scanner scanner){
+    public static void runAudit(Budget budgetFile, Scanner scanner){
         //check that the budget file is not empty
         if(budgetFile == null || budgetFile.transactions() == null){
             System.err.println("Error: No budget data is available.");
@@ -85,7 +85,7 @@ public class DataAudit {
      * 
      * @author Javier
      */
-    public ArrayList<AuditFinding> findDuplicates(Budget budgetFile)
+    public static ArrayList<AuditFinding> findDuplicates(Budget budgetFile)
 {
     ArrayList<AuditFinding> duplicates = new ArrayList<>();
     HashSet<BudgetTransaction> seen = new HashSet<>();
@@ -114,7 +114,7 @@ public class DataAudit {
      * 
      * @author Hamet 
      */
-    public ArrayList<AuditFinding> findAnomalies(Budget budgetFile, ArrayList<String> exclusion){
+    public static ArrayList<AuditFinding> findAnomalies(Budget budgetFile, ArrayList<String> exclusion){
         ArrayList<AuditFinding> anamolies = new ArrayList<>();
         double median;
         List<BudgetTransaction> copy = new ArrayList<>(budgetFile.transactions());
@@ -147,7 +147,7 @@ public class DataAudit {
      * @return list of excluded categories
      * @author Joseph
      */
-public ArrayList<String> chooseExcludedCategories(Scanner scanner) 
+public static ArrayList<String> chooseExcludedCategories(Scanner scanner) 
 {
 	ArrayList<String> excluded = new ArrayList<>();
     System.out.println("Enter categories you want to exclude:");
@@ -172,7 +172,7 @@ public ArrayList<String> chooseExcludedCategories(Scanner scanner)
      * @param records array of flagged transactions
      * @author Joseph
      */
-public void printFindings(ArrayList<AuditFinding> records)
+public static void printFindings(ArrayList<AuditFinding> records)
 {
 	System.out.println("===== ! Data Audit Results ! =====");
 	if (records == null || records.isEmpty())
