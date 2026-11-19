@@ -12,6 +12,7 @@ import java.util.List;
 import accounts.AccountManager;
 import accounts.SecurityQuestion;
 import dataaudit.DataAudit;
+import dataaudit.DataAudit.AuditFinding;
 import reports.Reports;
 import storage.Budget;
 import storage.BudgetTransaction;
@@ -99,7 +100,7 @@ public class MenuController {
 		} else {
 			switch (selection) {
 				case 1 -> handleReadFile();
-				case 2 -> System.out.println("\nnot functional yet\n");
+				case 2 -> handleDeleteYear();
 				case 3 -> handleOptions();
 				case 4 -> handleHelp();
 				case 5 -> handleExit();
@@ -248,13 +249,11 @@ public class MenuController {
      *
      * Gets the file path from {@link #promptForFilePath()}.
      * Reads the file line by line, parses year and numeric data pairs, and stores them.
-     * Skips invalid or malformed lines without crashing the program.
-     * Shows a success message and the total number of loaded records when finished.
      * If the file cannot be found, displays an error message.
      *
      * @see #promptForFilePath()
      * 
-     * @author Junyu Chen
+     * @author Bilal Ansar
      */
 	static void handleReadFile() {
 		
@@ -263,7 +262,7 @@ public class MenuController {
 		Path file = Path.of(path);
 		String line;
 		String header = null;
-		int year = 2005;
+		int year = 0;
 		LocalDate date;
 		String category = "";
 		int amount = 0;
@@ -277,7 +276,7 @@ public class MenuController {
 			if (header == null) { System.err.println("The file contains no header."); }
 			
 		} catch (IOException e) {
-			System.out.println("what are you doing!?");
+			System.out.println("the file does not exist.");
 		}
 			 
 		try (BufferedReader br = Files.newBufferedReader(file)) {
@@ -285,7 +284,6 @@ public class MenuController {
 			readNonBlankLine(br);
 			
 			while ((line = br.readLine()) != null) {
-				 
 				 
 			String[] parts = line.split(",");
 			 
@@ -307,17 +305,32 @@ public class MenuController {
 			}
 			 
 		} catch (IOException e) {
-			System.out.println("what are you doing!?");
+			System.err.println("The file does not exist.");
 		}
 		
 		Budget budget = new Budget(year, transactions);
 		
-		System.out.println("Your file was succesfully read!");
+		System.out.println("\nYour file was succesfully read!\n");
 		
-		System.out.println("Would you like to audit the file?");
+		System.out.println("\nData Audit\n");
 		
-		if (isYes()) {
-			handleAudit(budget);
+		System.out.println("1. Find duplicates.");
+		System.out.println("2. Find anomalies.");
+		System.out.println("3. Skip");
+		
+		int selection = getMenuSelection(3);
+		
+		switch (selection) {
+			case 1:
+				ArrayList<AuditFinding> duplicatesAudit = DataAudit.findDuplicates(budget);
+				DataAudit.printFindings(duplicatesAudit);
+				break;
+				
+			case 2:
+				System.out.println("doesn't work");
+				break;
+			case 3:
+				break;
 		}
 		
 		Reports.formatSummaryAnalysis(budget);
