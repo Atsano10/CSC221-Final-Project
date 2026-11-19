@@ -32,8 +32,25 @@ public class MenuController {
 	* Only closed when program exits.
 	*/
 	public static final Scanner input = new Scanner(System.in);
+
+	/**
+	 * Starts the whole application by pointing where to start. It keeps showing the 
+	 * main menu until the user decides to choose Exit.
+	 * 
+	 * @param args command-line arguments
+	 * @throws IOException
+	 * 
+	 * @author Apostolos Tsano
+	 */
+
+	public static void main(String[] args)throws IOException{
+		while(true){
+			displayMainMenu();
+		}
+	}
+
 	
-  /** 
+  	/** 
 	* Prints the options available to the user for the main menu
 	*
 	* @author Bilal Ansar
@@ -393,7 +410,7 @@ public class MenuController {
 	* @author Bilal Ansar
 	*/
 	static void handleAudit(Budget budget) {
-		DataAudit.runAudit(budget);
+		new DataAudit().runAudit(budget, input); // Created a DataAudit object since runAudit is not static.
 	}
 	
   /**
