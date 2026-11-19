@@ -32,9 +32,26 @@ public class MenuController {
 	* Only closed when program exits.
 	*/
 	public static final Scanner input = new Scanner(System.in);
+
+	/**
+	 * Starts the whole application by pointing where to start. It keeps showing the 
+	 * main menu until the user decides to choose Exit.
+	 * 
+	 * @param args command-line arguments
+	 * @throws IOException
+	 * 
+	 * @author Apostolos Tsano
+	 */
+
+	public static void main(String[] args)throws IOException{
+		while(true){
+			displayMainMenu();
+		}
+	}
+
 	
-  /** 
-	* Prints the options available to the user for the main menu
+  	/** 
+	* Prints the options available to the user for the main menu.
 	*
 	* @author Bilal Ansar
  	* @throws IOException when uploading a file through budget options and that file does not exist.
@@ -58,10 +75,10 @@ public class MenuController {
 	}
 	
   /** 
-    * Asks the user to choose a menu option anywhere from 1 to [number of menu options]
+    * Asks the user to choose a menu option anywhere from 1 to [number of menu options].
 	* 
 	* @param The number of choices the menu will have. This allows this function to be used for menus with varying choice sizes.
-	* @return An int from 1 - [number of menu options] chosen by the user
+	* @return An int from 1 - [number of menu options] chosen by the user.
 	* @author Bilal Ansar
 	*/
 	static int getMenuSelection(int choices) {
@@ -88,7 +105,7 @@ public class MenuController {
 	}
 
   /** 
-    * Prints the next menu based on selection parameter if applicable,
+    * If applicable, prints the next menu based on selection parameter,
     * otherwise does the relevant menu action by calling methods from other classes
 	*
 	* @param The selection the user made fetched by the getMenuSelection method
@@ -117,7 +134,6 @@ public class MenuController {
   /**
 	* 
     * Prompts the user to enter the path of the file to be read.
-	* 
 	*
 	* @return The file path which is set by the user.
 	* 
@@ -125,12 +141,12 @@ public class MenuController {
     */
 	static String promptForFilePath() {
 		
-		while ( true ) {
-			System.out.println( "Enter the path of the file you wish to look for: " );
+		while (true) {
+			System.out.println("Enter the path of the file you wish to look for: ");
 			String path = input.nextLine().trim();
 
 			// Removes quotes.
-			if ( path.startsWith("\"") && path.endsWith("\"") && path.length() > 1 ) {
+			if (path.startsWith("\"") && path.endsWith("\"") && path.length() > 1) {
 				path = path.substring( 1, path.length() - 1 );
 			}
 			if (!path.isEmpty()) {
@@ -226,6 +242,7 @@ public class MenuController {
 	
   /**
 	* Prints the options available to the currently logged in user.
+	*
 	* Change password will call handleChangePassword()
 	* Delete account will call handleDeleteAccount()
 	* Logout will call handleLogout()
@@ -249,11 +266,9 @@ public class MenuController {
 	}
 	
     /**
-    * Handles user login.
-    * Prompts user for username and password.
-    * Uses AccountManager to check credentials.
-    * If valid, sets current user and returns to main menu.
-    * Otherwise prints error message.
+    * Handles user login, by prompting the user for username and password. Uses AccountManager
+	* to check credentials and if valid sets the current user and returns to main menu, 
+	* otherwise shows error message.
     *
 	* @author Junyu Chen
 	*/
@@ -273,6 +288,7 @@ public class MenuController {
 
   /**
 	* This will print the budget options avaliable to the user.
+	*
     * Upload a file will call handleReadFIle()
 	* Load a year will call handleLoadYear()
 	* Delete a year will call handleDeleteYear()
@@ -512,8 +528,8 @@ public class MenuController {
     * Handles the deletion of the currently logged in account.
 	*
 	* Prompts the user to confirm the deletion using {@link #isYesNo()}.
-	* If the user confirms, then all the data associated with the account is deleted, and the user is logged out.
-	* If the user clicks "no", no further changes are made.
+	* If the user confirms, then all the data associated with the account is deleted, and the user is then logged out.
+	* If the user types n or no, no further changes are made.
 	*
 	* @see #isYesNo()
 	* @see #handleLogout()
