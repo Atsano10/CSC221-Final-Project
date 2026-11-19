@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Locale.Category;
 import java.util.HashSet;
 import storage.Budget;
 import storage.BudgetTransaction;
@@ -22,10 +21,11 @@ public class DataAudit {
      * Goes through data audit menu and asks the user what they want to do (exclude categories, find dupes/anamolies)
      * 
      * @param budgetFile transaction data
-     * 
+     * @param scanner shared scanner from whoever calls function
+     *
      * @author Haoyang
      */
-    public void runAudit(Budget budgetFile){
+    public void runAudit(Budget budgetFile, Scanner scanner){
         //check that the budget file is not empty
         if(budgetFile == null || budgetFile.transactions() == null){
             System.err.println("Error: No budget data is available.");
@@ -37,7 +37,6 @@ public class DataAudit {
             System.out.println("There are no transactions to audit.");
             return;
         }
-        Scanner scanner = new Scanner(System.in);
         ArrayList<String> excludedCategories = new ArrayList<>();
         boolean running = true;
         while(running){
