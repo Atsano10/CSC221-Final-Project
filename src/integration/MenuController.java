@@ -16,6 +16,8 @@ import reports.Reports;
 import storage.Budget;
 import storage.BudgetStorage;
 import storage.BudgetTransaction;
+import validations.CsvValidator;
+import validations.InputValidator;
 
 /**
   * Displays the main user menu and actions post authentication such as file reading
@@ -33,16 +35,15 @@ public class MenuController {
 	*/
 	public static final Scanner input = new Scanner(System.in);
 
-	/**
-	 * Starts the whole application by pointing where to start. It keeps showing the 
-	 * main menu until the user decides to choose Exit.
-	 * 
-	 * @param args command-line arguments
-	 * @throws IOException
-	 * 
-	 * @author Apostolos Tsano
-	 */
-
+  /**
+	* Starts the whole application by pointing where to start. 
+	* The while loop only breaks when the user decides to choose Exit from the menu.
+	* 
+	* @param args command-line arguments
+	* @throws IOException
+	* 
+	* @author Apostolos Tsano
+	*/
 	public static void main(String[] args)throws IOException{
 		while(true){
 			displayMainMenu();
@@ -123,10 +124,9 @@ public class MenuController {
 		} else {
 			switch (selection) {
 				case 1 -> handleBudgetActions();
-				case 2 -> handleDeleteYear();
-				case 3 -> handleOptions();
-				case 4 -> handleHelp();
-				case 5 -> handleExit();
+				case 2 -> handleOptions();
+				case 3 -> handleHelp();
+				case 4 -> handleExit();
 			}
 		}
 	}
@@ -142,20 +142,14 @@ public class MenuController {
 	static String promptForFilePath() {
 		
 		while (true) {
-			System.out.println("Enter the path of the file you wish to look for: ");
+			System.out.println("Enter the name of the file you wish to look for: ");
 			String path = input.nextLine().trim();
-
-			// Removes quotes.
-			if (path.startsWith("\"") && path.endsWith("\"") && path.length() > 1) {
-				path = path.substring( 1, path.length() - 1 );
+			
+			if (!InputValidator.validateFilePath(path)) {
+				System.err.println("The file was not found.");
+				return "";
 			}
-			if (!path.isEmpty()) {
-				return path;
-			} 
-			System.err.println("Path cannot be empty. Try again? y/n");
-			if (!isYes()) {
-				continue;
-			} return "";
+			return path;
     	}
 	}
 			
@@ -255,14 +249,14 @@ public class MenuController {
 		System.out.println("3. Logout");
 		System.out.println("4. Go back");
 
-		int selection = getMenuSelection(5);
+		int selection = getMenuSelection(4);
 
 		switch (selection) {
 			case 1 -> handleChangePassword();
 			case 2 -> handleDeleteAccount();
 			case 3 -> handleLogout();
-			case 4 -> System.out.println();
 		}
+		return;
 	}
 	
     /**
@@ -298,15 +292,18 @@ public class MenuController {
 	static void handleBudgetActions() throws IOException {
 		System.out.println("1. Upload a file");
 		System.out.println("2. Load a year");
-		System.out.println("3. Delete a year");
+		System.out.println("3. Check a year");
+		System.out.println("4. Delete a year");
+		System.out.println("5. Go back");
 		
-		int selection = getMenuSelection(3);
+		int selection = getMenuSelection(5);
 		
 		switch (selection) {
 			case 1 -> handleReadFile();
 			case 2 -> handleLoadYear();
-			case 3 -> handleDeleteYear();
-		}
+			case 3 -> handleAudit();
+			case 4 -> handleDeleteYear();
+		} return;
 	}
 	
 	/**
@@ -343,10 +340,13 @@ public class MenuController {
 		Path file = Path.of(path);
 		String line;
 		String header = null;
+		String category = null;
 		int year = 0;
-		LocalDate date;
-		String category = "";
+		int month = 0;
+		int day = 0;
 		int amount = 0;
+		String budgetYear = null;
+		int count = 0;
 		
 		List<BudgetTransaction> transactions = new ArrayList<>();
 		
@@ -354,10 +354,12 @@ public class MenuController {
 			
 			header = readNonBlankLine(br);
 			
-			if (header == null) { System.err.println("The file contains no header."); }
+			if (!CsvValidator.validateHeader(header)) {
+				System.err.println("\nThe file's header is not valid.\n");
+				return;
+			}
 			
 		} catch (IOException e) {
-			System.err.println("the file does not exist.");
 			return;
 		}
 			 
@@ -368,22 +370,60 @@ public class MenuController {
 			while ((line = br.readLine()) != null) {
 				 
 			String[] parts = line.split(",");
-			 
-			year = Integer.parseInt(parts[0].substring(6));
-			 
-			String yr = parts[0].substring(6);
-			String day = parts[0].substring(3, 5);
-			String month = parts[0].substring(0, 2);
-			 
-			String tempDate = yr + "-" + month + "-" + day;
-			 
-			date = LocalDate.parse(tempDate);
+			
+			if (!CsvValidator.validateDate(parts[0])) {
+				System.err.println("\nThe date is invalid at: " + line);
+				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				if (!isYes()) { return; } 
+				continue;
+			}
+			
+			if (!CsvValidator.validateCategory(parts[1])) {
+				System.err.println("\nThe category is invalid at: " + line);
+				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				if (!isYes()) { return; } 
+				continue;
+			}
+			
+			if (!CsvValidator.validateAmount(parts[2], parts[1])) {
+				System.err.println("\nThe amount is invalid at: " + line);
+				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				if (!isYes()) { return; } 
+				continue;
+			}
+			
 			category = parts[1];
 			amount = Integer.parseInt(parts[2]);
+			
+			String[] tempDate = parts[0].split("/");
+			
+			if (!InputValidator.validateYear(tempDate[2])) {
+				System.err.println("\nThe year is invalid at: " + line);
+				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				if (!isYes()) { return; } 
+				continue;
+			}
+			
+			if (count == 0) {
+				budgetYear = tempDate[2];
+				count++;
+			} else {
+				if (!budgetYear.equals(tempDate[2])) {
+				System.err.println("\nThere are conflicting years in your file.\n");
+				return;
+				}
+			}
+			
+			year = Integer.parseInt(tempDate[2]);
+			month = Integer.parseInt(tempDate[0]);
+			day = Integer.parseInt(tempDate[1]);
+			
+			LocalDate date = LocalDate.of(year, month, day);
 			 
 			storage.BudgetTransaction transaction = new storage.BudgetTransaction(date, category, amount);
 	
 			transactions.add(transaction);
+			
 			}
 			 
 		} catch (IOException e) {
@@ -391,16 +431,15 @@ public class MenuController {
 			return;
 		}
 		
+		if (year == 0) {
+			System.err.println("The year for the budget file is invalid.");
+			return;
+		}
+		
 		Budget budget = new Budget(year, transactions);
 		BudgetStorage.saveBudget(AccountManager.getCurrentUser(), budget, false);
 		
-		System.out.println("\nYour file was succesfully read!\n");
-		
-		handleAudit(budget);
-		
-		String report = Reports.formatSummaryAnalysis(budget);
-		
-		System.out.println(report);
+		System.out.println("\nYour file was succesfully read!");
 	}
 
   /**
@@ -408,8 +447,25 @@ public class MenuController {
 	*
 	* @author Bilal Ansar
 	*/
-	static void handleAudit(Budget budget) {
-		DataAudit.runAudit(budget);
+	static void handleAudit() {
+		System.out.println("\nEnter the year you want to check:");
+		int targetYear;
+		try {
+			targetYear = input.nextInt();
+		} catch (InputMismatchException e) {
+			System.err.println("\nInvalid year input.\n");
+			return;
+		}
+		
+		Budget budgetToAudit = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear);
+		
+		if (budgetToAudit == null) {
+			System.err.println("\nThere is no data for the specified year.\n");
+			return;
+		}
+		
+		System.out.println("\nFile loaded successfully!\n");
+		DataAudit.runAudit(budgetToAudit);
 	}
 	
   /**
@@ -432,30 +488,30 @@ public class MenuController {
 			return;
 		}
 		
-		
-		
 		if (!BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
 			System.err.println("\nThere is no budget for the specified year.\n");
 			return;
 		}
 		
+		
 		Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear); 
+		String report = Reports.formatSummaryAnalysis(budgetToLoad);
 		
 		System.out.println("Year found! Would you like to load it here or on to a file?\n");
 		
 		System.out.println("1. Load it here");
 		System.out.println("2. Onto a file");
 		
-		
 		int selection = getMenuSelection(2);
 		
 		switch (selection) {
 			case 1: 
-				String report = Reports.formatSummaryAnalysis(budgetToLoad);
 				System.out.println("\nYear loaded!\n");
-				System.out.println(report);
+				Reports.displayReport(report);
 				break;
 			case 2:
+				String path = promptForFilePath();
+				Reports.exportReport(report, path);
 				break;
 			}
 	}
@@ -472,6 +528,11 @@ public class MenuController {
     */
 	static void handleDeleteYear() throws IOException {
 		
+		System.out.println("Are you sure you want to delete a year? y/n");
+		if (!isYes()) {
+			return;
+		}
+		
 		System.out.println("\nEnter the year you want to delete:");
 		int targetYear;
 		try {
@@ -483,6 +544,7 @@ public class MenuController {
 		
 		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
 			BudgetStorage.deleteBudget(AccountManager.getCurrentUser(), targetYear);
+			System.out.println("\nThe budget for the specified year was successfully deleted.");
 		} else {
 			System.err.println("\nThere is no budget for the specified year.\n");
 		}
