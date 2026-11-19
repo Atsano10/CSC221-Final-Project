@@ -15,6 +15,7 @@ import dataaudit.DataAudit;
 import dataaudit.DataAudit.AuditFinding;
 import reports.Reports;
 import storage.Budget;
+import storage.BudgetStorage;
 import storage.BudgetTransaction;
 
 /**
@@ -27,13 +28,13 @@ import storage.BudgetTransaction;
 
 public class MenuController {
 	public static final Scanner input = new Scanner(System.in);
-	static java.util.List<String> recordList = new java.util.ArrayList<>();
   /** 
 	* Prints the options available to the user for the main menu
 	*
 	* @author Bilal Ansar
+ * @throws IOException 
 	*/
-	public static void displayMainMenu() {
+	public static void displayMainMenu() throws IOException {
 		if (AccountManager.getCurrentUser() == null) {
 			System.out.println("Welcome to Personal Finance Manager!\n");
 			System.out.println("1. Register");
@@ -43,12 +44,11 @@ public class MenuController {
 			doMenuAction(getMenuSelection(4));
 		} else {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
-			System.out.println("1. Upload a file");
-			System.out.println("2. Delete a year");
-			System.out.println("3. Options");
-			System.out.println("4. Help");
-			System.out.println("5. Exit");
-			doMenuAction(getMenuSelection(5));
+			System.out.println("1. Budget actions");
+			System.out.println("2. Options");
+			System.out.println("3. Help");
+			System.out.println("4. Exit");
+			doMenuAction(getMenuSelection(4));
 		} 
 	}
 	
@@ -88,8 +88,9 @@ public class MenuController {
 	*
 	* @param The selection the user made fetched by the getMenuSelection method
 	* @author Bilal Ansar
+ * @throws IOException 
 	*/
-	static void doMenuAction(int selection) {
+	static void doMenuAction(int selection) throws IOException {
 		if (AccountManager.getCurrentUser() == null) {
 			switch (selection) {
 				case 1 -> handleRegister();
@@ -99,7 +100,7 @@ public class MenuController {
 			}
 		} else {
 			switch (selection) {
-				case 1 -> handleReadFile();
+				case 1 -> handleBudgetActions();
 				case 2 -> handleDeleteYear();
 				case 3 -> handleOptions();
 				case 4 -> handleHelp();
@@ -225,23 +226,34 @@ public class MenuController {
 		String password = input.nextLine();
 
 		if (AccountManager.signIn(username, password)) {
-			System.out.println("\nLogin successful!");
+			System.out.println("\nLogin successful!\n");
 		} else {
 			System.err.println("\nInvalid username or password.\n");
 	 	}
 	}
 	
-	static String readNonBlankLine(BufferedReader br) throws IOException
-	{
+	static String readNonBlankLine(BufferedReader br) throws IOException {
 	    String line;
-	    while ((line = br.readLine()) != null)
-	    {
-	        if (!line.isBlank())
-	        {
+	    while ((line = br.readLine()) != null) {
+	        if (!line.isBlank()) {
 	            return line;
 	        }
 	    }
 	    return null;
+	}
+	
+	static void handleBudgetActions() throws IOException {
+		System.out.println("1. Upload a file.");
+		System.out.println("2. Load a year.");
+		System.out.println("3. Delete a year.");
+		
+		int selection = getMenuSelection(3);
+		
+		switch (selection) {
+			case 1 -> handleReadFile();
+			case 2 -> handleLoadYear();
+			case 3 -> handleDeleteYear();
+		}
 	}
 	
 	/**
@@ -254,8 +266,9 @@ public class MenuController {
      * @see #promptForFilePath()
      * 
      * @author Bilal Ansar
+	 * @throws IOException 
      */
-	static void handleReadFile() {
+	static void handleReadFile() throws IOException {
 		
 		String path = promptForFilePath();
 		
@@ -309,63 +322,15 @@ public class MenuController {
 		}
 		
 		Budget budget = new Budget(year, transactions);
+		BudgetStorage.saveBudget(AccountManager.getCurrentUser(), budget, false);
 		
 		System.out.println("\nYour file was succesfully read!\n");
 		
-		System.out.println("Data Audit\n");
+		handleAudit(budget);
 		
-		System.out.println("1. Find duplicates");
-		System.out.println("2. Find anomalies");
-		System.out.println("3. Skip");
+		String report = Reports.formatSummaryAnalysis(budget);
 		
-		int selection = getMenuSelection(3);
-		
-		switch (selection) {
-			case 1:
-				ArrayList<AuditFinding> duplicatesAudit = DataAudit.findDuplicates(budget);
-				DataAudit.printFindings(duplicatesAudit);
-				break;
-				
-			case 2:
-				System.out.println("doesn't work");
-				break;
-			case 3:
-				break;
-		}
-		
-		Reports.formatSummaryAnalysis(budget);
-	}
-
-	/**
-     * Handles checking and displaying data anomalies.
-     *
-     * Checks if data has been loaded first; if no data exists, prints a warning message.
-     * Iterates through stored data and finds values outside the valid range.
-     * Prints each anomalous record with its year and value, and counts total anomalies found.
-     * If no anomalies are found, informs the user accordingly.
-     *
-     * @author Junyu Chen
-     */
-	static void handleAnomalies() {
-		if (recordList.isEmpty()) {
-			System.err.println("\nWarning: No data loaded yet. Please load a file first.\n");
-			return;
-		}
-		int anomalyCount = 0;
-		for (String line : recordList) {
-			String[] parts = line.split(",");
-			double value = Double.parseDouble(parts[1].trim());
-			int year = Integer.parseInt(parts[0].trim());
-			if (value < 0 || value > 100000) {
-				System.out.println("Anomaly found: Year " + year + ", Value " + value);
-				anomalyCount++;
-			}
-		}
-		if (anomalyCount == 0) {
-			System.out.println("No anomalies found in the loaded data.");
-		} else {
-			System.out.println("Total anomalies: " + anomalyCount);
-		}
+		System.out.println(report);
 	}
 	
 	/*
@@ -399,24 +364,10 @@ public class MenuController {
 	static void handleAudit(Budget budget) {
 		DataAudit.runAudit(budget);
 	}
-
-	/**
-     * Handles deleting all data for a specified year.
-     *
-     * Checks if data has been loaded first; if no data exists, prints a warning message.
-     * Prompts the user to enter the target year to delete.
-     * Removes all matching year records and their associated data value.
-     * Notifies the user whether the year was found and deleted or not found.
-     *
-     * @author Junyu Chen
-     */
-	static void handleDeleteYear() {
-		if (recordList.isEmpty()) {
-			System.err.println("\nNo data loaded yet. Please load a file first.\n");
-			return;
-		}
+	
+	static void handleLoadYear() {
 		
-		System.out.println("Enter the year you want to delete:");
+		System.out.println("\nEnter the year you want to load:");
 		int targetYear;
 		try {
 			targetYear = input.nextInt();
@@ -424,22 +375,41 @@ public class MenuController {
 			System.err.println("\nInvalid year input.\n");
 			return;
 		}
-
-		int beforeSize = recordList.size();
-		java.util.Iterator<String> it = recordList.iterator();
-		while (it.hasNext()) {
-			String line = it.next();
-			String[] parts = line.split(",");
-			int year = Integer.parseInt(parts[0].trim());
-			if (year == targetYear) {
-				it.remove();
-			}
-		}
-		int deleted = beforeSize - recordList.size();
-		if (deleted > 0) {
-			System.out.println("Deleted " + deleted + " record(s) for year " + targetYear);
+		
+		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
+			Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear);
+			String report = Reports.formatSummaryAnalysis(budgetToLoad);
+			System.out.println(report);
 		} else {
-			System.err.println("\nNo records found for year " + targetYear);
+			System.err.println("\nThere is no budget for the specified year.\n");
+		}
+	}
+
+	/**
+     * Handles deleting all data for a specified year.
+     *
+     * Prompts the user to enter the target year to delete.
+     * Removes matching year record.
+     * Notifies the user whether the year was deleted or not found.
+     *
+     * @author Junyu Chen
+	 * @throws IOException 
+     */
+	static void handleDeleteYear() throws IOException {
+		
+		System.out.println("\nEnter the year you want to delete:");
+		int targetYear;
+		try {
+			targetYear = input.nextInt();
+		} catch (InputMismatchException e) {
+			System.err.println("\nInvalid year input.\n");
+			return;
+		}
+		
+		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
+			BudgetStorage.deleteBudget(AccountManager.getCurrentUser(), targetYear);
+		} else {
+			System.err.println("\nThere is no budget for the specified year.\n");
 		}
 	}
 
