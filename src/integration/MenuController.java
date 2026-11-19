@@ -312,10 +312,10 @@ public class MenuController {
 		
 		System.out.println("\nYour file was succesfully read!\n");
 		
-		System.out.println("\nData Audit\n");
+		System.out.println("Data Audit\n");
 		
-		System.out.println("1. Find duplicates.");
-		System.out.println("2. Find anomalies.");
+		System.out.println("1. Find duplicates");
+		System.out.println("2. Find anomalies");
 		System.out.println("3. Skip");
 		
 		int selection = getMenuSelection(3);
