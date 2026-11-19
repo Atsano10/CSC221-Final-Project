@@ -54,11 +54,11 @@ public final class Reports {
 		
 		String[] expensesCategories = {
 			"Home", "Utilities", "Food", "Appearance", "Work", "Education",
-			"Transportation", "Entertainment", "Professional Services", "Other"
+			"Transportation", "Entertainment", "Professional Services"
 		};
 		
 		String[] incomeCategories = {
-			"Compensation", "Allowance", "Investments", "Other"
+			"Compensation", "Allowance", "Investments"
 		};
 		
 		int[] incomeCategoryTotals = new int[incomeCategories.length];
