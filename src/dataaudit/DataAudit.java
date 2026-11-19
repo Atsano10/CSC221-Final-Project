@@ -49,7 +49,7 @@ public class DataAudit {
             String choice = scanner.nextLine().trim();
             switch(choice){
                 case "1":
-                    excludedCategories = chooseExcludedCategories();
+                    excludedCategories = chooseExcludedCategories(scanner);
                     System.out.println("Excluded categories:" + excludedCategories);
                     break;
 
@@ -154,10 +154,9 @@ public class DataAudit {
      * @return list of excluded categories
      * @author Joseph
      */
-public ArrayList<String> chooseExcludedCategories() 
+public ArrayList<String> chooseExcludedCategories(Scanner scanner) 
 {
 	ArrayList<String> excluded = new ArrayList<>();
-    Scanner scanner = new Scanner(System.in);
     System.out.println("Enter categories you want to exclude:");
     System.out.println("Type DONE when you are finished.");
     while (true) 
