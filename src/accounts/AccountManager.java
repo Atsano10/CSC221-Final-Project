@@ -1,6 +1,8 @@
 package accounts;
 import validations.AccountValidator;
 import storage.AccountStorage;
+import storage.BudgetStorage;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -144,6 +146,13 @@ public final class AccountManager {
 			return false;
 		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
 			return false;
+		
+		try {
+			if (!BudgetStorage.deleteAllBudgets(newUsername))
+				return false;
+		} catch (IOException e) {
+			return false;
+		}
 
 		if (!AccountStorage.deleteUser(newUsername))
 			return false;
