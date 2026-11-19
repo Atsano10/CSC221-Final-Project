@@ -342,9 +342,7 @@ public class MenuController {
 			
 		} catch (IOException e) {
 			System.err.println("the file does not exist.");
-			System.err.println("Program exit with error.");
-			input.close();
-			System.exit(1);
+			return;
 		}
 			 
 		try (BufferedReader br = Files.newBufferedReader(file)) {
@@ -374,9 +372,7 @@ public class MenuController {
 			 
 		} catch (IOException e) {
 			System.err.println("the file does not exist.");
-			System.err.println("Program exit with error.");
-			input.close();
-			System.exit(1);
+			return;
 		}
 		
 		Budget budget = new Budget(year, transactions);
@@ -420,14 +416,32 @@ public class MenuController {
 			return;
 		}
 		
-		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
-			Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear);
-			String report = Reports.formatSummaryAnalysis(budgetToLoad);
-			System.out.println("\nYear loaded!\n");
-			System.out.println(report);
-		} else {
+		
+		
+		if (!BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
 			System.err.println("\nThere is no budget for the specified year.\n");
+			return;
 		}
+		
+		Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear); 
+		
+		System.out.println("Year found! Would you like to load it here or on to a file?\n");
+		
+		System.out.println("1. Load it here");
+		System.out.println("2. Onto a file");
+		
+		
+		int selection = getMenuSelection(2);
+		
+		switch (selection) {
+			case 1: 
+				String report = Reports.formatSummaryAnalysis(budgetToLoad);
+				System.out.println("\nYear loaded!\n");
+				System.out.println(report);
+				break;
+			case 2:
+				break;
+			}
 	}
 
   /**
