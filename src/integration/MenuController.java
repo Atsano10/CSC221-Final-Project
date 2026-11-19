@@ -1,8 +1,20 @@
 package integration;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
+
 import accounts.AccountManager;
 import accounts.SecurityQuestion;
+import dataaudit.DataAudit;
+import reports.Reports;
+import storage.Budget;
+import storage.BudgetTransaction;
 
 /**
   * Displays the main user menu and actions post authentication such as file reading
@@ -18,7 +30,7 @@ public class MenuController {
   /** 
 	* Prints the options available to the user for the main menu
 	*
-	* @author Bilal
+	* @author Bilal Ansar
 	*/
 	public static void displayMainMenu() {
 		if (AccountManager.getCurrentUser() == null) {
@@ -31,7 +43,7 @@ public class MenuController {
 		} else {
 			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. Upload a file");
-			System.out.println("2. Edit a file");
+			System.out.println("2. Delete a year");
 			System.out.println("3. Options");
 			System.out.println("4. Help");
 			System.out.println("5. Exit");
@@ -44,7 +56,7 @@ public class MenuController {
 	* 
 	* @param The number of choices the menu will have. This allows this function to be used for menus with varying choice sizes.
 	* @return An int from 1 - [number of menu options] chosen by the user
-	* @author Bilal
+	* @author Bilal Ansar
 	*/
 	static int getMenuSelection(int choices) {
 		int selection = 0;
@@ -74,7 +86,7 @@ public class MenuController {
     * otherwise does the relevant menu action by calling methods from other classes
 	*
 	* @param The selection the user made fetched by the getMenuSelection method
-	* @author Bilal
+	* @author Bilal Ansar
 	*/
 	static void doMenuAction(int selection) {
 		if (AccountManager.getCurrentUser() == null) {
@@ -87,7 +99,7 @@ public class MenuController {
 		} else {
 			switch (selection) {
 				case 1 -> handleReadFile();
-				case 2 -> System.out.println("Not functional yet.");
+				case 2 -> System.out.println("\nnot functional yet\n");
 				case 3 -> handleOptions();
 				case 4 -> handleHelp();
 				case 5 -> handleExit();
@@ -130,7 +142,7 @@ public class MenuController {
    * for username, password, security question, and answer. Then it passes these as parameters 
    * to the registerUser method from the AccountManager class.
    *
-   * @author Bilal
+   * @author Bilal Ansar
    */
 	static void handleRegister() {
 		while (true) {
@@ -218,6 +230,19 @@ public class MenuController {
 	 	}
 	}
 	
+	static String readNonBlankLine(BufferedReader br) throws IOException
+	{
+	    String line;
+	    while ((line = br.readLine()) != null)
+	    {
+	        if (!line.isBlank())
+	        {
+	            return line;
+	        }
+	    }
+	    return null;
+	}
+	
 	/**
      * Handles reading data from a user-specified file.
      *
@@ -232,36 +257,70 @@ public class MenuController {
      * @author Junyu Chen
      */
 	static void handleReadFile() {
+		
 		String path = promptForFilePath();
-		java.io.File file = new java.io.File(path);
-		java.util.List<String> recordList = new java.util.ArrayList<>();
-
-		try (java.util.Scanner fileScan = new java.util.Scanner(file)) {
-			int count = 0;
-			while (fileScan.hasNextLine()) {
-				String line = fileScan.nextLine().trim();
-				if (line.isEmpty()) {
-					continue;
-				}
-				String[] parts = line.split(",");
-				if (parts.length != 2) {
-					System.err.println("Skipping invalid line: " + line);
-					continue;
-				}
-				try {
-					Integer.parseInt(parts[0].trim());
-					Double.parseDouble(parts[1].trim());
-					recordList.add(line);
-					count++;
-				} catch (NumberFormatException e) {
-					System.err.println("Skipping bad number line: " + line);
-				}
+		
+		Path file = Path.of(path);
+		String line;
+		String header = null;
+		int year = 2005;
+		LocalDate date;
+		String category = "";
+		int amount = 0;
+		
+		List<BudgetTransaction> transactions = new ArrayList<>();
+		
+		try (BufferedReader br = Files.newBufferedReader(file)) {
+			
+			header = readNonBlankLine(br);
+			
+			if (header == null) { System.err.println("The file contains no header."); }
+			
+		} catch (IOException e) {
+			System.out.println("what are you doing!?");
+		}
+			 
+		try (BufferedReader br = Files.newBufferedReader(file)) {
+			 
+			readNonBlankLine(br);
+			
+			while ((line = br.readLine()) != null) {
+				 
+				 
+			String[] parts = line.split(",");
+			 
+			year = Integer.parseInt(parts[0].substring(6));
+			 
+			String yr = parts[0].substring(6);
+			String day = parts[0].substring(3, 5);
+			String month = parts[0].substring(0, 2);
+			 
+			String tempDate = yr + "-" + month + "-" + day;
+			 
+			date = LocalDate.parse(tempDate);
+			category = parts[1];
+			amount = Integer.parseInt(parts[2]);
+			 
+			storage.BudgetTransaction transaction = new storage.BudgetTransaction(date, category, amount);
+	
+			transactions.add(transaction);
 			}
-			System.out.println("\nFile read complete. Total records loaded: " + count);
-		} catch (java.io.FileNotFoundException e) {
-			System.err.println("\nError: File not found at the given path.\n");
+			 
+		} catch (IOException e) {
+			System.out.println("what are you doing!?");
 		}
 		
+		Budget budget = new Budget(year, transactions);
+		
+		System.out.println("Your file was succesfully read!");
+		
+		System.out.println("Would you like to audit the file?");
+		
+		if (isYes()) {
+			handleAudit(budget);
+		}
+		
+		Reports.formatSummaryAnalysis(budget);
 	}
 
 	/**
@@ -302,20 +361,22 @@ public class MenuController {
 
 	static void handleOptions() {
 		System.out.println("1. Change password");
-		System.out.println("2. Change security question.");
-		System.out.println("3. Delete account");
-		System.out.println("4. Logout");
-		System.out.println("5. Go back");
+		System.out.println("2. Delete account");
+		System.out.println("3. Logout");
+		System.out.println("4. Go back");
 
 		int selection = getMenuSelection(5);
 
 		switch (selection) {
 			case 1 -> handleChangePassword();
-			case 2 -> System.err.println("\nNot functional yet.\n");
-			case 3 -> handleDeleteAccount();
-			case 4 -> handleLogout();
-			case 5 -> handleExit();
+			case 2 -> handleDeleteAccount();
+			case 3 -> handleLogout();
+			case 4 -> System.out.println();
 		}
+	}
+	
+	static void handleAudit(Budget budget) {
+		DataAudit.runAudit(budget);
 	}
 
 	/**
