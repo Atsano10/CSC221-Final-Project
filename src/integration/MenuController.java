@@ -409,7 +409,7 @@ public class MenuController {
 	* @author Bilal Ansar
 	*/
 	static void handleAudit(Budget budget) {
-		new DataAudit().runAudit(budget, input); // Created a DataAudit object since runAudit is not static.
+		DataAudit.runAudit(budget);
 	}
 	
   /**
