@@ -492,7 +492,7 @@ public class MenuController {
 			return;
 		}
 		
-		System.out.println("\nFile loaded successfully!\n");
+		System.out.println("\nFile loaded successfully!");
 		DataAudit.runAudit(budgetToAudit, input);
 	}
 	
@@ -541,6 +541,7 @@ public class MenuController {
 				Reports.displayReport(report);
 				break;
 			case 2:
+				System.out.println("Enter the name of the file you want to export to: ");
 				String path = promptForFilePath();
 				Reports.exportReport(report, path);
 				break;
