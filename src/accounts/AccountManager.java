@@ -1,6 +1,9 @@
 package accounts;
+
 import validations.AccountValidator;
 import storage.AccountStorage;
+import storage.BudgetStorage;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -50,8 +53,8 @@ public final class AccountManager {
 	}
 
 	/**
-	 * Registers a user, setting up their username, password, and security
-	 * question and answer.
+	 * Registers a user, setting up their username, password, and security question
+	 * and answer.
 	 * 
 	 * @param username The username the user wants to create.
 	 * @param password The plaintext password for the account.
@@ -61,13 +64,11 @@ public final class AccountManager {
 	 * 
 	 * @author Vic
 	 */
-	public static boolean registerUser(String username, String password, SecurityQuestion question, String answer) {
-
-		// Unsure of whether I need to validate the enum itself for if null or not.
+	public static boolean registerUser(String username, String password, String question, String answer) {
 
 		// Validates not null/empty.
 		// Subject to change depending on integration team's decisions.
-		String[] strParams = { username, password, answer };
+		String[] strParams = { username, password, question, answer };
 
 		for (int i = 0; i < strParams.length; i++) {
 			String oldArg = strParams[i];
@@ -78,15 +79,19 @@ public final class AccountManager {
 			strParams[i] = newArg;
 		}
 
+
 		// Validation loop from validation team.
 		// Subject to change depending on integration team's decisions.
 		String newUsername = strParams[0];
 		String newPassword = strParams[1];
-		String newAnswer = strParams[2];
+		String newQuestion = strParams[2];
+		String newAnswer = strParams[3];
 
 		if (!AccountValidator.validateUserName(newUsername))
 			return false;
 		if (!AccountValidator.validatePassword(newPassword))
+			return false;
+		if (!AccountValidator.validateQuestion(newQuestion))
 			return false;
 		if (!AccountValidator.validateSecretAnswer(newAnswer))
 			return false;
@@ -100,7 +105,7 @@ public final class AccountManager {
 		String hashedAnswer = hashPlaintext(newAnswer);
 
 		// Creates user in persistent record, or fails and stops this operation.
-		if (!AccountStorage.saveUser(newUsername, hashedPassword, question.getQuestionText(), hashedAnswer))
+		if (!AccountStorage.saveUser(newUsername, hashedPassword, newQuestion, hashedAnswer))
 			return false;
 
 		currentUser = newUsername;
@@ -145,6 +150,13 @@ public final class AccountManager {
 		if (!verifyIdentity(newUsername, newAnswer, AuthType.SECURITY_ANSWER))
 			return false;
 
+		try {
+			if (!BudgetStorage.deleteAllBudgets(newUsername))
+				return false;
+		} catch (IOException e) {
+			return false;
+		}
+
 		if (!AccountStorage.deleteUser(newUsername))
 			return false;
 
@@ -163,20 +175,20 @@ public final class AccountManager {
 	 */
 	public static boolean signIn(String username, String password) {
 
-	    String validatedUser = AccountValidator.validateString(username);
-	    String validatedPass = AccountValidator.validateString(password);
+		String validatedUser = AccountValidator.validateString(username);
+		String validatedPass = AccountValidator.validateString(password);
 
-	    if (validatedUser == null || validatedPass == null) {
-	        return false;
-	    }
+		if (validatedUser == null || validatedPass == null) {
+			return false;
+		}
 
-	    if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
-	        return false;
-	    }
+		if (!verifyIdentity(validatedUser, validatedPass, AuthType.PASSWORD)) {
+			return false;
+		}
 
-	    currentUser = validatedUser;
+		currentUser = validatedUser;
 
-	    return true;
+		return true;
 	}
 
 	/**
@@ -200,26 +212,26 @@ public final class AccountManager {
 	 */
 	public static boolean changePassword(String username, String answer, String newPassword) {
 
-	    String validatedUser = AccountValidator.validateString(username);
-	    String validatedAnswer = AccountValidator.validateString(answer);
-	    String validatedPass = AccountValidator.validateString(newPassword);
+		String validatedUser = AccountValidator.validateString(username);
+		String validatedAnswer = AccountValidator.validateString(answer);
+		String validatedPass = AccountValidator.validateString(newPassword);
 
-	    if (validatedUser == null || validatedAnswer == null || validatedPass == null) {
-	        return false;
-	    }
+		if (validatedUser == null || validatedAnswer == null || validatedPass == null) {
+			return false;
+		}
 
-	    if (!AccountValidator.validatePassword(validatedPass)) {
-	        return false;
-	    }
+		if (!AccountValidator.validatePassword(validatedPass)) {
+			return false;
+		}
 
-	    if (!verifyIdentity(validatedUser, validatedAnswer, AuthType.SECURITY_ANSWER)) {
-	        return false;
-	    }
+		if (!verifyIdentity(validatedUser, validatedAnswer, AuthType.SECURITY_ANSWER)) {
+			return false;
+		}
 
-	    String hashedPass = hashPlaintext(validatedPass);
-	    AccountStorage.updatePassword(validatedUser, hashedPass);
+		String hashedPass = hashPlaintext(validatedPass);
+		AccountStorage.updatePassword(validatedUser, hashedPass);
 
-	    return true;
+		return true;
 	}
 
 	/**
@@ -233,32 +245,36 @@ public final class AccountManager {
 	 * 
 	 * @author Darren
 	 */
-	public static boolean changeSecuritySetup(String password, SecurityQuestion newQuestion, String newAnswer) {
-	    String username = getCurrentUser();
+	public static boolean changeSecuritySetup(String password, String newQuestion, String newAnswer) {
+		String username = getCurrentUser();
 
-	    if (username == null || newQuestion == null) {
+		if (username == null || newQuestion == null) {
+			return false;
+		}
+
+		String validatedPass = AccountValidator.validateString(password);
+		String validatedAnswer = AccountValidator.validateString(newAnswer);
+
+		if (validatedPass == null || validatedAnswer == null) {
+			return false;
+		}
+
+		if (!AccountValidator.validateSecretAnswer(validatedAnswer)) {
+			return false;
+		}
+
+	    if (!AccountValidator.validateQuestion(newQuestion)) {
 	        return false;
 	    }
+	    
+		if (!verifyIdentity(username, validatedPass, AuthType.PASSWORD)) {
+			return false;
+		}
 
-	    String validatedPass = AccountValidator.validateString(password);
-	    String validatedAnswer = AccountValidator.validateString(newAnswer);
+		String hashedAnswer = hashPlaintext(validatedAnswer);
+		AccountStorage.updateQuestionAndAnswer(username, newQuestion, hashedAnswer);
 
-	    if (validatedPass == null || validatedAnswer == null) {
-	        return false;
-	    }
-
-	    if (!AccountValidator.validateSecretAnswer(validatedAnswer)) {
-	        return false;
-	    }
-
-	    if (!verifyIdentity(username, validatedPass, AuthType.PASSWORD)) {
-	        return false;
-	    }
-
-	    String hashedAnswer = hashPlaintext(validatedAnswer);
-	    AccountStorage.updateQuestionAndAnswer(username, newQuestion.getQuestionText(), hashedAnswer);
-
-	    return true;
+		return true;
 	}
 
 	/**
@@ -269,25 +285,24 @@ public final class AccountManager {
 	 * @author Ronnie
 	 */
 	public static String getSecurityQuestion() {
-			String username = getCurrentUser();
+		String username = getCurrentUser();
 
-			if (username == null) {
-				return null;
-			}
-			/* 
-			*The current issue with this is that we don't have a way 
-			*to take out specifically the security question instead of say
-			*the hashed password, so it will depend on how Storage implements.
-			*/
-			AccountStorage.StoredUser user = AccountStorage.getUserInfo(username);
-			
-			if(user.question() == null){
-				return null;
-			}
-
-
-			return user.question();
+		if (username == null) {
+			return null;
 		}
+		/*
+		 * The current issue with this is that we don't have a way to take out
+		 * specifically the security question instead of say the hashed password, so it
+		 * will depend on how Storage implements.
+		 */
+		AccountStorage.StoredUser user = AccountStorage.getUserInfo(username);
+
+		if (user.question() == null) {
+			return null;
+		}
+
+		return user.question();
+	}
 
 	/**
 	 * Returns the username of the currently signed-in user.
@@ -297,18 +312,18 @@ public final class AccountManager {
 	 * @author Ronnie
 	 */
 	public static String getCurrentUser() {
-        String username = currentUser;
-        //Uses the validation stub to validate the username
-        if(!AccountValidator.validateUserName(username)){
-            return null;
-        }
+		String username = currentUser;
+		// Uses the validation stub to validate the username
+		if (!AccountValidator.validateUserName(username)) {
+			return null;
+		}
 
-        //Checks to make sure a username is in the current system
-        if(!verifyUsername(username)){
-            return null;
-        }
-        return username;
-    }
+		// Checks to make sure a username is in the current system
+		if (!verifyUsername(username)) {
+			return null;
+		}
+		return username;
+	}
 
 	/**
 	 * Hashes a plaintext password or answer using the PBKDF2 algorithm with a
@@ -435,65 +450,5 @@ public final class AccountManager {
 		}
 
 		return comparePlaintextToHash(plaintext, storedHash);
-	}
-
-	// ---------------- STORAGE STUBS NEEDED -----------------
-
-	// Container for user credentials returned from storage.
-	static record StoredUser(String hashedPassword, String question, String hashedAnswer) {
-	}
-
-	// Checks if a username exists in storage.
-	private static boolean storageFindUser(String username) {
-		return false;
-	}
-
-	// Gets user credentials and security question/answer from storage.
-	private static StoredUser storageGetUserInfo(String username) {
-		return null;
-	}
-
-	// Saves a new user record to storage.
-	private static boolean storageSaveUser(String username, String hashedPassword,
-			String question, String hashedAnswer) {
-		return false;
-	}
-
-	// Updates the stored password for a user.
-	private static boolean storageUpdatePass(String username, String hashedPassword) {
-		return false;
-	}
-
-	// Updates the security question and answer for a user.
-	private static boolean storageUpdateQnA(String username, String question,
-			String hashedAnswer) {
-		return false;
-	}
-
-	// Deletes a user record from storage.
-	private static boolean storageDeleteUser(String username) {
-		return false;
-	}
-
-	// --------------- VALIDATION STUBS NEEDED ---------------
-
-	// Validates and sanitizes general string requirements with validation team.
-	private static String validationValidateString(String input) {
-    	return AccountValidator.validateString(input);
-	}
-
-	// Validates username requirements with validation team.
-	private static boolean validationValidateUserName(String username) {
-		return AccountValidator.validateUserName(username);
-	}
-
-	// Validates password requirements with validation team.
-	private static boolean validationValidatePassword(String password) {
-		return AccountValidator.validatePassword(password);
-	}
-
-	// Validates security answer requirements with validation team.
-	private static boolean validationValidateAnswer(String answer) {
-		return AccountValidator.validateSecretAnswer(answer);
 	}
 }
