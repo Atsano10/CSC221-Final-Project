@@ -133,24 +133,21 @@ public class MenuController {
 	
   /**
 	* 
-    * Prompts the user to enter the path of the file to be read.
+    * Reads a file path from the user and checks if the file inputted exists. 
 	*
 	* @return The file path which is set by the user.
 	* 
 	* @author Apostolos Tsano
     */
 	static String promptForFilePath() {
+
+		String path = input.nextLine().trim();
 		
-		while (true) {
-			System.out.println("Enter the name of the file you wish to look for: ");
-			String path = input.nextLine().trim();
-			
-			if (!InputValidator.validateFilePath(path)) {
-				System.err.println("The file was not found.");
-				return "";
-			}
-			return path;
-    	}
+		if (!InputValidator.validateFilePath(path)) {
+			System.err.println("The file was not found.");
+			return "";
+		}
+		return path;
 	}
 			
 	
@@ -283,17 +280,18 @@ public class MenuController {
   /**
 	* This will print the budget options avaliable to the user.
 	*
-    * Upload a file will call handleReadFIle()
-	* Load a year will call handleLoadYear()
-	* Delete a year will call handleDeleteYear()
+    * Upload a budget file will call handleReadFile()
+    * Generate a report will call handleLoadYear()
+    * Check a year will call handleAudit()
+    * Delete a budget will call handleDeleteYear()
 	*
 	* @author Bilal Ansar
 	*/
 	static void handleBudgetActions() throws IOException {
-		System.out.println("1. Upload a file");
-		System.out.println("2. Load a year");
+		System.out.println("1. Upload a budget file");
+		System.out.println("2. Generate a report");
 		System.out.println("3. Check a year");
-		System.out.println("4. Delete a year");
+		System.out.println("4. Delete a budget");
 		System.out.println("5. Go back");
 		
 		int selection = getMenuSelection(5);
@@ -304,6 +302,29 @@ public class MenuController {
 			case 3 -> handleAudit();
 			case 4 -> handleDeleteYear();
 		} return;
+	}
+
+	/**
+	 * Checks if there are any budgets, in any any year and lists them if true.
+	 * 
+	 * @return True if any budget exists, otherwise return false.
+	 * 
+	 * @author Apostolos Tsano
+	 */
+	static boolean isAnyBudget() {
+		List<Integer> years;
+        try {
+            years = BudgetStorage.getAvailableYears(AccountManager.getCurrentUser()); // Returns the years of every YYYY file it finds. 
+        } catch (IOException e) {
+            System.err.println("\nThe budgets you have saved could not be read.\n");
+            return false;
+        }
+        if (years.isEmpty()) {
+            System.err.println("\nYou have not uploaded any budgets.\n");
+            return false;
+        }
+        System.out.println("\nYour budgets are: " + years);
+		return true;
 	}
 	
 	/**
@@ -335,7 +356,13 @@ public class MenuController {
      */
 	static void handleReadFile() throws IOException {
 		
+		System.out.println("\nEnter you budget file's path:");
 		String path = promptForFilePath();
+
+		// Stop if the path is not valid.
+		if (path.isEmpty()){
+			return;
+		}
 		
 		Path file = Path.of(path);
 		String line;
@@ -439,7 +466,7 @@ public class MenuController {
 		Budget budget = new Budget(year, transactions);
 		BudgetStorage.saveBudget(AccountManager.getCurrentUser(), budget, false);
 		
-		System.out.println("\nYour file was succesfully read!");
+		System.out.println("\nYour file was uploaded successfully!");
 	}
 
   /**
@@ -448,6 +475,10 @@ public class MenuController {
 	* @author Bilal Ansar
 	*/
 	static void handleAudit() {
+		if (!isAnyBudget()) {
+            return;
+        }
+
 		System.out.println("\nEnter the year you want to check:");
 		int targetYear;
 		try {
@@ -469,17 +500,20 @@ public class MenuController {
 	}
 	
   /**
-    * Handles deleting all data for a specified year.
+    * Generates a report for a year the user picks, and then shows it on screen or saves it to 
+	* a file depending on user request.
     *
-    * Prompts the user to enter the target year to load.
-    * Loads the matching year record (if there is one).
-    * Notifies the user whether the year was loaded or not found.
+    * Asks for a year.
+	* Builds the report if the budget exists, and tells the user if it doesnt.
     *
     * @author Bilal Ansar
     */
 	static void handleLoadYear() {
-		
-		System.out.println("\nEnter the year you want to load:");
+		if (!isAnyBudget()) {
+            return;
+        }
+
+		System.out.println("\nEnter the year you need a report for:");
 		int targetYear;
 		try {
 			targetYear = input.nextInt();
@@ -497,16 +531,16 @@ public class MenuController {
 		Budget budgetToLoad = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear); 
 		String report = Reports.formatSummaryAnalysis(budgetToLoad);
 		
-		System.out.println("Year found! Would you like to load it here or on to a file?\n");
+		System.out.println("Would you like to view your report or save it to a file?\n");
 		
-		System.out.println("1. Load it here");
-		System.out.println("2. Onto a file");
+		System.out.println("1. View it here");
+		System.out.println("2. Save it to a file");
 		
 		int selection = getMenuSelection(2);
 		
 		switch (selection) {
 			case 1: 
-				System.out.println("\nYear loaded!\n");
+				System.out.println("\nHere is your report: \n");
 				Reports.displayReport(report);
 				break;
 			case 2:
@@ -527,13 +561,16 @@ public class MenuController {
 	* @throws IOException 
     */
 	static void handleDeleteYear() throws IOException {
+		if (!isAnyBudget()) {
+            return;
+        }
 		
-		System.out.println("Are you sure you want to delete a year? y/n");
+		System.out.println("Are you sure you want to delete a budget? y/n");
 		if (!isYes()) {
 			return;
 		}
 		
-		System.out.println("\nEnter the year you want to delete:");
+		System.out.println("\nEnter the year of the budget you want to delete:");
 		int targetYear;
 		try {
 			targetYear = input.nextInt();
