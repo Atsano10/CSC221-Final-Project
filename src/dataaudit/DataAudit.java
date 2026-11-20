@@ -40,35 +40,38 @@ public class DataAudit {
         ArrayList<String> excludedCategories = new ArrayList<>();
         boolean running = true;
         while(running){
-            System.out.println("Data Audit Menu:");
-            System.out.println("1. choose excluded categories");
-            System.out.println("2. find duplicates");
-            System.out.println("3. find anomalies");
-            System.out.println("4. exit");
-            System.out.print("Enter your choice: ");
+            System.out.println("\n===== Data Audit Menu =====");
+            System.out.println("1. Choose Excluded Categories");
+            System.out.println("2. Find Duplicates");
+            System.out.println("3. Find Anomalies");
+            System.out.println("4. Exit");
+            System.out.print("\nEnter your choice: ");
 
             String choice = scanner.nextLine().trim();
             switch(choice){
                 case "1":
                     excludedCategories = chooseExcludedCategories(scanner);
                     System.out.println("Excluded categories:" + excludedCategories);
+					System.out.println();
                     break;
 
                 case "2":
-                    System.out.println("Finding duplicates...");
+                    System.out.println("\nFinding duplicates...");
                     ArrayList<AuditFinding> duplicates = findDuplicates(budgetFile);
                     printFindings(duplicates);
+					System.out.println();
                     break;
                 
                 case "3": 
-                    System.out.println("Finding anomalies...");
+                    System.out.println("\nFinding anomalies...");
                     ArrayList<AuditFinding> anomalies = findAnomalies(budgetFile, excludedCategories);
                     printFindings(anomalies);
+					System.out.println();
                     break; 
                      
                 case "4":
                     running = false;
-                   System.out.println("Exiting Data Audit Menu.");
+                   System.out.println("\nExiting Data Audit Menu.\n");
                     break;
 
                 default:
