@@ -206,7 +206,24 @@ public class MenuController {
 	* @author Bilal Ansar
 	*/
 	static void handleHelp() {
-		System.out.println("\nTODO: Help menu goes here.\n");
+		System.out.println("\n===== HELP MENU =====\n");
+		System.out.println("Personal Finance Manager helps you track and manage your budget.");
+		System.out.println("\nBefore login:");
+		System.out.println("- Register: Create a new account with username, password and security question.");
+		System.out.println("- Login: Sign into your existing account.");
+		System.out.println("- Help: Show this help information.");
+		System.out.println("- Exit: Close the program.");
+
+		System.out.println("\nAfter login:");
+		System.out.println("- Budget actions: Upload CSV budget files, generate reports, audit or delete budget years.");
+		System.out.println("- Options: Change password, delete your account, or logout.");
+		System.out.println("- Help: Show this help information.");
+		System.out.println("- Exit: Logout and close the program.");
+
+		System.out.println("\nCSV file requirement:");
+		System.out.println("- Each row: date,category,amount");
+		System.out.println("- All transactions in one file must belong to the same year.");
+		System.out.println("\n=====================\n");
 	}
 	
   /**
