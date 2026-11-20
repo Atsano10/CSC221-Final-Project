@@ -351,7 +351,7 @@ public class MenuController {
      */
 	static void handleReadFile() throws IOException {
 		
-		System.out.println("\nEnter you budget file's path:");
+		System.out.println("\nEnter you budget file's name:");
 		String path = promptForFilePath();
 
 		// Stop if the path is not valid.
