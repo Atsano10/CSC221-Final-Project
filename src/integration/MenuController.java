@@ -10,7 +10,6 @@ import java.util.InputMismatchException;
 import java.util.List;
 
 import accounts.AccountManager;
-import accounts.SecurityQuestion;
 import dataaudit.DataAudit;
 import reports.Reports;
 import storage.Budget;
@@ -144,7 +143,7 @@ public class MenuController {
 		String path = input.nextLine().trim();
 		
 		if (!InputValidator.validateFilePath(path)) {
-			System.err.println("The file was not found.");
+			System.err.println("\nThe file was not found.");
 			return "";
 		}
 		return path;
@@ -163,13 +162,13 @@ public class MenuController {
 			String username = null;
 			String password = null;
 			String confirmPassword = null;
-			SecurityQuestion question = null;
+			String question = null;
 			String answer = null;
 		
-			System.out.println("\nYour username must be at least 3 characters and at most 20 characters.\n");
+			System.out.println("\nYour username must be at least 3 characters and at most 20 characters.");
 			System.out.println("Choose a username: ");
 			username = input.nextLine();
-			System.out.println("\nYour password must be at least 8 characters long and contain one number and one letter.\n");
+			System.out.println("\nYour password must be at least 8 characters long and contain one number and one letter.");
 			System.out.println("Choose a password: ");
 			password = input.nextLine();
 			System.out.println("Confirm your password: ");
@@ -179,34 +178,13 @@ public class MenuController {
 				System.err.println("\nYour passwords do not match.\n");
 				break;
 			}
-
-			System.out.println("\nPick a security question: \n");
-		
-			int j = 0;
-			for (SecurityQuestion sq : SecurityQuestion.values()) {
-				j++;
-				System.out.println(j + ". " + sq.getQuestionText());
-			} 
-		
-			int selection = getMenuSelection(j);
-
-			switch (selection) {
-				case 1 -> question = SecurityQuestion.FIRST_PET;
-				case 2 -> question = SecurityQuestion.TASTY_ROCK;
-				case 3 -> question = SecurityQuestion.BIRTH_CITY;
-				case 4 -> question = SecurityQuestion.ELEMENTARY_SCHOOL;
-				case 5 -> question = SecurityQuestion.FAV_POKEMON;
-				case 6 -> question = SecurityQuestion.HS_MASCOT;
-				case 7 -> question = SecurityQuestion.FAV_ATHLETE;
-				case 8 -> question = SecurityQuestion.CHILDHOOD_TEAM;
-				case 9 -> question = SecurityQuestion.DONE_DREAMS;
-				case 10 -> question = SecurityQuestion.BEST_FRIEND;
-				case 11 -> question = SecurityQuestion.WORST_GROUP_PROJECT;
-				case 12 -> question = SecurityQuestion.FOX_WORDS;
-			}
 			
-			System.out.println("\nYour answer must be at least 2 characters long.\n");
-			System.out.println("Enter the answer for your security question: ");
+			System.out.println("\nYour question must be at least 5 characters long.");
+			System.out.println("Pick a secret question: ");
+			question = input.nextLine();
+			
+			System.out.println("\nYour answer must be at least 2 characters long.");
+			System.out.println("Enter the answer for your secret question: ");
 			answer = input.nextLine();
 		
 			if (AccountManager.registerUser(username, password, question, answer)) {
@@ -454,19 +432,19 @@ public class MenuController {
 			}
 			 
 		} catch (IOException e) {
-			System.err.println("the file does not exist.");
+			System.err.println("\nThe file does not exist.\n");
 			return;
 		}
 		
 		if (year == 0) {
-			System.err.println("The year for the budget file is invalid.");
+			System.err.println("\nThe year for the budget file is invalid.\n");
 			return;
 		}
 		
 		Budget budget = new Budget(year, transactions);
 		BudgetStorage.saveBudget(AccountManager.getCurrentUser(), budget, false);
 		
-		System.out.println("\nYour file was uploaded successfully!");
+		System.out.println("\nYour file was uploaded successfully!\n");
 	}
 
   /**
@@ -581,7 +559,7 @@ public class MenuController {
 		
 		if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), targetYear)) {
 			BudgetStorage.deleteBudget(AccountManager.getCurrentUser(), targetYear);
-			System.out.println("\nThe budget for the specified year was successfully deleted.");
+			System.out.println("\nThe budget for the specified year was successfully deleted.\n");
 		} else {
 			System.err.println("\nThere is no budget for the specified year.\n");
 		}
