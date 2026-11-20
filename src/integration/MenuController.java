@@ -201,15 +201,15 @@ public class MenuController {
 	}
 
   /**
-    * This will simply print a help menu to explain the function of the program.
+    * This will print a help menu to explain the function of the program.
 	*
-	* @author Bilal Ansar
+	* @author Junyu Chen
 	*/
 	static void handleHelp() {
 		System.out.println("\n===== HELP MENU =====\n");
 		System.out.println("Personal Finance Manager helps you track and manage your budget.");
 		System.out.println("\nBefore login:");
-		System.out.println("- Register: Create a new account with username, password and security question.");
+		System.out.println("- Register: Create a new account with username, password and secret question.");
 		System.out.println("- Login: Sign into your existing account.");
 		System.out.println("- Help: Show this help information.");
 		System.out.println("- Exit: Close the program.");
@@ -221,7 +221,7 @@ public class MenuController {
 		System.out.println("- Exit: Logout and close the program.");
 
 		System.out.println("\nCSV file requirement:");
-		System.out.println("- Each row: date,category,amount");
+		System.out.println("- The header must be: Date,Category,Amount");
 		System.out.println("- All transactions in one file must belong to the same year.");
 		System.out.println("\n=====================\n");
 	}
@@ -285,7 +285,7 @@ public class MenuController {
 	static void handleBudgetActions() throws IOException {
 		System.out.println("1. Upload a budget file");
 		System.out.println("2. Generate a report");
-		System.out.println("3. Check a year");
+		System.out.println("3. Generate an audit");
 		System.out.println("4. Delete a budget");
 		System.out.println("5. Go back");
 		
@@ -474,7 +474,7 @@ public class MenuController {
             return;
         }
 
-		System.out.println("\nEnter the year you want to check:");
+		System.out.println("\nEnter the year of the budget you want to audit:");
 		int targetYear;
 		try {
 			targetYear = input.nextInt();
@@ -482,6 +482,8 @@ public class MenuController {
 			System.err.println("\nInvalid year input.\n");
 			return;
 		}
+		
+		input.nextLine();
 		
 		Budget budgetToAudit = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear);
 		
@@ -491,7 +493,7 @@ public class MenuController {
 		}
 		
 		System.out.println("\nFile loaded successfully!\n");
-		DataAudit.runAudit(budgetToAudit);
+		DataAudit.runAudit(budgetToAudit, input);
 	}
 	
   /**
