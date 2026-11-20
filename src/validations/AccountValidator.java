@@ -19,6 +19,9 @@ public final class AccountValidator {
 
 	//Minimum security answer length
 	private static final int MIN_ANSWER_LEN = 2;
+	
+	//Minimum security question length
+	private static final int MIN_QUESTION_LEN = 5;
 
 	/**
 	 * Private constructor that prevents creation of an AccountValidator object.
@@ -108,6 +111,22 @@ public final class AccountValidator {
 
         return secretAnswer.trim().length() >= MIN_ANSWER_LEN;
 
+	}
+	
+	/**
+	 * Checks that the secret question entered by the user is valid.
+	 *
+	 * @param question The secret question entered by the user.
+	 * @return True if the secret question is valid, otherwise false.
+	 *
+	 * @author Julio
+	 */
+	public static boolean validateQuestion(String question) {
+		if (question == null) {
+			return false;
+		}
+
+		return question.trim().length() >= MIN_QUESTION_LEN;
 	}
 
 
