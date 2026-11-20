@@ -413,7 +413,7 @@ public final class Reports {
             writer.write(report);
 
         } catch (IOException e) {
-            System.err.println("Error exporting report.");
+            System.err.println("Error exporting report.\n");
             return;
         }
 
