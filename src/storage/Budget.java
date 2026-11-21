@@ -18,8 +18,10 @@ import java.util.List;
  */
 public record Budget(int year, List<BudgetTransaction> transactions) {
 
-    /**
+ /**
      * Creates a budget and verifies that every transaction belongs to its year.
+     *
+     * @author Ivan Chukharev
      */
     public Budget {
         if (year < 1) {
@@ -46,10 +48,12 @@ public record Budget(int year, List<BudgetTransaction> transactions) {
         transactions = List.copyOf(copy);
     }
 
-    /**
+  /**
      * Returns the number of transactions in this budget.
      *
      * @return transaction count
+     *
+     * @author  Ivan Chukharev
      */
     public int transactionCount() {
         return transactions.size();
@@ -59,6 +63,7 @@ public record Budget(int year, List<BudgetTransaction> transactions) {
      * Returns the total income in whole dollars.
      *
      * @return sum of positive income amounts
+     * @author  Ivan Chukharev
      */
     public long totalIncome() {
         return transactions.stream()
@@ -71,6 +76,7 @@ public record Budget(int year, List<BudgetTransaction> transactions) {
      * Returns the total expenses as a positive whole-dollar amount.
      *
      * @return absolute value of the sum of negative expense amounts
+     * @author  Ivan Chukharev
      */
     public long totalExpenses() {
         return -transactions.stream()
@@ -83,6 +89,7 @@ public record Budget(int year, List<BudgetTransaction> transactions) {
      * Returns income minus expenses.
      *
      * @return net amount for the year
+     * @author  Ivan Chukharev
      */
     public long netTotal() {
         return transactions.stream()
