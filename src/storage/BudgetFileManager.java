@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import validations.CsvValidator;
+
 /**
  * Reads and writes annual budget CSV files.
  *
@@ -114,8 +116,13 @@ public final class BudgetFileManager {
 
         for (int lineNumber = 1; lineNumber < lines.size(); lineNumber++) {
             String line = lines.get(lineNumber).trim();
-            if (line.isEmpty()) {
-                continue;
+
+            // Use the validation team's row check (blank lines, column count,
+            // date, category and amount). Any problem rejects the whole file.
+            List<String> problems = CsvValidator.validateRow(line);
+            if (!problems.isEmpty()) {
+                throw new IOException("Invalid row on line " + (lineNumber + 1)
+                        + ": " + String.join("; ", problems) + ".");
             }
 
             String[] fields = line.split(",", -1);
