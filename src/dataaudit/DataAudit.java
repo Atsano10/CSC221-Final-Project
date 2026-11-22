@@ -40,35 +40,38 @@ public class DataAudit {
         ArrayList<String> excludedCategories = new ArrayList<>();
         boolean running = true;
         while(running){
-            System.out.println("Data Audit Menu:");
-            System.out.println("1. choose excluded categories");
-            System.out.println("2. find duplicates");
-            System.out.println("3. find anomalies");
-            System.out.println("4. exit");
-            System.out.print("Enter your choice: ");
+            System.out.println("\n===== Data Audit Menu =====");
+            System.out.println("1. Choose Excluded Categories");
+            System.out.println("2. Find Duplicates");
+            System.out.println("3. Find Anomalies");
+            System.out.println("4. Exit");
+            System.out.print("\nEnter your choice: ");
 
             String choice = scanner.nextLine().trim();
             switch(choice){
                 case "1":
                     excludedCategories = chooseExcludedCategories(scanner);
                     System.out.println("Excluded categories:" + excludedCategories);
+					System.out.println();
                     break;
 
                 case "2":
-                    System.out.println("Finding duplicates...");
+                    System.out.println("\nFinding duplicates...");
                     ArrayList<AuditFinding> duplicates = findDuplicates(budgetFile);
-                    printFindings(duplicates);
+                    printFindings(duplicates, FindingType.DUPLICATE);
+					System.out.println();
                     break;
                 
                 case "3": 
-                    System.out.println("Finding anomalies...");
+                    System.out.println("\nFinding anomalies...");
                     ArrayList<AuditFinding> anomalies = findAnomalies(budgetFile, excludedCategories);
-                    printFindings(anomalies);
+                    printFindings(anomalies, FindingType.ANOMALY);
+					System.out.println();
                     break; 
                      
                 case "4":
                     running = false;
-                   System.out.println("Exiting Data Audit Menu.");
+                   System.out.println("\nExiting Data Audit Menu.\n");
                     break;
 
                 default:
@@ -150,34 +153,67 @@ public class DataAudit {
 public static ArrayList<String> chooseExcludedCategories(Scanner scanner) 
 {
 	ArrayList<String> excluded = new ArrayList<>();
-    System.out.println("Enter categories you want to exclude:");
-    System.out.println("Type DONE when you are finished.");
+	String[] categories = {"Compensation", "Allowance", "Investments", "Other", "Home", "Utilities", "Food", "Appearance", "Work", "Education", "Transportation", "Entertainment", "Professional Services"};
+
     while (true) 
 	{
-        System.out.print("Category: ");
-        String category = scanner.nextLine().trim();
-        if (category.equalsIgnoreCase("DONE")) 
+		System.out.println("\nEnter a category you want to exclude:");
+		for(int i=0;i<categories.length;i++)
+		{
+			System.out.println((i+1)+"."+categories[i]);
+		}
+		System.out.println("0. DONE");
+		System.out.println("Enter your choice");
+		String input= scanner.nextLine().trim();
+		
+        if (input.equals("0")) 
 		{
 			break;
         }
-		if (!category.isEmpty()) 
+		try 
 		{
-            excluded.add(category);
+			int choice= Integer.parseInt(input);
+			if(choice<1 || choice>categories.length)
+			{
+				System.out.println("Invalid choice, Please try again");
+				continue;
+			}
+			String category= categories[choice-1];
+			if(!excluded.contains(category))
+			{
+				excluded.add(category);
+				System.out.println(category+" exlcuded ");
+			}
+			else
+			{
+				System.out.println("The category is already excluded");
+			}
         }
+		catch(NumberFormatException e)
+		{
+			System.out.println("Please enter a valid number");
+		}
     }
     return excluded;
 }
     
-    /** This will print all strange transactions found during the audit.
-     * @param records array of flagged transactions
+    /** This will print all strange transactions like duplicates or anamolys found during the audit.
+     * @param records list of flagged transactions
      * @author Joseph
      */
-public static void printFindings(ArrayList<AuditFinding> records)
+public static void printFindings(ArrayList<AuditFinding> records, FindingType type)
 {
 	System.out.println("===== ! Data Audit Results ! =====");
 	if (records == null || records.isEmpty())
 	{
-        System.out.println("There were no strange transactions found.");
+		if(type == FindingType.DUPLICATE)
+		{
+			System.out.println("No duplicate transactions found");
+		}
+		else
+		{
+			System.out.println("No anomaly transactions found");
+		}
         return;
     }
 	int count = 0;
@@ -196,7 +232,15 @@ public static void printFindings(ArrayList<AuditFinding> records)
     }
 	if (count == 0) 
 	{
-        System.out.println("There were no strange transactions found.");
+       if(type == FindingType.DUPLICATE)
+	   {
+		   System.out.println("No duplicate transactions found");
+	   }
+	   else
+	   {
+		   System.out.println("No anomaly transaction found");
+	   }
+		
     }
     System.out.println("Total findings is : " + count);
 }
