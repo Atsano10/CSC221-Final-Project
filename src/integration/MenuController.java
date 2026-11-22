@@ -168,7 +168,7 @@ public class MenuController {
 			System.out.println("\nYour username must have no spaces.");
 			System.out.println("Your username must be no less than 3 characters.");
 			System.out.println("Your username must be no more than 20 characters.\n");
-				
+
 			while (true) {
 				System.out.println("Choose a username: ");
 				username = input.nextLine();
@@ -204,7 +204,6 @@ public class MenuController {
 			System.out.println("\nYour question must be no less than 5 characters.\n");
 			
 			while (true) {	
-				
 				System.out.println("Pick a secret question: ");
 				question = input.nextLine();
 
