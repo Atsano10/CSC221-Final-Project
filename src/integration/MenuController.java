@@ -226,6 +226,7 @@ public class MenuController {
 			}
 		
 			AccountManager.registerUser(username, password, question, answer);
+			System.out.println("\nAccount created! You are now logged in.\n");
 	}
 
   /**
