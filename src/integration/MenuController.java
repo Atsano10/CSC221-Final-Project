@@ -173,7 +173,7 @@ public class MenuController {
 				username = input.nextLine();
 
 				if (!AccountValidator.validateUserName(username)) {
-					System.err.println("Invalid username. Try again.");
+					System.err.println("\nInvalid username. Try again.");
 					continue;
 				} break;
 			}
@@ -187,7 +187,7 @@ public class MenuController {
 				password = input.nextLine();
 
 				if (!AccountValidator.validatePassword(password)) {
-					System.err.println("\nInvalid password. Try again.\n");
+					System.err.println("\nInvalid password. Try again.");
 					continue;
 				}
 				
@@ -207,7 +207,7 @@ public class MenuController {
 				question = input.nextLine();
 
 				if (!AccountValidator.validateQuestion(question)) {
-					System.err.println("\nInvalid question. Try again.\n");
+					System.err.println("\nInvalid question. Try again.");
 					continue;
 				} break;
 			}
@@ -218,7 +218,7 @@ public class MenuController {
 				answer = input.nextLine();
 
 				if (!AccountValidator.validateSecretAnswer(answer)) {
-					System.err.println("Invalid question. Try again.");
+					System.err.println("\nInvalid answer. Try again.");
 					continue;
 				} break;
 			}
