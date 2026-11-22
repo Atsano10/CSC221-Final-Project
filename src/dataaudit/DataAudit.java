@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.HashSet;
+import java.util.HashMap;
 import storage.Budget;
 import storage.BudgetTransaction;
 
@@ -109,43 +110,67 @@ public class DataAudit {
 }
 
     /**
-     * 
-     * Finds outlier data
-     * 
+     * Finds outlier data for each category independently.
+     * Excluded categories are skipped.
+     *
      * @param budgetFile transaction data
+     * @param exclusion categories to leave out of the anomaly check
      * @return list of anomaly entries
-     * 
-     * @author Hamet 
+     *
+     * @author Hamet
      */
     public static ArrayList<AuditFinding> findAnomalies(Budget budgetFile, ArrayList<String> exclusion){
-        ArrayList<AuditFinding> anamolies = new ArrayList<>();
-        double median;
-        List<BudgetTransaction> copy = new ArrayList<>(budgetFile.transactions());
-        for (int i = 0; i < copy.size(); i++) {
-            if (exclusion.contains(copy.get(i).category())) {
-                copy.remove(i);
-                i--;
+        ArrayList<AuditFinding> anomalies = new ArrayList<>();
+
+
+        HashMap<String, List<BudgetTransaction>> byCategory = new HashMap<>();
+        for (BudgetTransaction transaction : budgetFile.transactions()) {
+            if (exclusion.contains(transaction.category())) {
                 continue;
             }
-        }
-        Collections.sort(copy, (a, b) -> Integer.compare(Math.abs(a.amount()), Math.abs(b.amount())));
-        if (copy.size() % 2 == 0) {
-            median = (Math.abs(copy.get((copy.size() / 2) - 1).amount()) + Math.abs(copy.get(copy.size() / 2).amount())) / 2.0;
-        }
-        else {
-            median = Math.abs(copy.get(copy.size() / 2).amount());
-        }
-        double bound = ANOMALYBOUND * median;
-        for (int i = 0; i < copy.size(); i++) {
-            if (Math.abs(copy.get(i).amount()) > bound) {
-                FindingType type = FindingType.ANOMALY;
-                String reason = String.format("Amount %d is out of normal range", copy.get(i).amount());
-                AuditFinding temp = new AuditFinding(copy.get(i).category(), type, reason );
-                anamolies.add(temp);
+            String category = transaction.category();
+            if (!byCategory.containsKey(category)) {
+                byCategory.put(category, new ArrayList<>());
             }
         }
-        return anamolies;
+
+        for (String category : byCategory.keySet()) {
+            List<BudgetTransaction> group = byCategory.get(category);
+            double median = medianAmount(group);
+            double bound = ANOMALYBOUND * median;
+
+            for (BudgetTransaction transaction : group) {
+                if (Math.abs(transaction.amount()) > bound) {
+                    String reason = String.format("Amount %d is out of normal range for %s (median %.2f, bound %.2f)",
+                            transaction.amount(), category, median, bound);
+                    anomalies.add(new AuditFinding(transaction.toString(), FindingType.ANOMALY, reason));
+                }
+            }
+        }
+        return anomalies;
     };
+
+    /**
+     * Finds the median of the absolute amounts in a list of transactions.
+     *
+     * @param group transactions from one category
+     * @return median absolute amount
+     *
+     * @author Hamet
+     */
+    private static double medianAmount(List<BudgetTransaction> group) {
+        List<Integer> amounts = new ArrayList<>();
+        for (BudgetTransaction transaction : group) {
+            amounts.add(Math.abs(transaction.amount()));
+        }
+        Collections.sort(amounts);
+
+        int size = amounts.size();
+        if (size % 2 == 0) {
+            return (amounts.get(size / 2 - 1) + amounts.get(size / 2)) / 2.0;
+        }
+        return amounts.get(size / 2);
+    }
    /**Asks the user which categories to exclude from anomaly detection.
      * @return list of excluded categories
      * @author Joseph
