@@ -132,6 +132,7 @@ public class DataAudit {
             if (!byCategory.containsKey(category)) {
                 byCategory.put(category, new ArrayList<>());
             }
+            byCategory.get(category).add(transaction);
         }
 
         for (String category : byCategory.keySet()) {
