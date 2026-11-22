@@ -158,46 +158,71 @@ public class MenuController {
     * @author Bilal Ansar
     */
 	static void handleRegister() {
-		while (true) {
 			String username = null;
 			String password = null;
 			String confirmPassword = null;
 			String question = null;
 			String answer = null;
 		
-			System.out.println("\nYour username must be at least 3 characters and at most 20 characters.");
-			System.out.println("Choose a username: ");
-			username = input.nextLine();
-			System.out.println("\nYour password must be at least 8 characters long and contain one number and one letter.");
-			System.out.println("Choose a password: ");
-			password = input.nextLine();
-			System.out.println("Confirm your password: ");
-			confirmPassword = input.nextLine();
-			
-			if (!password.equals(confirmPassword)) {
-				System.err.println("\nYour passwords do not match.\n");
-				break;
-			}
-			
-			System.out.println("\nYour question must be at least 5 characters long.");
-			System.out.println("Pick a secret question: ");
-			question = input.nextLine();
-			
-			System.out.println("\nYour answer must be at least 2 characters long.");
-			System.out.println("Enter the answer for your secret question: ");
-			answer = input.nextLine();
-		
-			if (AccountManager.registerUser(username, password, question, answer)) {
-				System.out.println("\nAccount created! You are now logged in.\n");
-				AccountManager.signIn(username, password);
-				break;
-			} else {
-				System.err.println("\nThere was a problem with one or more of your choices. Try again? y/n");
-				if (isYes()) {
+			while (true) {
+				System.out.println("\nYour username must have no spaces.");
+				System.out.println("Your username must be no less than 3 characters.");
+				System.out.println("Your username must be no more than 20 characters.");
+				System.out.println("Choose a username: ");
+				username = input.nextLine();
+
+				if (!AccountValidator.validateUserName(username)) {
+					System.err.println("Invalid username. Try again.");
 					continue;
 				} break;
-			} 
-		}
+			}
+			
+
+			while (true) {
+				System.out.println("\nYour password must be no less than 8 characters.");
+				System.out.println("Your password must contain one number.");
+				System.out.println("Your password must contain one letter.");
+				System.out.println("Choose a password: ");
+				password = input.nextLine();
+
+				if (!AccountValidator.validatePassword(password)) {
+					System.err.println("\nInvalid password. Try again.\n");
+					continue;
+				}
+				
+				System.out.println("Confirm your password: ");
+				confirmPassword = input.nextLine();
+				
+				if (!password.equals(confirmPassword)) {
+					System.err.println("\nYour passwords do not match. Try again.\n");
+					continue;
+				} break;
+			}
+
+			
+			while (true) {	
+				System.out.println("\nYour question must be no less than 5 characters.");
+				System.out.println("Pick a secret question: ");
+				question = input.nextLine();
+
+				if (!AccountValidator.validateQuestion(question)) {
+					System.err.println("\nInvalid question. Try again.\n");
+					continue;
+				} break;
+			}
+
+			while (true) {
+				System.out.println("\nYour answer must be no less than 2 characters.");
+				System.out.println("Enter the answer for your secret question: ");
+				answer = input.nextLine();
+
+				if (!AccountValidator.validateSecretAnswer(answer)) {
+					System.err.println("Invalid question. Try again.");
+					continue;
+				} break;
+			}
+		
+			AccountManager.registerUser(username, password, question, answer);
 	}
 
   /**
