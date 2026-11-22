@@ -28,10 +28,22 @@ public final class AccountStorage {
     public static record StoredUser(
             String hashedPassword, String question, String hashedAnswer) {
     }
-
+/**
+     * Private constructor that prevents creation of an AccountStorage object.
+     *
+     * @author Ivan Chukharev
+     */
     private AccountStorage() {
     }
-
+ /**
+     * Checks whether an account with the given username exists.
+     *
+     * @param username account username
+     * @return true if the account exists; false if it does not or the account
+     *         file cannot be read
+     *
+     * @author Ivan Chukharev
+     */
     public static boolean findUser(String username) {
         if (username == null) {
             return false;
@@ -42,7 +54,15 @@ public final class AccountStorage {
             return false;
         }
     }
-
+ /**
+     * Gets the stored credentials for a user.
+     *
+     * @param username account username
+     * @return the user's stored credentials, or null if the user does not exist
+     *         or the account file cannot be read
+     *
+     * @author Ivan Chukharev
+     */
     public static StoredUser getUserInfo(String username) {
         if (username == null) {
             return null;
@@ -53,7 +73,18 @@ public final class AccountStorage {
             return null;
         }
     }
-
+ /**
+     * Saves a new user account. Existing accounts are never overwritten.
+     *
+     * @param username account username
+     * @param hashedPassword the user's hashed password
+     * @param question the user's security question
+     * @param hashedAnswer the user's hashed security answer
+     * @return true if the account was saved; false if the username is taken,
+     *         an argument is null, or the account file cannot be written
+     *
+     * @author Ivan Chukharev
+     */
     public static boolean saveUser(String username, String hashedPassword,
             String question, String hashedAnswer) {
         if (username == null || hashedPassword == null
@@ -73,7 +104,16 @@ public final class AccountStorage {
             return false;
         }
     }
-
+  /**
+     * Replaces a user's stored password hash.
+     *
+     * @param username account username
+     * @param hashedPassword the new hashed password
+     * @return true if the password was updated; false if the user does not
+     *         exist, an argument is null, or the account file cannot be written
+     *
+     * @author van Chukharev
+     */
     public static boolean updatePassword(String username, String hashedPassword) {
         if (username == null || hashedPassword == null) {
             return false;
@@ -92,7 +132,18 @@ public final class AccountStorage {
             return false;
         }
     }
-
+ /**
+     * Replaces a user's security question and hashed answer.
+     *
+     * @param username account username
+     * @param question the new security question
+     * @param hashedAnswer the new hashed security answer
+     * @return true if the question and answer were updated; false if the user
+     *         does not exist, an argument is null, or the account file cannot
+     *         be written
+     *
+     * @author Ivan Chukharev
+     */
     public static boolean updateQuestionAndAnswer(String username,
             String question, String hashedAnswer) {
         if (username == null || question == null || hashedAnswer == null) {
@@ -112,7 +163,16 @@ public final class AccountStorage {
             return false;
         }
     }
-
+/**
+     * Removes a user's account record. Budget files are deleted separately by
+     * {@link BudgetStorage#deleteAllBudgets(String)}.
+     *
+     * @param username account username
+     * @return true if the account was removed; false if the user does not
+     *         exist or the account file cannot be written
+     *
+     * @author Ivan Chukharev
+     */
     public static boolean deleteUser(String username) {
         if (username == null) {
             return false;
@@ -128,6 +188,15 @@ public final class AccountStorage {
             return false;
         }
     }
+/**
+     * Reads every account from the account file.
+     *
+     * @return map of usernames to stored credentials; empty if the file does
+     *         not exist yet
+     * @throws IOException if the file cannot be read or a record is malformed
+     *
+     * @author Ivan Chukharev
+     */    
 
     private static Map<String, StoredUser> readAllUsers() throws IOException {
         Map<String, StoredUser> users = new HashMap<>();
@@ -152,7 +221,16 @@ public final class AccountStorage {
         }
         return users;
     }
-
+ /**
+     * Writes every account to the account file, replacing its contents.
+     * Writes to a temporary file first so a failed write cannot corrupt the
+     * existing file.
+     *
+     * @param users map of usernames to stored credentials
+     * @throws IOException if the file cannot be written
+     *
+     * @author Ivan Chukharev
+     */
     private static void writeAllUsers(Map<String, StoredUser> users)
             throws IOException {
         Path directory = ACCOUNT_FILE.getParent();
@@ -182,12 +260,28 @@ public final class AccountStorage {
             Files.deleteIfExists(tempFile);
         }
     }
-
+ /**
+     * Encodes a field as URL-safe Base64 so tabs and line breaks in it cannot
+     * break the file format.
+     *
+     * @param value the text to encode
+     * @return the encoded text
+     *
+     * @author Ivan Chukharev
+     */
     private static String encodeField(String value) {
         return Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
-
+ /**
+     * Decodes a field written by {@link #encodeField(String)}.
+     *
+     * @param value the encoded text
+     * @return the original text
+     * @throws IllegalArgumentException if the text is not valid Base64
+     *
+     * @author Ivan Chukharev
+     */
     private static String decodeField(String value) {
         return new String(Base64.getUrlDecoder().decode(value),
                 StandardCharsets.UTF_8);

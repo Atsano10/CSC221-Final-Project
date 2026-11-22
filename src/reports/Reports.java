@@ -54,11 +54,11 @@ public final class Reports {
 		
 		String[] expensesCategories = {
 			"Home", "Utilities", "Food", "Appearance", "Work", "Education",
-			"Transportation", "Entertainment", "Professional Services"
+			"Transportation", "Entertainment", "Professional Services", "Other"
 		};
 		
 		String[] incomeCategories = {
-			"Compensation", "Allowance", "Investments"
+			"Compensation", "Allowance", "Investments", "Other"
 		};
 		
 		int[] incomeCategoryTotals = new int[incomeCategories.length];
@@ -413,11 +413,11 @@ public final class Reports {
             writer.write(report);
 
         } catch (IOException e) {
-            System.err.println("Error exporting report.");
+            System.err.println("Error exporting report.\n");
             return;
         }
 
-        System.out.println("Report exported successfully.");
+        System.out.println("Report exported successfully.\n");
     	}
     
 

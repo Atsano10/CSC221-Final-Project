@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import validations.CsvValidator;
+
 /**
  * Reads and writes annual budget CSV files.
  *
@@ -22,11 +24,8 @@ import java.util.Locale;
  *
  * Income is positive and expenses are negative. "Other" may have either sign.
  *
- * @author 
- *	Nishat Salsabeel, Team Lead                        
- *	Ivan Chukharev
- *	Fahim Taleb
- *	Nusru Zaman
+ * @author Ivan Chukharev
+ *
  */
 public final class BudgetFileManager {
 
@@ -44,6 +43,7 @@ public final class BudgetFileManager {
      * @param username account username
      * @param year budget year
      * @return path such as data/budgets/username/2026.csv
+     * @author  Ivan Chukharev
      */
     public static Path getFilePath(String username, int year) {
         validateUsername(username);
@@ -65,6 +65,7 @@ public final class BudgetFileManager {
      *
      * @param filePath file to check
      * @return true if it is a regular file
+     * @author  Ivan Chukharev
      */
     public static boolean fileExists(Path filePath) {
         return filePath != null && Files.isRegularFile(filePath);
@@ -75,6 +76,7 @@ public final class BudgetFileManager {
      *
      * @param filePath destination path
      * @throws IOException if the file cannot be created
+     * @author  Ivan Chukharev
      */
     public static void createBudgetFile(Path filePath) throws IOException {
         if (filePath == null) {
@@ -94,6 +96,7 @@ public final class BudgetFileManager {
      * @param filePath CSV file to read
      * @return parsed budget
      * @throws IOException if the file cannot be read or contains invalid data
+     * @author  Ivan Chukharev
      */
     public static Budget readCsvFile(Path filePath) throws IOException {
         if (filePath == null || !Files.isRegularFile(filePath)) {
@@ -114,8 +117,13 @@ public final class BudgetFileManager {
 
         for (int lineNumber = 1; lineNumber < lines.size(); lineNumber++) {
             String line = lines.get(lineNumber).trim();
-            if (line.isEmpty()) {
-                continue;
+
+            // Use the validation team's row check (blank lines, column count,
+            // date, category and amount). Any problem rejects the whole file.
+            List<String> problems = CsvValidator.validateRow(line);
+            if (!problems.isEmpty()) {
+                throw new IOException("Invalid row on line " + (lineNumber + 1)
+                        + ": " + String.join("; ", problems) + ".");
             }
 
             String[] fields = line.split(",", -1);
@@ -167,6 +175,7 @@ public final class BudgetFileManager {
      * @param budget budget to write
      * @param filePath destination CSV path
      * @throws IOException if the file cannot be written
+     * @author  Ivan Chukharev
      */
     public static void writeCsvFile(Budget budget, Path filePath) throws IOException {
         if (budget == null || filePath == null) {
@@ -216,6 +225,7 @@ public final class BudgetFileManager {
      * @param filePath file to delete
      * @return true if a file was deleted
      * @throws IOException if deletion fails
+     * @author  Ivan Chukharev
      */
     public static boolean deleteBudgetFile(Path filePath) throws IOException {
         if (filePath == null) {

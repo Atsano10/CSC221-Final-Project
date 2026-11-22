@@ -201,12 +201,29 @@ public class MenuController {
 	}
 
   /**
-    * This will simply print a help menu to explain the function of the program.
+    * This will print a help menu to explain the function of the program.
 	*
-	* @author Bilal Ansar
+	* @author Junyu Chen
 	*/
 	static void handleHelp() {
-		System.out.println("\nTODO: Help menu goes here.\n");
+		System.out.println("\n===== HELP MENU =====\n");
+		System.out.println("Personal Finance Manager helps you track and manage your budget.");
+		System.out.println("\nBefore login:");
+		System.out.println("- Register: Create a new account with username, password and secret question.");
+		System.out.println("- Login: Sign into your existing account.");
+		System.out.println("- Help: Show this help information.");
+		System.out.println("- Exit: Close the program.");
+
+		System.out.println("\nAfter login:");
+		System.out.println("- Budget actions: Upload CSV budget files, generate reports, audit or delete budget years.");
+		System.out.println("- Options: Change password, delete your account, or logout.");
+		System.out.println("- Help: Show this help information.");
+		System.out.println("- Exit: Logout and close the program.");
+
+		System.out.println("\nCSV file requirement:");
+		System.out.println("- The header must be: Date,Category,Amount");
+		System.out.println("- All transactions in one file must belong to the same year.");
+		System.out.println("\n=====================\n");
 	}
 	
   /**
@@ -268,7 +285,7 @@ public class MenuController {
 	static void handleBudgetActions() throws IOException {
 		System.out.println("1. Upload a budget file");
 		System.out.println("2. Generate a report");
-		System.out.println("3. Check a year");
+		System.out.println("3. Generate an audit");
 		System.out.println("4. Delete a budget");
 		System.out.println("5. Go back");
 		
@@ -334,7 +351,7 @@ public class MenuController {
      */
 	static void handleReadFile() throws IOException {
 		
-		System.out.println("\nEnter you budget file's path:");
+		System.out.println("\nEnter you budget file's name:");
 		String path = promptForFilePath();
 
 		// Stop if the path is not valid.
@@ -457,7 +474,7 @@ public class MenuController {
             return;
         }
 
-		System.out.println("\nEnter the year you want to check:");
+		System.out.println("\nEnter the year of the budget you want to audit:");
 		int targetYear;
 		try {
 			targetYear = input.nextInt();
@@ -466,6 +483,8 @@ public class MenuController {
 			return;
 		}
 		
+		input.nextLine();
+		
 		Budget budgetToAudit = BudgetStorage.getBudget(AccountManager.getCurrentUser(), targetYear);
 		
 		if (budgetToAudit == null) {
@@ -473,8 +492,8 @@ public class MenuController {
 			return;
 		}
 		
-		System.out.println("\nFile loaded successfully!\n");
-		DataAudit.runAudit(budgetToAudit);
+		System.out.println("\nFile loaded successfully!");
+		DataAudit.runAudit(budgetToAudit, input);
 	}
 	
   /**
@@ -522,6 +541,7 @@ public class MenuController {
 				Reports.displayReport(report);
 				break;
 			case 2:
+				System.out.println("Enter the name of the file you want to export to: ");
 				String path = promptForFilePath();
 				Reports.exportReport(report, path);
 				break;
