@@ -66,7 +66,7 @@ public class MenuController {
 			System.out.println("4. Exit");
 			doMenuAction(getMenuSelection(4));
 		} else {
-			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
+			System.out.println("\nWelcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. Budget actions");
 			System.out.println("2. Options");
 			System.out.println("3. Help");
@@ -165,33 +165,34 @@ public class MenuController {
 			String question = null;
 			String answer = null;
 		
+			System.out.println("\nYour username must have no spaces.");
+			System.out.println("Your username must be no less than 3 characters.");
+			System.out.println("Your username must be no more than 20 characters.\n");
+				
 			while (true) {
-				System.out.println("\nYour username must have no spaces.");
-				System.out.println("Your username must be no less than 3 characters.");
-				System.out.println("Your username must be no more than 20 characters.");
 				System.out.println("Choose a username: ");
 				username = input.nextLine();
 
 				if (!AccountValidator.validateUserName(username)) {
-					System.err.println("\nInvalid username. Try again.");
+					System.err.println("\nInvalid username. Try again.\n");
 					continue;
 				} break;
 			}
 			
-
+			System.out.println("\nYour password must be no less than 8 characters.");
+			System.out.println("Your password must contain one number.");
+			System.out.println("Your password must contain one letter.\n");
+			
 			while (true) {
-				System.out.println("\nYour password must be no less than 8 characters.");
-				System.out.println("Your password must contain one number.");
-				System.out.println("Your password must contain one letter.");
 				System.out.println("Choose a password: ");
 				password = input.nextLine();
 
 				if (!AccountValidator.validatePassword(password)) {
-					System.err.println("\nInvalid password. Try again.");
+					System.err.println("\nInvalid password. Try again.\n");
 					continue;
 				}
 				
-				System.out.println("Confirm your password: ");
+				System.out.println("\nConfirm your password: ");
 				confirmPassword = input.nextLine();
 				
 				if (!password.equals(confirmPassword)) {
@@ -200,25 +201,27 @@ public class MenuController {
 				} break;
 			}
 
+			System.out.println("\nYour question must be no less than 5 characters.\n");
 			
 			while (true) {	
-				System.out.println("\nYour question must be no less than 5 characters.");
+				
 				System.out.println("Pick a secret question: ");
 				question = input.nextLine();
 
 				if (!AccountValidator.validateQuestion(question)) {
-					System.err.println("\nInvalid question. Try again.");
+					System.err.println("\nInvalid question. Try again.\n");
 					continue;
 				} break;
 			}
-
+			
+			System.out.println("\nYour answer must be no less than 2 characters.\n");
+			
 			while (true) {
-				System.out.println("\nYour answer must be no less than 2 characters.");
 				System.out.println("Enter the answer for your secret question: ");
 				answer = input.nextLine();
 
 				if (!AccountValidator.validateSecretAnswer(answer)) {
-					System.err.println("\nInvalid answer. Try again.");
+					System.err.println("\nInvalid answer. Try again.\n");
 					continue;
 				} break;
 			}
