@@ -376,7 +376,8 @@ public class MenuController {
      * @see #promptForFilePath()
      * 
      * @author Bilal Ansar
-	 * @throws IOException 
+	 * @throws IOException
+	 * @bug 104 (Apostolos Tsano) Upload crashed with NumberFormatException when a field had a leading space. It is now trimmed to avoid that.
      */
 	static void handleReadFile() throws IOException {
 		
@@ -420,15 +421,20 @@ public class MenuController {
 			
 			while ((line = br.readLine()) != null) {
 
+			// Trims everything into different parts noted by commas.
 			String[] parts = line.split(",");
-				
+			for (int i = 0; i < parts.length; i++){
+				parts[i] = parts[i].trim();
+			}
+
+			// Checks if it has exactly 3 columns.
 			if (parts.length != 3) {
-				System.err.println("\nThe row format is invalid at: " + line);
-				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
+				System.err.println("\nThe row format is invalid in row: " + line);
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; }
 				continue;
 			}
-				
+
 			if (!CsvValidator.validateDate(parts[0])) {
 				System.err.println("\nThe date is invalid at: " + line);
 				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
@@ -451,7 +457,7 @@ public class MenuController {
 			}
 			
 			category = parts[1];
-			amount = Integer.parseInt(parts[2]);
+			amount = Integer.parseInt(parts[2]); 
 			
 			String[] tempDate = parts[0].split("/");
 			
@@ -660,11 +666,11 @@ public class MenuController {
   /**
     * Handles the deletion of the currently logged in account.
 	*
-	* Prompts the user to confirm the deletion using {@link #isYesNo()}.
+	* Prompts the user to confirm the deletion using {@link #isYes()}.
 	* If the user confirms, then all the data associated with the account is deleted, and the user is then logged out.
 	* If the user types n or no, no further changes are made.
 	*
-	* @see #isYesNo()
+	* @see #isYes()
 	* @see #handleLogout()
     * 
     * @author Apostolos Tsano
