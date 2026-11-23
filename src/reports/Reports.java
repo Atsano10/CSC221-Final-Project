@@ -1,12 +1,12 @@
-package reports;
+// adding the package
+package <reports>;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import storage.Budget;
-import storage.BudgetTransaction;
 import dataaudit.DataAudit.AuditFinding;
 import dataaudit.DataAudit.FindingType;
 
@@ -37,9 +37,9 @@ public final class Reports {
 	 * @author Rehmil
 	 * @author Lhamu
 	 */
-	public static String formatSummaryAnalysis(Budget budget) {
+	public String formatSummaryAnalysis(Budget budget) {
 		
-		// --- CALCULATIONS ---
+		// CALCULATIONS ---
 		String[] months = {
 			"January", "February", "March", "April", "May", "June",
 			"July", "August", "September", "October", "November", "December"
@@ -65,14 +65,15 @@ public final class Reports {
 		int[] expensesCategoryTotals = new int[expensesCategories.length];
 		
 		
-		List<BudgetTransaction> transactions = budget.transactions();
-		int n = transactions.size();
-		int month;
-
 		
+		int n = budget.transactions().size();
+		int month;
+		List<BudgetTransaction> transaction = budget.transactions();
+		
+
 		for (int i = 0; i < n; ++i) {
 			
-			BudgetTransaction t = transactions.get(i);
+			BudgetTransaction t = transaction.get(i);
 			month = (t.date().getMonthValue()) - 1;
 			
 			// Calculations for monthly income totals. ---
@@ -89,8 +90,8 @@ public final class Reports {
 			}
 			
 			// Calculations for monthly income totals. ---
-			else if (t.amount() < 0) {
-				monthlyExpenses[month] += t.amount();
+			else {
+				monthlyExpenses[month] += transaction.get(i).amount();
 				
 				// Calculations for expenses category totals. ---
 				for (int j = 0; j < expensesCategories.length; ++j) {
@@ -104,130 +105,139 @@ public final class Reports {
 		
 		
 		// Calculations for monthly totals. ---
+		
 		for (int i = 0; i < 12; ++i) {
 			totalExpenses += monthlyExpenses[i];
 			totalIncome += monthlyIncome[i];
 		}
 		
-		// --- FORMATTING ---
+		// FORMATTING ---
 		StringBuilder report = new StringBuilder();
-        String newLine = System.lineSeparator();
+		String newLine = System.lineSeparator();
+		
+		report.append("======== ANNUAL SUMMARY ANALYSIS REPORT ========").append(newLine).append(newLine);
+		report.append("Year: "+ budget.year()).append(newLine).append(newLine).append(newLine);
+		
+		// Formatting monthly totals. ---
+		report.append("MONTHLY TOTALS --------------").append(newLine).append(newLine);
+		
+		for (int i = 0; i < 12; ++i) {
+			report.append(months[i]).append(newLine);
+			
+			// Format monthly income. ---
+			report.append("Income: ");
+			if (monthlyIncome[i] == 0) {
+				report.append("Information unavailable").append(newLine);
+			}
+			else {
+				report.append("$" + monthlyIncome[i]).append(newLine);
+			}
+			
+			// Format monthly expenses. ---
+			report.append("Expenses: ");
+			if (monthlyExpenses[i] == 0) {
+				report.append("Information unavailable").append(newLine);
+			}
+			else {
+				report.append("$" + Math.abs(monthlyExpenses[i])).append(newLine);
+			}
+			
+			// Format net monthly income. --- 
+			report.append("Net: ");
+			if ((monthlyIncome[i] == 0) && (monthlyExpenses[i] == 0)) {
+				report.append("Information unavailable").append(newLine);
+			}
+			else {
+				int net = monthlyIncome[i] + monthlyExpenses[i];
+				if (net < 0) {
+					report.append("-$" + Math.abs(net)).append(newLine);
+				}
+				else {
+					report.append("$" + net).append(newLine);
+				}
+			}
+			
+			report.append(newLine);
+		}
+		
+		report.append(newLine);
+		
+		  // Format category totals. ---
+	    report.append("CATEGORY TOTALS ----------------")
+	    report.append(newLine).append(newLine);
 
-        String line = "----------------------------------------";
+	    // Format income category totals. ---
+	    report.append("Income by Category:")
+	    report.append(newLine);
 
-        int balance = totalIncome + totalExpenses;
+	    for (int i = 0; i < incomeCategories.length; i++) {
+	        report.append(incomeCategories[i])
+	        report.append(": $")
+	        report.append(incomeCategoryTotals[i])
+	        report.append(newLine);
+	    }
 
-        String status;
-        if (balance > 0) {
-            status = "SURPLUS";
-        } else if (balance < 0) {
-            status = "DEFICIT";
-        } else {
-            status = "BALANCED";
-        }
+	    report.append(newLine);
 
-        // Report header
-        report.append("                 P F M").append(newLine);
-        report.append("          PERSONAL FINANCE MANAGER")
-              .append(newLine);
-        report.append(String.format(
-                "         ANNUAL STATEMENT / %d%n",
-                budget.year()));
+	    // Format expenses category totals. ---
+	    report.append("Expenses by Category:")
+	    report.append(newLine);
 
-        report.append(line).append(newLine).append(newLine);
+	    for (int i = 0; i < expensesCategories.length; i++) {
+	        report.append(expensesCategories[i])
+	        report.append(": $")
+	        report.append(Math.abs(expensesCategoryTotals[i]))
+	        report.append(newLine);
+	    }
 
-        // Financial summary
-        report.append("FINANCIAL SUMMARY")
-              .append(newLine).append(newLine);
+	    report.append(newLine);
 
-        report.append(String.format("%-25s %14s%n",
-                "Income", String.format("$%,d", totalIncome)));
+	    // Format overall performance. ---
+	    report.append("OVERALL PERFORMANCE ----------------")
+	    report.append(newLine).append(newLine);
 
-        report.append(String.format("%-25s %14s%n",
-                "Expenses", String.format("$%,d",
-                        Math.abs((long) totalExpenses))));
+	    // Format total income. ---
+	    report.append("Total Income: $")
+	    report.append(totalIncome)
+	    report.append(newLine);
 
-        report.append(line).append(newLine);
+	    // Format total expenses. ---
+	    report.append("Total Expenses: $")
+	    report.append(Math.abs(totalExpenses))
+	    report.append(newLine);
 
-        report.append(String.format("%-25s %14s%n",
-                "Balance",
-                String.format("%s$%,d",
-                        balance < 0 ? "-" : "",
-                        Math.abs((long) balance))));
+	    // Determine + format if surplus or deficit. ---
+	    int net = totalIncome + totalExpenses;
 
-        // Monthly overview
-        report.append(newLine);
-        report.append("MONTHLY OVERVIEW")
-              .append(newLine).append(newLine);
-
-        report.append(String.format(
-                "%-10s %9s %9s %9s%n",
-                "Month", "Income", "Expenses", "Net"));
-
-        report.append(line).append(newLine);
-
-        for (int i = 0; i < 12; i++) {
-
-            int monthlyNet = monthlyIncome[i] + monthlyExpenses[i];
-
-            report.append(String.format(
-                    "%-10s %9s %9s %9s%n",
-                    months[i],
-                    String.format("$%,d", monthlyIncome[i]),
-                    String.format("$%,d",
-                            Math.abs((long) monthlyExpenses[i])),
-                    String.format("%s$%,d",
-                            monthlyNet < 0 ? "-" : "",
-                            Math.abs((long) monthlyNet))));
-        }
-
-        // Category details
-        report.append(newLine);
-        report.append("CATEGORY DETAILS").append(newLine);
-        report.append(line).append(newLine).append(newLine);
-
-        // Income categories
-        report.append("INCOME").append(newLine);
-
-        for (int i = 0; i < incomeCategories.length; i++) {
-            report.append(String.format("  %-23s %14s%n",
-                    incomeCategories[i],
-                    String.format("$%,d",
-                            incomeCategoryTotals[i])));
-        }
-
-        report.append(newLine);
-
-        // Expense categories
-        report.append("EXPENSES").append(newLine);
-
-        for (int i = 0; i < expensesCategories.length; i++) {
-            report.append(String.format("  %-23s %14s%n",
-                    expensesCategories[i],
-                    String.format("$%,d",
-                            Math.abs((long) expensesCategoryTotals[i]))));
-        }
-
-        // Final balance
-        report.append(newLine);
-        report.append(line).append(newLine);
-
-        report.append(String.format("%-25s %14s%n",
-                "TOTAL BALANCE",
-                String.format("%s$%,d",
-                        balance < 0 ? "-" : "",
-                        Math.abs((long) balance))));
-
-        report.append(String.format("%-25s %14s%n",
-                "STATUS", status));
-
-        report.append(line).append(newLine);
-        report.append("           END OF STATEMENT");
-
-        return report.toString();
+	    if (net > 0) {
+	        report.append("Surplus: $")
+	        report.append(net)
+	        report.append(newLine);
+	    }
+	    else if (net < 0) {
+	        report.append("Deficit: $")
+	        report.append(Math.abs(net))
+	        report.append(newLine);
+	    }
+	    else {
+	        report.append("Balanced: $0")
+	        report.append(newLine);
+	    }
+		report.append(newLine);
+		report.append("=========================================");
+    // Format category totals. ---
+		// Format income category totals. ---
+		// Format expenses category totals. ---
+		
+		// Format overall performance. ---			
+    // Format total income. ---
+		// Format total expenses. ---
+		
+		// Determine + Format if surplus or deficit. ---
+	    
+		return report.toString();
 	}
-
-	
+		
     /**
 	 * Generates a report that describes all the validation
 	 * errors and warnings in a budget file.
@@ -237,7 +247,7 @@ public final class Reports {
      * @return A formatted validation report.
      * @author Chime
      */
-	public static String formatValidationReport(List<String> validationErrors) {
+	public String formatValidationReport(List<String> validationErrors) {
     // Create a StringBuilder to construct the report
 		StringBuilder report = new StringBuilder();
 		String newline = System.lineSeparator();
@@ -420,12 +430,11 @@ public final class Reports {
      * @param report The report to display.
      * @author Lhamu
      */
-    public static void displayReport(String report) {
+    public void displayReport(String report) {
     	System.out.println(report);
     }
 
 
-	
     /**
      * Exports a report to a file.
      *
@@ -433,18 +442,18 @@ public final class Reports {
      * @param fileName The name of the output file.
      * @author Lhamu
      */
-    public static void exportReport(String report, String fileName) {
+    public void exportReport(String report, String fileName) {
     	try (BufferedWriter writer =
                 Files.newBufferedWriter(Path.of(fileName))) {
 
             writer.write(report);
 
         } catch (IOException e) {
-            System.err.println("Error exporting report.\n");
+            System.err.println("Error exporting report: " + e.getMessage());
             return;
         }
 
-        System.out.println("Report exported successfully.\n");
+        System.out.println("Report exported successfully.");
     	}
     
 
@@ -457,9 +466,20 @@ public final class Reports {
      * @return A cancellation message.
      * @author Rehmil
      */
-    public static String cancelStatement(String operation) {
+    public String cancelStatement(String operation) {
 		return "Operation Cancelled: " + operation;
+		}
+
+	/**
+	 * Creates a message that indicates that the current reporting operation was
+	 * cancelled.
+	 * 
+	 * @param operation Name of the cancelled operation.
+	 * @return A cancellation message.
+	 * @author Rehmil
+	 */
+	public String cancelStatement(String operation) {
+		return null;
 	}
 
-	
 }
