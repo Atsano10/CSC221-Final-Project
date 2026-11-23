@@ -17,6 +17,7 @@ import storage.BudgetStorage;
 import storage.BudgetTransaction;
 import validations.CsvValidator;
 import validations.InputValidator;
+import validations.AccountValidator;
 
 /**
   * Displays the main user menu and actions post authentication such as file reading
@@ -158,46 +159,74 @@ public class MenuController {
     * @author Bilal Ansar
     */
 	static void handleRegister() {
-		while (true) {
 			String username = null;
 			String password = null;
 			String confirmPassword = null;
 			String question = null;
 			String answer = null;
 		
-			System.out.println("\nYour username must be at least 3 characters and at most 20 characters.");
-			System.out.println("Choose a username: ");
-			username = input.nextLine();
-			System.out.println("\nYour password must be at least 8 characters long and contain one number and one letter.");
-			System.out.println("Choose a password: ");
-			password = input.nextLine();
-			System.out.println("Confirm your password: ");
-			confirmPassword = input.nextLine();
-			
-			if (!password.equals(confirmPassword)) {
-				System.err.println("\nYour passwords do not match.\n");
-				break;
-			}
-			
-			System.out.println("\nYour question must be at least 5 characters long.");
-			System.out.println("Pick a secret question: ");
-			question = input.nextLine();
-			
-			System.out.println("\nYour answer must be at least 2 characters long.");
-			System.out.println("Enter the answer for your secret question: ");
-			answer = input.nextLine();
-		
-			if (AccountManager.registerUser(username, password, question, answer)) {
-				System.out.println("\nAccount created! You are now logged in.\n");
-				AccountManager.signIn(username, password);
-				break;
-			} else {
-				System.err.println("\nThere was a problem with one or more of your choices. Try again? y/n");
-				if (isYes()) {
+			System.out.println("\nYour username must have no spaces.");
+			System.out.println("Your username must be no less than 3 characters.");
+			System.out.println("Your username must be no more than 20 characters.\n");
+
+			while (true) {
+				System.out.println("Choose a username: ");
+				username = input.nextLine();
+
+				if (!AccountValidator.validateUserName(username)) {
+					System.err.println("\nInvalid username. Try again.\n");
 					continue;
 				} break;
-			} 
-		}
+			}
+			
+			System.out.println("\nYour password must be no less than 8 characters.");
+			System.out.println("Your password must contain one number.");
+			System.out.println("Your password must contain one letter.\n");
+			
+			while (true) {
+				System.out.println("Choose a password: ");
+				password = input.nextLine();
+
+				if (!AccountValidator.validatePassword(password)) {
+					System.err.println("\nInvalid password. Try again.\n");
+					continue;
+				}
+				
+				System.out.println("\nConfirm your password: ");
+				confirmPassword = input.nextLine();
+				
+				if (!password.equals(confirmPassword)) {
+					System.err.println("\nYour passwords do not match. Try again.\n");
+					continue;
+				} break;
+			}
+
+			System.out.println("\nYour question must be no less than 5 characters.\n");
+			
+			while (true) {	
+				System.out.println("Pick a secret question: ");
+				question = input.nextLine();
+
+				if (!AccountValidator.validateQuestion(question)) {
+					System.err.println("\nInvalid question. Try again.\n");
+					continue;
+				} break;
+			}
+			
+			System.out.println("\nYour answer must be no less than 2 characters.\n");
+			
+			while (true) {
+				System.out.println("Enter the answer for your secret question: ");
+				answer = input.nextLine();
+
+				if (!AccountValidator.validateSecretAnswer(answer)) {
+					System.err.println("\nInvalid answer. Try again.\n");
+					continue;
+				} break;
+			}
+		
+			AccountManager.registerUser(username, password, question, answer);
+			System.out.println("\nAccount created! You are now logged in.\n");
 	}
 
   /**
@@ -390,26 +419,33 @@ public class MenuController {
 			readNonBlankLine(br);
 			
 			while ((line = br.readLine()) != null) {
-				 
+
 			String[] parts = line.split(",");
-			
+				
+			if (parts.length != 3) {
+				System.err.println("\nThe row format is invalid at: " + line);
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
+				if (!isYes()) { return; }
+				continue;
+			}
+				
 			if (!CsvValidator.validateDate(parts[0])) {
 				System.err.println("\nThe date is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
 			
 			if (!CsvValidator.validateCategory(parts[1])) {
 				System.err.println("\nThe category is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
 			
 			if (!CsvValidator.validateAmount(parts[2], parts[1])) {
 				System.err.println("\nThe amount is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
@@ -421,18 +457,18 @@ public class MenuController {
 			
 			if (!InputValidator.validateYear(tempDate[2])) {
 				System.err.println("\nThe year is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
-			
-			if (count == 0) {
-				budgetYear = tempDate[2];
+
+			if (count == 0) { // This assigns the date of the first row to a variable and increments count.
+				budgetYear = tempDate[2]; 
 				count++;
-			} else {
-				if (!budgetYear.equals(tempDate[2])) {
-				System.err.println("\nThere are conflicting years in your file.\n");
-				return;
+			} else { // When reading the second line, count is 1 so it instead compares the second row's year to the first year.
+				if (!budgetYear.equals(tempDate[2])) { 
+					System.err.println("\nThere are conflicting years in your file. Each file must have data from only one year.\n");
+					return; // If they do not match, the file read is abandoned.
 				}
 			}
 			
