@@ -377,7 +377,7 @@ public class MenuController {
      * 
      * @author Bilal Ansar
 	 * @throws IOException
-	 * @bug 104 (Apostolos Tsano) Upload crashed with NumberFormatException when a field had a leading space. It is now trimmed to avoid that.
+	 * @bug Upload crashed with NumberFormatException when an amount had a space before or after it (PFM-104)
      */
 	static void handleReadFile() throws IOException {
 		
