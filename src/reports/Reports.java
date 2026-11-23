@@ -127,14 +127,12 @@ public final class Reports {
         }
 
         // Report header
-        report.append("                 P F M").append(newLine);
-        report.append("          PERSONAL FINANCE MANAGER")
-              .append(newLine);
-        report.append(String.format(
-                "         ANNUAL STATEMENT / %d%n",
-                budget.year()));
+		report.append("========================================").append(newLine);
+		report.append(String.format("%45s%n", "P F M"));
+		report.append(String.format("%58s%n", "PERSONAL FINANCE MANAGER"));
+		report.append(String.format("%52s%n", "ANNUAL STATEMENT / " + budget.year()));
 
-        report.append(line).append(newLine).append(newLine);
+        report.append("========================================").append(newLine).append(newLine);
 
         // Financial summary
         report.append("FINANCIAL SUMMARY")
@@ -221,7 +219,7 @@ public final class Reports {
         report.append(String.format("%-25s %14s%n",
                 "STATUS", status));
 
-        report.append(line).append(newLine);
+        report.append("========================================").append(newLine);
         report.append("           END OF STATEMENT");
 
         return report.toString();
