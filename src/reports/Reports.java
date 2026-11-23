@@ -1,4 +1,14 @@
+package reports;
+
 import java.util.List;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import storage.Budget;
+import storage.BudgetTransaction;
+import dataaudit.DataAudit.AuditFinding;
+import dataaudit.DataAudit.FindingType;
 
 /**
  * Formats reports to console or files so that everything is readable.
@@ -9,21 +19,215 @@ import java.util.List;
  * @author Tasfia
  */
 
-public class Reports {
-
+public final class Reports {
+	
 	/**
-	 * Generates a formatted annual summary analysis report.
-	 * The report will have monthly income and expense totals,
-	 * category totals, and overall budget performance (surplus or deficit).
+	 * Private constructor so Reports class cannot be instantiated.
+	 */
+	
+	private Reports() {}
+	
+	/**
+	 * Generates a formatted annual summary analysis report. The report will have
+	 * monthly income and expense totals, category totals, and overall budget
+	 * performance (surplus or deficit).
 	 *
 	 * @param budget The annual budget being analyzed.
 	 * @return A formatted annual summary report.
 	 * @author Rehmil
+	 * @author Lhamu
 	 */
-	public String formatSummaryAnalysis(Budget budget) {
-		return null;}
+	public static String formatSummaryAnalysis(Budget budget) {
+		
+		// --- CALCULATIONS ---
+		String[] months = {
+			"January", "February", "March", "April", "May", "June",
+			"July", "August", "September", "October", "November", "December"
+		};
+		
+		int[] monthlyExpenses = new int[12];
+		int[] monthlyIncome = new int[12];
+		
+		int totalExpenses = 0;
+		int totalIncome = 0;
+		
+		
+		String[] expensesCategories = {
+			"Home", "Utilities", "Food", "Appearance", "Work", "Education",
+			"Transportation", "Entertainment", "Professional Services", "Other"
+		};
+		
+		String[] incomeCategories = {
+			"Compensation", "Allowance", "Investments", "Other"
+		};
+		
+		int[] incomeCategoryTotals = new int[incomeCategories.length];
+		int[] expensesCategoryTotals = new int[expensesCategories.length];
+		
+		
+		List<BudgetTransaction> transactions = budget.transactions();
+		int n = transactions.size();
+		int month;
 
+		
+		for (int i = 0; i < n; ++i) {
+			
+			BudgetTransaction t = transactions.get(i);
+			month = (t.date().getMonthValue()) - 1;
+			
+			// Calculations for monthly income totals. ---
+			if (t.amount() > 0) {
+				monthlyIncome[month] += t.amount();
 
+				// Calculations for income category totals. ---
+				for (int j = 0; j < incomeCategories.length; ++j) {
+					if (t.category().equals(incomeCategories[j])) {
+						incomeCategoryTotals[j] += t.amount();
+						break;
+					}
+				}
+			}
+			
+			// Calculations for monthly income totals. ---
+			else if (t.amount() < 0) {
+				monthlyExpenses[month] += t.amount();
+				
+				// Calculations for expenses category totals. ---
+				for (int j = 0; j < expensesCategories.length; ++j) {
+					if (t.category().equals(expensesCategories[j])) {
+						expensesCategoryTotals[j] += t.amount();
+						break;
+					}
+				}
+			}
+		}
+		
+		
+		// Calculations for monthly totals. ---
+		for (int i = 0; i < 12; ++i) {
+			totalExpenses += monthlyExpenses[i];
+			totalIncome += monthlyIncome[i];
+		}
+		
+		// --- FORMATTING ---
+		StringBuilder report = new StringBuilder();
+        String newLine = System.lineSeparator();
+
+        String line = "----------------------------------------";
+
+        int balance = totalIncome + totalExpenses;
+
+        String status;
+        if (balance > 0) {
+            status = "SURPLUS";
+        } else if (balance < 0) {
+            status = "DEFICIT";
+        } else {
+            status = "BALANCED";
+        }
+
+        // Report header
+        report.append("                 P F M").append(newLine);
+        report.append("          PERSONAL FINANCE MANAGER")
+              .append(newLine);
+        report.append(String.format(
+                "         ANNUAL STATEMENT / %d%n",
+                budget.year()));
+
+        report.append(line).append(newLine).append(newLine);
+
+        // Financial summary
+        report.append("FINANCIAL SUMMARY")
+              .append(newLine).append(newLine);
+
+        report.append(String.format("%-25s %14s%n",
+                "Income", String.format("$%,d", totalIncome)));
+
+        report.append(String.format("%-25s %14s%n",
+                "Expenses", String.format("$%,d",
+                        Math.abs((long) totalExpenses))));
+
+        report.append(line).append(newLine);
+
+        report.append(String.format("%-25s %14s%n",
+                "Balance",
+                String.format("%s$%,d",
+                        balance < 0 ? "-" : "",
+                        Math.abs((long) balance))));
+
+        // Monthly overview
+        report.append(newLine);
+        report.append("MONTHLY OVERVIEW")
+              .append(newLine).append(newLine);
+
+        report.append(String.format(
+                "%-10s %9s %9s %9s%n",
+                "Month", "Income", "Expenses", "Net"));
+
+        report.append(line).append(newLine);
+
+        for (int i = 0; i < 12; i++) {
+
+            int monthlyNet = monthlyIncome[i] + monthlyExpenses[i];
+
+            report.append(String.format(
+                    "%-10s %9s %9s %9s%n",
+                    months[i],
+                    String.format("$%,d", monthlyIncome[i]),
+                    String.format("$%,d",
+                            Math.abs((long) monthlyExpenses[i])),
+                    String.format("%s$%,d",
+                            monthlyNet < 0 ? "-" : "",
+                            Math.abs((long) monthlyNet))));
+        }
+
+        // Category details
+        report.append(newLine);
+        report.append("CATEGORY DETAILS").append(newLine);
+        report.append(line).append(newLine).append(newLine);
+
+        // Income categories
+        report.append("INCOME").append(newLine);
+
+        for (int i = 0; i < incomeCategories.length; i++) {
+            report.append(String.format("  %-23s %14s%n",
+                    incomeCategories[i],
+                    String.format("$%,d",
+                            incomeCategoryTotals[i])));
+        }
+
+        report.append(newLine);
+
+        // Expense categories
+        report.append("EXPENSES").append(newLine);
+
+        for (int i = 0; i < expensesCategories.length; i++) {
+            report.append(String.format("  %-23s %14s%n",
+                    expensesCategories[i],
+                    String.format("$%,d",
+                            Math.abs((long) expensesCategoryTotals[i]))));
+        }
+
+        // Final balance
+        report.append(newLine);
+        report.append(line).append(newLine);
+
+        report.append(String.format("%-25s %14s%n",
+                "TOTAL BALANCE",
+                String.format("%s$%,d",
+                        balance < 0 ? "-" : "",
+                        Math.abs((long) balance))));
+
+        report.append(String.format("%-25s %14s%n",
+                "STATUS", status));
+
+        report.append(line).append(newLine);
+        report.append("           END OF STATEMENT");
+
+        return report.toString();
+	}
+
+	
     /**
 	 * Generates a report that describes all the validation
 	 * errors and warnings in a budget file.
@@ -33,14 +237,52 @@ public class Reports {
      * @return A formatted validation report.
      * @author Chime
      */
-    public String formatValidationReport(List<String> validationErrors) {
-		return null;}
+	public static String formatValidationReport(List<String> validationErrors) {
+    // Create a StringBuilder to construct the report
+		StringBuilder report = new StringBuilder();
+		String newline = System.lineSeparator();
+    
+    report.append("============== VALIDATION REPORT ==============")
+			  .append(newline);
+    
+    // Check whether the error list is null or empty
+		if (validationErrors == null) {
+			report.append("Validation results are unavailable.")
+				  .append(newline);
+		}
+		
+		else if (validationErrors.isEmpty()) {
+			report.append("No validation errors or warnings found.")
+			      .append(newline);
+	
+		} 
+		
+		else {
+			report.append("Total Validation Issues Found: ")
+				  .append(validationErrors.size())
+				  .append(newline);
+     
+      for (int i = 0; i < validationErrors.size(); i++) {
+				report.append(i + 1)
+					  .append(". ")
+					  .append(validationErrors.get(i))
+					  .append(newline);
+			}
+		}
+
+		report.append(newline)
+			  .append("==============================================");
+		return report.toString();
+	}
 
 
-	/**
-	 * Banner line used at the bottom of the data audit report.
-	 */
-	private static final String AUDIT_BANNER = "=================================================";
+
+	/** Lines that frame the report: %85s makes 85 spaces, then each space is replaced. */
+	private static final String AUDIT_BANNER = String.format("%85s", "").replace(' ', '=');
+	private static final String AUDIT_LINE = String.format("%85s", "").replace(' ', '-');
+
+	/** Table columns: #, Date, Category, Amount ($), Reason. */
+	private static final String AUDIT_ROW = "%3s  %-10s  %-21s %10s  %s%n";
 
 	/**
 	 * Creates a report that contains the duplicates and
@@ -50,11 +292,12 @@ public class Reports {
 	 * @return A formatted audit report.
 	 * @author Tasfia
 	 */
-	public String formatAuditReport(List<AuditFinding> findings) {
+	public static String formatAuditReport(List<AuditFinding> findings) {
 		StringBuilder sb = new StringBuilder();
 
-		// Header
-		sb.append(String.format("=============== DATA AUDIT REPORT ===============%n"));
+		// Title box. %51s right-aligns the 17-letter title so it ends at column 51,
+		// which centers it in the 85-character report.
+		sb.append(String.format("%s%n%51s%n%s%n", AUDIT_BANNER, "DATA AUDIT REPORT", AUDIT_BANNER));
 
 		// No audit results were passed in.
 		if (findings == null) {
@@ -63,109 +306,126 @@ public class Reports {
 			return sb.toString();
 		}
 
-		// The audit ran but found nothing.
-		if (findings.isEmpty()) {
-			sb.append(String.format("No duplicates or anomalies were found.%n"));
-			sb.append(AUDIT_BANNER);
-			return sb.toString();
-		}
-
-		// Count the duplicates and anomalies, skipping null findings and null types.
+		// Count each type of finding, skipping null findings and null types.
 		int duplicateCount = 0;
 		int anomalyCount = 0;
 		for (AuditFinding finding : findings) {
 			if (finding == null || finding.type() == null) {
 				continue;
 			}
-			if (finding.type() == FindingType.DUPLICATE) {
-				duplicateCount++;
-			} else if (finding.type() == FindingType.ANOMALY) {
-				anomalyCount++;
+			switch (finding.type()) {
+				case DUPLICATE -> duplicateCount++;
+				case ANOMALY -> anomalyCount++;
 			}
 		}
 
-		// Use singular or plural words so the summary line is grammatically correct.
-		String duplicateWord;
-		if (duplicateCount == 1) {
-			duplicateWord = "duplicate";
-		} else {
-			duplicateWord = "duplicates";
+		// The audit ran but found nothing.
+		if (duplicateCount + anomalyCount == 0) {
+			sb.append(String.format("No duplicates or anomalies were found.%n"));
+			sb.append(AUDIT_BANNER);
+			return sb.toString();
 		}
 
-		String anomalyWord;
-		if (anomalyCount == 1) {
-			anomalyWord = "anomaly";
-		} else {
-			anomalyWord = "anomalies";
-		}
-
-		sb.append(String.format("Total findings: %d (%d %s, %d %s)%n",
-				duplicateCount + anomalyCount, duplicateCount, duplicateWord,
-				anomalyCount, anomalyWord));
+		// The ternary operator picks the singular or plural word.
+		sb.append(String.format("Total findings: %d  (%d %s, %d %s)%n",
+				duplicateCount + anomalyCount,
+				duplicateCount, (duplicateCount == 1) ? "duplicate" : "duplicates",
+				anomalyCount, (anomalyCount == 1) ? "anomaly" : "anomalies"));
 
 		if (duplicateCount > 0) {
-			appendFindingSection(sb, findings, FindingType.DUPLICATE, "DUPLICATES");
+			appendFindingSection(sb, findings, FindingType.DUPLICATE);
 		}
-
 		if (anomalyCount > 0) {
-			appendFindingSection(sb, findings, FindingType.ANOMALY, "ANOMALIES");
+			appendFindingSection(sb, findings, FindingType.ANOMALY);
 		}
 
 		sb.append(AUDIT_BANNER);
 		return sb.toString();
 	}
 
-
 	/**
-	 * Adds a numbered section of audit findings to the report.
+	 * Adds one type of audit finding to the report as a table
+	 * with lined-up columns and right-aligned amounts.
 	 *
 	 * @param sb The StringBuilder used to create the report.
 	 * @param findings The list of audit findings.
 	 * @param type The type of findings to display.
-	 * @param heading The heading of the report section.
 	 * @author Tasfia
 	 */
-	private void appendFindingSection(StringBuilder sb, List<AuditFinding> findings,
-			FindingType type, String heading) {
+	private static void appendFindingSection(StringBuilder sb, List<AuditFinding> findings,
+			FindingType type) {
 
-		// Blank line, then the section heading.
-		sb.append(String.format("%n%s%n", heading));
+		// switch expression: no default is needed because both enum values are covered.
+		String heading = switch (type) {
+			case DUPLICATE -> "DUPLICATES";
+			case ANOMALY -> "ANOMALIES";
+		};
 
-		// Numbering starts at 1 because number is increased before each finding is printed.
+		// Heading, then the column titles between two dashed lines.
+		sb.append(String.format("%n%s%n%s%n", heading, AUDIT_LINE));
+		sb.append(String.format(AUDIT_ROW, "#", "Date", "Category", "Amount ($)", "Reason"));
+		sb.append(String.format("%s%n", AUDIT_LINE));
+
 		int number = 0;
 		for (AuditFinding finding : findings) {
 			if (finding == null || finding.type() != type) {
 				continue;
 			}
-
 			number++;
 
-			// Use fallback text so the report never shows the word "null".
-			String entry = finding.entry();
-			if (entry == null) {
-				entry = "(no entry given)";
+			// Fallback text so the report never shows the word "null".
+			String entry = (finding.entry() == null) ? "(no entry given)" : finding.entry();
+			String reason = (finding.reason() == null) ? "(no reason given)" : finding.reason();
+
+			// By default, show the whole entry in the Category column.
+			String date = "-";
+			String category = entry;
+			String amount = "";
+
+			if (entry.matches("BudgetTransaction\\[date=.*, category=.*, amount=.*\\]")) {
+				// A duplicate looks like:
+				// BudgetTransaction[date=2025-03-09, category=Transportation, amount=-127]
+				// Remove "BudgetTransaction[" and "]", split into the three fields,
+				// then keep the part after each "=".
+				String[] fields = entry.replaceAll("BudgetTransaction\\[|\\]", "").split(", ");
+				date = fields[0].split("=")[1];
+				category = fields[1].split("=")[1];
+				amount = fields[2].split("=")[1];
+			} else {
+				// An anomaly only gives the category. Its amount is the 2nd word of
+				// a reason like "Amount 3200 is out of normal range".
+				String[] words = reason.split(" ");
+				if (words.length > 1 && words[0].equals("Amount")) {
+					amount = words[1];
+				}
 			}
 
-			String reason = finding.reason();
-			if (reason == null) {
-				reason = "(no reason given)";
+			// Add commas to the amount (3200 -> 3,200). If it is not a number, show "-".
+			String amountText;
+			try {
+				amountText = String.format("%,d", Integer.parseInt(amount));
+			} catch (NumberFormatException e) {
+				amountText = "-";
 			}
 
-			sb.append(String.format("  %d. %s%n", number, entry));
-			sb.append(String.format("     Reason: %s%n", reason));
+			sb.append(String.format(AUDIT_ROW, number, date, category, amountText, reason));
 		}
 	}
 
 
+    
     /**
      * Displays a report to the console.
      *
      * @param report The report to display.
      * @author Lhamu
      */
-    public void displayReport(String report) {}
+    public static void displayReport(String report) {
+    	System.out.println(report);
+    }
 
 
+	
     /**
      * Exports a report to a file.
      *
@@ -173,7 +433,20 @@ public class Reports {
      * @param fileName The name of the output file.
      * @author Lhamu
      */
-    public void exportReport(String report, String fileName) {}
+    public static void exportReport(String report, String fileName) {
+    	try (BufferedWriter writer =
+                Files.newBufferedWriter(Path.of(fileName))) {
+
+            writer.write(report);
+
+        } catch (IOException e) {
+            System.err.println("Error exporting report.\n");
+            return;
+        }
+
+        System.out.println("Report exported successfully.\n");
+    	}
+    
 
 
     /**
@@ -184,8 +457,9 @@ public class Reports {
      * @return A cancellation message.
      * @author Rehmil
      */
-    public String cancelStatement(String operation) {
-		return null;}
+    public static String cancelStatement(String operation) {
+		return "Operation Cancelled: " + operation;
+	}
 
-
+	
 }
