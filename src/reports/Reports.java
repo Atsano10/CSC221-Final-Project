@@ -111,109 +111,121 @@ public final class Reports {
 		
 		// --- FORMATTING ---
 		StringBuilder report = new StringBuilder();
-		String newLine = System.lineSeparator();
-		
-		report.append("======== ANNUAL SUMMARY ANALYSIS REPORT ========")
-			  .append(newLine)
-			  .append(newLine);
-		
-		report.append("Year: ").append(budget.year())
-			  .append(newLine).append(newLine).append(newLine);
-		
-		// Formatting monthly totals. ---
-		report.append("MONTHLY TOTALS --------------").append(newLine).append(newLine);
-		
-		for (int i = 0; i < 12; ++i) {
-			report.append(months[i]).append(newLine);
-			
-			// Format monthly income. ---
-			report.append("Income: $").append(monthlyIncome[i]).append(newLine);
-			
-			// Format monthly expenses. ---
-			report.append("Expenses: $").append(Math.abs(monthlyExpenses[i])).append(newLine);
-			
-			// Format net monthly income. --- 
-			int net = monthlyIncome[i] + monthlyExpenses[i];
-			report.append("Net: ");
-			if (net < 0) {
-				report.append("-$").append(Math.abs(net)).append(newLine);
-			}
-			else {
-				report.append("$").append(net).append(newLine);
-			}
-			
-			report.append(newLine);
-		}
-		
-		report.append(newLine);
-		
-		// Format category totals. ---
-	    report.append("CATEGORY TOTALS ----------------");
-	    report.append(newLine).append(newLine);
+        String newLine = System.lineSeparator();
 
-	    // Format income category totals. ---
-	    report.append("Income by Category:");
-	    report.append(newLine);
+        String line = "----------------------------------------";
 
-	    for (int i = 0; i < incomeCategories.length; i++) {
-	        report.append(incomeCategories[i]);
-	        report.append(": $");
-	        report.append(incomeCategoryTotals[i]);
-	        report.append(newLine);
-	    }
+        int balance = totalIncome + totalExpenses;
 
-	    report.append(newLine);
+        String status;
+        if (balance > 0) {
+            status = "SURPLUS";
+        } else if (balance < 0) {
+            status = "DEFICIT";
+        } else {
+            status = "BALANCED";
+        }
 
-	    // Format expenses category totals. ---
-	    report.append("Expenses by Category:");
-	    report.append(newLine);
+        // Report header
+        report.append("                 P F M").append(newLine);
+        report.append("          PERSONAL FINANCE MANAGER")
+              .append(newLine);
+        report.append(String.format(
+                "         ANNUAL STATEMENT / %d%n",
+                budget.year()));
 
-	    for (int i = 0; i < expensesCategories.length; i++) {
-	        report.append(expensesCategories[i]);
-	        report.append(": $");
-	        report.append(Math.abs(expensesCategoryTotals[i]));
-	        report.append(newLine);
-	    }
+        report.append(line).append(newLine).append(newLine);
 
-	    report.append(newLine).append(newLine);
+        // Financial summary
+        report.append("FINANCIAL SUMMARY")
+              .append(newLine).append(newLine);
 
-	    // Format overall performance. ---
-	    report.append("OVERALL PERFORMANCE ----------------");
-	    report.append(newLine).append(newLine);
+        report.append(String.format("%-25s %14s%n",
+                "Income", String.format("$%,d", totalIncome)));
 
-	    // Format total income. ---
-	    report.append("Total Income: $");
-	    report.append(totalIncome);
-	    report.append(newLine);
+        report.append(String.format("%-25s %14s%n",
+                "Expenses", String.format("$%,d",
+                        Math.abs((long) totalExpenses))));
 
-	    // Format total expenses. ---
-	    report.append("Total Expenses: $");
-	    report.append(Math.abs(totalExpenses));
-	    report.append(newLine);
+        report.append(line).append(newLine);
 
-	    // Determine + format if surplus or deficit. ---
-	    int net = totalIncome + totalExpenses;
+        report.append(String.format("%-25s %14s%n",
+                "Balance",
+                String.format("%s$%,d",
+                        balance < 0 ? "-" : "",
+                        Math.abs((long) balance))));
 
-	    if (net > 0) {
-	        report.append("Surplus: $");
-	        report.append(net);
-	        report.append(newLine);
-	    }
-	    else if (net < 0) {
-	        report.append("Deficit: $");
-	        report.append(Math.abs(net));
-	        report.append(newLine);
-	    }
-	    else {
-	        report.append("Balanced: $0");
-	        report.append(newLine);
-	    }
-		report.append(newLine);
-		report.append("=========================================");
-		
-		return report.toString();
+        // Monthly overview
+        report.append(newLine);
+        report.append("MONTHLY OVERVIEW")
+              .append(newLine).append(newLine);
+
+        report.append(String.format(
+                "%-10s %9s %9s %9s%n",
+                "Month", "Income", "Expenses", "Net"));
+
+        report.append(line).append(newLine);
+
+        for (int i = 0; i < 12; i++) {
+
+            int monthlyNet = monthlyIncome[i] + monthlyExpenses[i];
+
+            report.append(String.format(
+                    "%-10s %9s %9s %9s%n",
+                    months[i],
+                    String.format("$%,d", monthlyIncome[i]),
+                    String.format("$%,d",
+                            Math.abs((long) monthlyExpenses[i])),
+                    String.format("%s$%,d",
+                            monthlyNet < 0 ? "-" : "",
+                            Math.abs((long) monthlyNet))));
+        }
+
+        // Category details
+        report.append(newLine);
+        report.append("CATEGORY DETAILS").append(newLine);
+        report.append(line).append(newLine).append(newLine);
+
+        // Income categories
+        report.append("INCOME").append(newLine);
+
+        for (int i = 0; i < incomeCategories.length; i++) {
+            report.append(String.format("  %-23s %14s%n",
+                    incomeCategories[i],
+                    String.format("$%,d",
+                            incomeCategoryTotals[i])));
+        }
+
+        report.append(newLine);
+
+        // Expense categories
+        report.append("EXPENSES").append(newLine);
+
+        for (int i = 0; i < expensesCategories.length; i++) {
+            report.append(String.format("  %-23s %14s%n",
+                    expensesCategories[i],
+                    String.format("$%,d",
+                            Math.abs((long) expensesCategoryTotals[i]))));
+        }
+
+        // Final balance
+        report.append(newLine);
+        report.append(line).append(newLine);
+
+        report.append(String.format("%-25s %14s%n",
+                "TOTAL BALANCE",
+                String.format("%s$%,d",
+                        balance < 0 ? "-" : "",
+                        Math.abs((long) balance))));
+
+        report.append(String.format("%-25s %14s%n",
+                "STATUS", status));
+
+        report.append(line).append(newLine);
+        report.append("           END OF STATEMENT");
+
+        return report.toString();
 	}
-
 
 	
     /**
