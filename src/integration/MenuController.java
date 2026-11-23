@@ -66,7 +66,7 @@ public class MenuController {
 			System.out.println("4. Exit");
 			doMenuAction(getMenuSelection(4));
 		} else {
-			System.out.println("\nWelcome, " + AccountManager.getCurrentUser() + "!\n");
+			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
 			System.out.println("1. Budget actions");
 			System.out.println("2. Options");
 			System.out.println("3. Help");
@@ -462,13 +462,11 @@ public class MenuController {
 				continue;
 			}
 
-			
-			
-			if (count == 0) { 
-				budgetYear = tempDate[2]; // This assigns the date of the first row to a variable.
+			if (count == 0) { // This assigns the date of the first row to a variable and increments count.
+				budgetYear = tempDate[2]; 
 				count++;
-			} else {
-				if (!budgetYear.equals(tempDate[2])) { // Then it compares the second row's year to the first year.
+			} else { // When reading the second line, count is 1 so it instead compares the second row's year to the first year.
+				if (!budgetYear.equals(tempDate[2])) { 
 					System.err.println("\nThere are conflicting years in your file. Each file must have data from only one year.\n");
 					return; // If they do not match, the file read is abandoned.
 				}
