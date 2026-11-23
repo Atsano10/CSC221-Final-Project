@@ -12,7 +12,7 @@ import dataaudit.DataAudit.FindingType;
 
 /**
  * Formats reports to console or files so that everything is readable.
- *
+ *h
  * @author Chime
  * @author Lhamu
  * @author Rehmil
@@ -251,37 +251,71 @@ public final class Reports {
     // Create a StringBuilder to construct the report
 		StringBuilder report = new StringBuilder();
 		String newline = System.lineSeparator();
-    
-    report.append("============== VALIDATION REPORT ==============")
-			  .append(newline);
-    
-    // Check whether the error list is null or empty
+		String line = "----------------------------------------";
+
+		// Report header 
+		report.append(line).append(newline);
+		report.append("             PFM VALIDATION REPORT").append(newline);
+		report.append("           Personal Finance Manager").append(newline);
+		report.append(line).append(newline).append(newline);
+
+        // Validation status
+		String status;
+		int issueCount = 0;
+		
+		if (validationErrors == null) {
+			status = "UNAVAILABLE";
+		} else if (validationErrors.isEmpty()) {
+			status = "NO ISSUES FOUND";
+		} else {
+			status = "ISSUES DETECTED";
+			issueCount = validationErrors.size();
+		}
+		
+		// Summary section
+		report.append("VALIDATION SUMMARY").append(newline);
+		report.append(line).append(newline);
+		report.append(String.format("%-22s : %s%n",
+									"Status", status));
+		
+		if (validationErrors != null) {
+			report.append(String.format("%-22s : %d%n",
+										"Total Issues", issueCount));
+		}
+		
+		report.append(newline);
+		
+		// Validation details
 		if (validationErrors == null) {
 			report.append("Validation results are unavailable.")
-				  .append(newline);
-		}
+				.append(newline);
 		
-		else if (validationErrors.isEmpty()) {
+		} else if (validationErrors.isEmpty()) {
 			report.append("No validation errors or warnings found.")
-			      .append(newline);
-	
-		} 
+				.append(newline);
 		
-		else {
-			report.append("Total Validation Issues Found: ")
-				  .append(validationErrors.size())
-				  .append(newline);
-     
-      for (int i = 0; i < validationErrors.size(); i++) {
-				report.append(i + 1)
-					  .append(". ")
-					  .append(validationErrors.get(i))
-					  .append(newline);
+		} else {
+			report.append("VALIDATION DETAILS").append(newline);
+			report.append(line).append(newline);
+			
+			for (int i = 0; i < validationErrors.size(); i++) {
+		
+				String issue = validationErrors.get(i);
+				
+				if (issue == null || issue.isBlank()) {
+					issue = "No description provided.";
+				}
+				
+				report.append(String.format("%2d | %s%n", i + 1, issue));
 			}
 		}
-
-		report.append(newline)
-			  .append("==============================================");
+		
+		//Report footer
+		report.append(newline);
+		report.append(line).append(newline);
+		report.append("              END OF REPORT").append(newline);
+		report.append(line);
+		
 		return report.toString();
 	}
 
