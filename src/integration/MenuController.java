@@ -419,26 +419,33 @@ public class MenuController {
 			readNonBlankLine(br);
 			
 			while ((line = br.readLine()) != null) {
-				 
+
 			String[] parts = line.split(",");
-			
+				
+			if (parts.length != 3) {
+				System.err.println("\nThe row format is invalid at: " + line);
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\n Type 'no' if you would like to quit reading the file.");
+				if (!isYes()) { return; }
+				continue;
+			}
+				
 			if (!CsvValidator.validateDate(parts[0])) {
 				System.err.println("\nThe date is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\n Type 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
 			
 			if (!CsvValidator.validateCategory(parts[1])) {
 				System.err.println("\nThe category is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\n Type 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
 			
 			if (!CsvValidator.validateAmount(parts[2], parts[1])) {
 				System.err.println("\nThe amount is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\n Type 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
@@ -450,18 +457,20 @@ public class MenuController {
 			
 			if (!InputValidator.validateYear(tempDate[2])) {
 				System.err.println("\nThe year is invalid at: " + line);
-				System.out.println("\nYou can fix the CSV file before trying again. Would you like to skip this row and continue instead? y/n");
+				System.out.println("Type 'yes' if you would like to skip this row and continue.\n Type 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
+
 			
-			if (count == 0) {
-				budgetYear = tempDate[2];
+			
+			if (count == 0) { 
+				budgetYear = tempDate[2]; // This assigns the date of the first row to a variable.
 				count++;
 			} else {
-				if (!budgetYear.equals(tempDate[2])) {
-				System.err.println("\nThere are conflicting years in your file.\n");
-				return;
+				if (!budgetYear.equals(tempDate[2])) { // Then it compares the second row's year to the first year.
+					System.err.println("\nThere are conflicting years in your file. Each file must have data from only one year.\n");
+					return; // If they do not match, the file read is abandoned.
 				}
 			}
 			
