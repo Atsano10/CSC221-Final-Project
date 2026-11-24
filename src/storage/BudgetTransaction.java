@@ -31,6 +31,7 @@ public record BudgetTransaction(LocalDate date, String category, int amount) {
      *
      * "Other" may be either income or expense, so its sign is not restricted
      * by category. All other categories have a required sign.
+     * @author Ivan Chukharev
      */
     public BudgetTransaction {
         if (date == null) {
