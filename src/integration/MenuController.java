@@ -378,6 +378,7 @@ public class MenuController {
      * @author Bilal Ansar
 	 * @throws IOException
 	 * @bug Upload crashed with NumberFormatException when an amount had a space before or after it (PFM-104)
+	 * @bug Upload crashed with ArrayIndexOutOfBoundsExcpetion when a row had less than three columns (PFM-105)
      */
 	static void handleReadFile() throws IOException {
 		
@@ -423,6 +424,7 @@ public class MenuController {
 
 			// Trims everything into different parts noted by commas.
 			String[] parts = line.split(",");
+				
 			for (int i = 0; i < parts.length; i++){
 				parts[i] = parts[i].trim();
 			}
