@@ -118,6 +118,7 @@ public class DataAudit {
      * @return list of anomaly entries
      *
      * @author Hamet
+	 * @bug Math.abs overflowed for the minimum int transaction amount (PFM-126)
      */
     public static ArrayList<AuditFinding> findAnomalies(Budget budgetFile, ArrayList<String> exclusion){
         ArrayList<AuditFinding> anomalies = new ArrayList<>();
@@ -158,6 +159,7 @@ public class DataAudit {
      * @return median absolute amount
      *
      * @author Hamet
+	 * @bug Median overflowed for large transaction amounts (PFM-125)
      */
     private static double medianAmount(List<BudgetTransaction> group) {
         List<Long> amounts = new ArrayList<>();
