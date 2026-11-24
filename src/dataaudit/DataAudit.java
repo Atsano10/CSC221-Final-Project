@@ -118,6 +118,7 @@ public class DataAudit {
      * @return list of anomaly entries
      *
      * @author Hamet
+	 * @bug Math.abs overflowed for the minimum int transaction amount (PFM-126)
      */
     public static ArrayList<AuditFinding> findAnomalies(Budget budgetFile, ArrayList<String> exclusion){
         ArrayList<AuditFinding> anomalies = new ArrayList<>();
@@ -141,7 +142,7 @@ public class DataAudit {
             double bound = ANOMALYBOUND * median;
 
             for (BudgetTransaction transaction : group) {
-                if (Math.abs(transaction.amount()) > bound) {
+                if (Math.abs((long)transaction.amount()) > bound) {
                     String reason = String.format("Amount %d is out of normal range for %s (median %.2f, bound %.2f)",
                             transaction.amount(), category, median, bound);
                     anomalies.add(new AuditFinding(transaction.toString(), FindingType.ANOMALY, reason));
@@ -158,11 +159,12 @@ public class DataAudit {
      * @return median absolute amount
      *
      * @author Hamet
+	 * @bug Median overflowed for large transaction amounts (PFM-125)
      */
     private static double medianAmount(List<BudgetTransaction> group) {
-        List<Integer> amounts = new ArrayList<>();
+        List<Long> amounts = new ArrayList<>();
         for (BudgetTransaction transaction : group) {
-            amounts.add(Math.abs(transaction.amount()));
+            amounts.add(Math.abs((long)transaction.amount()));
         }
         Collections.sort(amounts);
 
