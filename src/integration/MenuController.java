@@ -431,7 +431,7 @@ public class MenuController {
 
 			// Checks if it has exactly 3 columns.
 			if (parts.length != 3) {
-				System.err.println("\nThe row format is invalid in row: " + line);
+				System.err.println("\nThe row format is invalid at: " + line);
 				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; }
 				continue;
@@ -439,21 +439,21 @@ public class MenuController {
 
 			if (!CsvValidator.validateDate(parts[0])) {
 				System.err.println("\nThe date is invalid at: " + line);
-				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
 			
 			if (!CsvValidator.validateCategory(parts[1])) {
 				System.err.println("\nThe category is invalid at: " + line);
-				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
 			
 			if (!CsvValidator.validateAmount(parts[2], parts[1])) {
 				System.err.println("\nThe amount is invalid at: " + line);
-				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
@@ -465,7 +465,7 @@ public class MenuController {
 			
 			if (!InputValidator.validateYear(tempDate[2])) {
 				System.err.println("\nThe year is invalid at: " + line);
-				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
