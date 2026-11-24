@@ -32,6 +32,7 @@ public final class BudgetStorage {
      * @param year budget year
      * @return loaded budget
      * @throws IOException if the file is missing or invalid
+     * @author Ivan Chukharev
      */
     public static Budget loadBudget(String username, int year) throws IOException {
         Path file = BudgetFileManager.getFilePath(username, year);
@@ -46,6 +47,7 @@ public final class BudgetStorage {
      * @param overwrite whether an existing year's file may be replaced
      * @return true if saved; false if the file already exists and overwrite is false
      * @throws IOException if writing fails
+     * @author Ivan Chukharev
      */
     public static boolean saveBudget(String username, Budget budget,
             boolean overwrite) throws IOException {
@@ -70,6 +72,7 @@ public final class BudgetStorage {
      * @param budget updated budget
      * @return true if an existing budget was updated
      * @throws IOException if writing fails
+     * @author Ivan Chukharev
      */
     public static boolean updateBudget(String username, Budget budget)
             throws IOException {
@@ -94,6 +97,7 @@ public final class BudgetStorage {
      * @param year budget year
      * @return true if the budget file was deleted
      * @throws IOException if deletion fails
+     * @author Ivan Chukharev
      */
     public static boolean deleteBudget(String username, int year) throws IOException {
         Path file = BudgetFileManager.getFilePath(username, year);
@@ -106,6 +110,7 @@ public final class BudgetStorage {
      * @param username account username
      * @return ascending list of available years
      * @throws IOException if the user's budget directory cannot be read
+     * @author Ivan Chukharev
      */
     public static List<Integer> getAvailableYears(String username) throws IOException {
         // Validate username and get the user's directory through the path helper.
@@ -134,6 +139,7 @@ public final class BudgetStorage {
      * @param username account username
      * @param year budget year
      * @return true if the annual CSV exists
+     * @author Ivan Chukharev
      */
     public static boolean budgetExists(String username, int year) {
         try {
@@ -150,6 +156,7 @@ public final class BudgetStorage {
      * @param username account username
      * @param year budget year
      * @return budget, or null if it does not exist or cannot be read
+     * @author Ivan Chukharev
      */
     public static Budget getBudget(String username, int year) {
         try {
@@ -169,6 +176,7 @@ public final class BudgetStorage {
      * @param username account username
      * @return true if the user's budget directory was removed or did not exist
      * @throws IOException if a file cannot be deleted
+     * @author Ivan Chukharev
      */
     public static boolean deleteAllBudgets(String username) throws IOException {
         Path directory = BudgetFileManager.getFilePath(username, 1).getParent();
