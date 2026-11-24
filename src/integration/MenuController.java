@@ -377,6 +377,7 @@ public class MenuController {
      * 
      * @author Bilal Ansar
 	 * @throws IOException 
+	 * @bug Upload crashed with ArrayIndexOutOfBoundsException when a row had less than three columns (PFM-105)
      */
 	static void handleReadFile() throws IOException {
 		
@@ -421,13 +422,14 @@ public class MenuController {
 			while ((line = br.readLine()) != null) {
 
 			String[] parts = line.split(",");
-				
+
+			// This fixes the bug
 			if (parts.length != 3) {
 				System.err.println("\nThe row format is invalid at: " + line);
 				System.out.println("Type 'yes' if you would like to skip this row and continue.\nType 'no' if you would like to quit reading the file.");
 				if (!isYes()) { return; }
 				continue;
-			}
+			} 
 				
 			if (!CsvValidator.validateDate(parts[0])) {
 				System.err.println("\nThe date is invalid at: " + line);
