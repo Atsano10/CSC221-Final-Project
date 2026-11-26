@@ -12,7 +12,7 @@ import dataaudit.DataAudit.FindingType;
 
 /**
  * Formats reports to console or files so that everything is readable.
- *h
+ *
  * @author Chime
  * @author Lhamu
  * @author Rehmil
@@ -21,11 +21,6 @@ import dataaudit.DataAudit.FindingType;
 
 public final class Reports {
 	
-	/**
-	 * Private constructor so Reports class cannot be instantiated.
-	 */
-	
-	private Reports() {}
 	
 	/**
 	 * Generates a formatted annual summary analysis report. The report will have
@@ -141,9 +136,9 @@ public final class Reports {
 
         // Report header ---
 		report.append("========================================").append(newLine);
-		report.append(String.format("%45s%n", "P F M"));
-		report.append(String.format("%58s%n", "PERSONAL FINANCE MANAGER"));
-		report.append(String.format("%52s%n", "ANNUAL STATEMENT / " + budget.year()));
+		report.append(String.format("%22s%n", "P F M"));
+		report.append(String.format("%32s%n", "PERSONAL FINANCE MANAGER"));
+		report.append(String.format("%32s%n", "ANNUAL STATEMENT // " + budget.year()));
         report.append("========================================").append(newLine).append(newLine);
 
         // Financial summary --
@@ -166,7 +161,7 @@ public final class Reports {
                         Math.abs((long) balance))));
 
         // Monthly overview --
-        report.append(newLine);
+        report.append(newLine).append(newLine);
         report.append("MONTHLY OVERVIEW")
               .append(newLine).append(newLine);
 
@@ -192,7 +187,7 @@ public final class Reports {
         }
 
         // Category details --
-        report.append(newLine);
+        report.append(newLine).append(newLine);
         report.append("CATEGORY DETAILS").append(newLine);
         report.append(line).append(newLine).append(newLine);
 
@@ -232,7 +227,7 @@ public final class Reports {
                 "STATUS", status));
 
         report.append("========================================").append(newLine);
-        report.append("           END OF STATEMENT");
+        report.append("           END OF STATEMENT").append(newLine).append(newLine);
 
         return report.toString();
 	}
@@ -495,7 +490,9 @@ public final class Reports {
 
     /**
      * Creates a message that indicates that the current
-     * reporting operation was cancelled.
+     * reporting operation was cancelled. This method is not
+     * used internally in our module but is meant to be used
+     * by other modules.
      *
      * @param operation Name of the cancelled operation.
      * @return A cancellation message.
