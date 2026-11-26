@@ -478,7 +478,7 @@ public class MenuController {
 
 			// Check if a budget for the year in the first row already exists before doing anything else.
 			if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), year) && count == 0) {
-				System.out.println("\nA budget already exists with the year " + tempDate[2] + ". Would you like to overwrite this budget? y/n ");
+				System.out.println("\nA budget already exists with the year " + year + ". Would you like to overwrite this budget? y/n ");
 				if (!isYes()) { 
 					System.out.println("\nThe file read was abandoned.\n");
 					return; 
