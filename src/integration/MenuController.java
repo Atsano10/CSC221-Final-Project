@@ -708,8 +708,7 @@ public class MenuController {
 	        System.out.println("Account deletion cancelled.");
 	        return;
 	    }
-
-		// If yes
+		
 	    System.out.println("Enter your password: ");
 	    String password = input.nextLine();
 	    String question = AccountManager.getSecurityQuestion();
@@ -736,7 +735,6 @@ public class MenuController {
 	static void handleLogout() {
 		if (AccountManager.getCurrentUser() != null) {
 			AccountManager.signOut();
-			// Need to clear the data somehow.
 			System.out.println("\nYou have logged out.\n");
 		} else {
 			System.err.println("\nNo one is logged in.\n");
