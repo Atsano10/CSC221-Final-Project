@@ -408,7 +408,7 @@ public class MenuController {
 		int month = 0;
 		int day = 0;
 		int amount = 0;
-		String budgetYear = null;
+		String firstRowYear = null;
 		int count = 0;
 		boolean overwrite = false;
 		
@@ -509,11 +509,11 @@ public class MenuController {
 			// Assigns the date of the first row to a variable.
 			// Incrementing count here also avoids giving an overwrite message multiple times.
 			if (count == 0) { 
-				budgetYear = tempDate[2]; 
+				firstRowYear = tempDate[2]; 
 				count++;
 			// File read is abandoned if the year in the second row does not match the year in the first.
 			} else { 
-				if (!budgetYear.equals(tempDate[2])) { 
+				if (!firstRowYear.equals(tempDate[2])) { 
 					System.err.println("\nThere are conflicting years in your file. Each file must have data from only one year.\n");
 					return; 
 				}
