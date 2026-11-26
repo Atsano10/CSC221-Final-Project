@@ -12,6 +12,7 @@ import java.util.List;
 import accounts.AccountManager;
 import dataaudit.DataAudit;
 import reports.Reports;
+import storage.AccountStorage;
 import storage.Budget;
 import storage.BudgetStorage;
 import storage.BudgetTransaction;
@@ -45,7 +46,9 @@ public class MenuController {
 	* @author Apostolos Tsano
 	*/
 	public static void main(String[] args)throws IOException{
-		while(true){
+		System.out.println("Welcome to Personal FInance Manager!\n");
+		
+		while (true) {
 			displayMainMenu();
 		}
 	}
@@ -59,15 +62,13 @@ public class MenuController {
 	*/
 	public static void displayMainMenu() throws IOException {
 		if (AccountManager.getCurrentUser() == null) {
-			System.out.println("Welcome to Personal Finance Manager!\n");
 			System.out.println("1. Register");
 			System.out.println("2. Login");
 			System.out.println("3. Help");
 			System.out.println("4. Exit");
 			doMenuAction(getMenuSelection(4));
 		} else {
-			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!\n");
-			System.out.println("1. Budget actions");
+			System.out.println("\n1. Budget actions");
 			System.out.println("2. Options");
 			System.out.println("3. Help");
 			System.out.println("4. Exit");
@@ -227,6 +228,7 @@ public class MenuController {
 		
 			AccountManager.registerUser(username, password, question, answer);
 			System.out.println("\nAccount created! You are now logged in.\n");
+			System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!");
 	}
 
   /**
@@ -290,15 +292,22 @@ public class MenuController {
 	static void handleLogin() {
 		System.out.println("Enter username: ");
 		String username = input.nextLine();
+
+		if (!AccountStorage.findUser(username)) {
+			System.err.println("\nThere is no account with the specified username.\n");
+			return;
+		}
 		
 		System.out.println("Enter password: ");
 		String password = input.nextLine();
 
-		if (AccountManager.signIn(username, password)) {
-			System.out.println("\nLogin successful!\n");
-		} else {
-			System.err.println("\nInvalid username or password.\n");
-	 	}
+		if (!AccountManager.signIn(username, password)) {
+			System.err.println("\nIncorrect password.\n");
+			return;
+		}
+			
+		System.out.println("\nLogin successful!\n");
+		System.out.println("Welcome, " + AccountManager.getCurrentUser() + "!");
 	}
 
   /**
@@ -312,7 +321,7 @@ public class MenuController {
 	* @author Bilal Ansar
 	*/
 	static void handleBudgetActions() throws IOException {
-		System.out.println("1. Upload a budget file");
+		System.out.println("\n1. Upload a budget file");
 		System.out.println("2. Generate a report");
 		System.out.println("3. Generate an audit");
 		System.out.println("4. Delete a budget");
@@ -379,6 +388,7 @@ public class MenuController {
 	 * @throws IOException
 	 * @bug Upload crashed with NumberFormatException when an amount had a space before or after it (PFM-104).
 	 * @bug Upload crashed with ArrayIndexOutOfBoundsException when a row had less than three columns (PFM-105).
+	 * @bug Uploading a year that already existed did nothing but still said the upload succeeded (PFM-117).
      */
 	static void handleReadFile() throws IOException {
 		
@@ -386,7 +396,7 @@ public class MenuController {
 		String path = promptForFilePath();
 
 		// Stop if the path is not valid.
-		if (path.isEmpty()){
+		if (path.isEmpty()) {
 			return;
 		}
 		
@@ -400,6 +410,7 @@ public class MenuController {
 		int amount = 0;
 		String budgetYear = null;
 		int count = 0;
+		boolean overwrite = false;
 		
 		List<BudgetTransaction> transactions = new ArrayList<>();
 		
@@ -431,28 +442,39 @@ public class MenuController {
 
 			// Checks if it has exactly 3 columns.
 			if (parts.length != 3) {
-				System.err.println("\nThe row format is invalid at: " + line);
+				System.err.println("\nThe row format is invalid at: " + line + "Would you like to skip the row?\n");
 				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; }
 				continue;
 			}
 
 			if (!CsvValidator.validateDate(parts[0])) {
-				System.err.println("\nThe date is invalid at: " + line);
+				System.err.println("\nThe date is invalid at: " + line + "Would you like to skip the row?\n");
 				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
-			
+
+			// After date is validated, split the date into three parts (month, day, and year).
+			String[] tempDate = parts[0].split("/");
+			year = Integer.parseInt(tempDate[2]);
+
+			// Check if a budget for the year in the first row already exists before doing anything else.
+			if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), year) && count == 0) {
+				System.out.println("\nA budget already exists with the year " + tempDate[2] + ". Would you like to overwrite this budget? y/n ");
+				if (!isYes()) { return; } 
+				overwrite = true;
+			}
+
 			if (!CsvValidator.validateCategory(parts[1])) {
-				System.err.println("\nThe category is invalid at: " + line);
+				System.err.println("\nThe category is invalid at: " + line + "Would you like to skip the row?\n");
 				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; } 
 				continue;
 			}
 			
 			if (!CsvValidator.validateAmount(parts[2], parts[1])) {
-				System.err.println("\nThe amount is invalid at: " + line);
+				System.err.println("\nThe amount is invalid at: " + line + "Would you like to skip the row?\n");
 				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
 				if (!isYes()) { return; } 
 				continue;
@@ -461,29 +483,23 @@ public class MenuController {
 			category = parts[1];
 			amount = Integer.parseInt(parts[2]); 
 			
-			String[] tempDate = parts[0].split("/");
-			
-			if (!InputValidator.validateYear(tempDate[2])) {
-				System.err.println("\nThe year is invalid at: " + line);
-				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
-				if (!isYes()) { return; } 
-				continue;
-			}
-
-			if (count == 0) { // This assigns the date of the first row to a variable and increments count.
+			// Assigns the date of the first row to a variable.
+			// Incrementing count here also avoids giving an overwrite message multiple times.
+			if (count == 0) { 
 				budgetYear = tempDate[2]; 
 				count++;
-			} else { // When reading the second line, count is 1 so it instead compares the second row's year to the first year.
+			// File read is abandoned if the year in the second row does not match the year in the first.
+			} else { 
 				if (!budgetYear.equals(tempDate[2])) { 
 					System.err.println("\nThere are conflicting years in your file. Each file must have data from only one year.\n");
-					return; // If they do not match, the file read is abandoned.
+					return; 
 				}
 			}
 			
-			year = Integer.parseInt(tempDate[2]);
 			month = Integer.parseInt(tempDate[0]);
 			day = Integer.parseInt(tempDate[1]);
-			
+
+			// Turn the temporary date into a LocalDate object since BudgetTransaction constructor expects LocalDate
 			LocalDate date = LocalDate.of(year, month, day);
 			 
 			storage.BudgetTransaction transaction = new storage.BudgetTransaction(date, category, amount);
@@ -503,7 +519,7 @@ public class MenuController {
 		}
 		
 		Budget budget = new Budget(year, transactions);
-		BudgetStorage.saveBudget(AccountManager.getCurrentUser(), budget, false);
+		BudgetStorage.saveBudget(AccountManager.getCurrentUser(), budget, overwrite);
 		
 		System.out.println("\nYour file was uploaded successfully!\n");
 	}
