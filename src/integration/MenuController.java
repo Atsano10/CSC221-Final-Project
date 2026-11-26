@@ -443,15 +443,21 @@ public class MenuController {
 			// Checks if it has exactly 3 columns.
 			if (parts.length != 3) {
 				System.err.println("\nThe row format is invalid at: " + line + "Would you like to skip the row?\n");
-				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
-				if (!isYes()) { return; }
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.\n");
+				if (!isYes()) { 
+					System.out.println("\nThe file read was abandoned.\n");
+					return; 
+				}
 				continue;
 			}
 
 			if (!CsvValidator.validateDate(parts[0])) {
 				System.err.println("\nThe date is invalid at: " + line + "Would you like to skip the row?\n");
-				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
-				if (!isYes()) { return; } 
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.\n");
+				if (!isYes()) { 
+					System.out.println("\nThe file read was abandoned.\n");
+					return; 
+				}
 				continue;
 			}
 
@@ -460,8 +466,11 @@ public class MenuController {
 			
 			if (!InputValidator.validateYear(tempDate[2])) {
 				System.err.println("\nThe year is invalid at: " + line + "Would you like to skip the row?\n");
-				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
-				if (!isYes()) { return; } 
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.\n");
+				if (!isYes()) { 
+					System.out.println("\nThe file read was abandoned.\n");
+					return; 
+				} 
 				continue;
 			}
 			
@@ -470,7 +479,10 @@ public class MenuController {
 			// Check if a budget for the year in the first row already exists before doing anything else.
 			if (BudgetStorage.budgetExists(AccountManager.getCurrentUser(), year) && count == 0) {
 				System.out.println("\nA budget already exists with the year " + tempDate[2] + ". Would you like to overwrite this budget? y/n ");
-				if (!isYes()) { return; } 
+				if (!isYes()) { 
+					System.out.println("\nThe file read was abandoned.\n");
+					return; 
+				}  
 				overwrite = true;
 			}
 
@@ -483,8 +495,11 @@ public class MenuController {
 			
 			if (!CsvValidator.validateAmount(parts[2], parts[1])) {
 				System.err.println("\nThe amount is invalid at: " + line + "Would you like to skip the row?\n");
-				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.");
-				if (!isYes()) { return; } 
+				System.out.println("Type 'yes' to skip this row.\nType 'no' to stop reading the file.\n");
+				if (!isYes()) { 
+					System.out.println("\nThe file read was abandoned.\n");
+					return; 
+				} 
 				continue;
 			}
 			
