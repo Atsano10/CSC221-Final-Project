@@ -28,13 +28,13 @@ import validations.AccountValidator;
   * @author Junyu Chen
   */
 
-public class MenuController {
+class MenuController {
 
    /*
 	* Local class scanner used for any time user input is required.
 	* Only closed when program exits.
 	*/
-	public static final Scanner input = new Scanner(System.in);
+	static final Scanner input = new Scanner(System.in);
 
   /**
 	* Starts the whole application by pointing where to start. 
@@ -60,7 +60,7 @@ public class MenuController {
 	* @author Bilal Ansar
  	* @throws IOException when uploading a file through budget options and that file does not exist.
 	*/
-	public static void displayMainMenu() throws IOException {
+	static void displayMainMenu() throws IOException {
 		if (AccountManager.getCurrentUser() == null) {
 			System.out.println("1. Register");
 			System.out.println("2. Login");
