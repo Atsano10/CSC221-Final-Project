@@ -584,7 +584,7 @@ class MenuController {
 	* a file depending on user request.
     *
     * Asks for a year.
-	* Builds the report if the budget exists, and tells the user if it doesnt.
+	* Builds the report if the budget exists, tells the user if it does not.
     *
     * @author Bilal Ansar
     */
