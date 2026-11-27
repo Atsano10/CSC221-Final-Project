@@ -31,6 +31,9 @@ public final class Reports {
 	 * @return A formatted annual summary report.
 	 * @author Rehmil
 	 * @author Lhamu
+	 * 
+	 * @bug If an amount was over the maximum int value, the report produced a negative
+	 * 		income total and an incorrect deficit in the report (PFM-124).
 	 */
 	public static String formatSummaryAnalysis(Budget budget) {
 
@@ -44,12 +47,12 @@ public final class Reports {
 		// This is how we store monthly expenses and income. Value at
 		// monthlyExpenses[0] is January's monthly expenses. The same
 		// goes for monthlyIncome.
-		int[] monthlyExpenses = new int[12];
-		int[] monthlyIncome = new int[12];
-        int[] monthlyNet = new int[12];
+		long[] monthlyExpenses = new long[12];
+		long[] monthlyIncome = new long[12];
+        long[] monthlyNet = new long[12];
 
-		int totalExpenses = 0;
-		int totalIncome = 0;
+		long totalExpenses = 0;
+		long totalIncome = 0;
 		
 		// We track the expenses and income in terms of categories the same way
 		// as we do by months.
@@ -62,8 +65,8 @@ public final class Reports {
 			"Compensation", "Allowance", "Investments", "Other"
 		};
 		
-		int[] incomeCategoryTotals = new int[incomeCategories.length];
-		int[] expensesCategoryTotals = new int[expensesCategories.length];
+		long[] incomeCategoryTotals = new long[incomeCategories.length];
+		long[] expensesCategoryTotals = new long[expensesCategories.length];
 		
 		List<BudgetTransaction> transactions = budget.transactions();
 		int n = transactions.size();
@@ -141,7 +144,7 @@ public final class Reports {
         String smallLine = "----------------------------------------";
         String largeLine = "--------------------------------------------------------------------------------------";
 
-        int balance = totalIncome + totalExpenses;
+        long balance = totalIncome + totalExpenses;
 
         String status;
         if (balance > 0) {
@@ -172,7 +175,7 @@ public final class Reports {
 
         report.append(String.format("%-25s %14s%n",
                 "Expenses", String.format("$%,d",
-                        Math.abs((long) totalExpenses))));
+                        Math.abs(totalExpenses))));
 
         report.append(smallLine).append(newLine);
 
@@ -180,7 +183,7 @@ public final class Reports {
                 "Balance",
                 String.format("%s$%,d",
                         balance < 0 ? "-" : "",
-                        Math.abs((long) balance))));
+                        Math.abs(balance))));
 
         // Monthly overview --
         report.append(newLine).append(newLine);
@@ -198,10 +201,10 @@ public final class Reports {
                     months[i],
                     String.format("$%,d", monthlyIncome[i]),
                     String.format("$%,d",
-                            Math.abs((long) monthlyExpenses[i])),
+                            Math.abs(monthlyExpenses[i])),
                     String.format("%s$%,d",
                             monthlyNet[i] < 0 ? "-" : "",
-                            Math.abs((long) monthlyNet[i]))));
+                            Math.abs(monthlyNet[i]))));
         }
         
         report.append(largeLine);
@@ -230,7 +233,7 @@ public final class Reports {
             report.append(String.format("  %-23s %14s%n",
                     expensesCategories[i],
                     String.format("$%,d",
-                            Math.abs((long) expensesCategoryTotals[i]))));
+                            Math.abs( expensesCategoryTotals[i]))));
         }
 
         // Final balance --
@@ -241,7 +244,7 @@ public final class Reports {
                 "TOTAL BALANCE",
                 String.format("%s$%,d",
                         balance < 0 ? "-" : "",
-                        Math.abs((long) balance))));
+                        Math.abs(balance))));
 
         report.append(String.format("%-25s %14s%n", "STATUS", status)).append(newLine);
 
