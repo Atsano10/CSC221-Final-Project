@@ -23,9 +23,9 @@ public final class Reports {
 	
 	
 	/**
-	 * Generates a formatted annual summary analysis report. The report will have
-	 * monthly income and expense totals, category totals, and overall budget
-	 * performance (surplus or deficit).
+	 * Generates a formatted annual summary analysis report for the console.
+	 * The report will have monthly income and expense totals, category totals,
+	 * and overall budget performance (surplus or deficit).
 	 *
 	 * @param budget The annual budget being analyzed.
 	 * @return A formatted annual summary report.
@@ -33,21 +33,25 @@ public final class Reports {
 	 * @author Lhamu
 	 */
 	public static String formatSummaryAnalysis(Budget budget) {
+
+		// --- CALCULATIONS FOR REPORT ---
 		
-		// --- CALCULATIONS ---
 		String[] months = {
 			"January", "February", "March", "April", "May", "June",
 			"July", "August", "September", "October", "November", "December"
 		};
 
+		
 		// This is how we store monthly expenses and income. Value at
 		// monthlyExpenses[0] is January's monthly expenses. The same
 		// goes for monthlyIncome.
 		int[] monthlyExpenses = new int[12];
 		int[] monthlyIncome = new int[12];
-		
+        int[] monthlyNet = new int[12];
+
 		int totalExpenses = 0;
 		int totalIncome = 0;
+		
 		
 		// We track the expenses and income in terms of categories the same way
 		// as we do by months.
@@ -63,11 +67,9 @@ public final class Reports {
 		int[] incomeCategoryTotals = new int[incomeCategories.length];
 		int[] expensesCategoryTotals = new int[expensesCategories.length];
 		
-		
 		List<BudgetTransaction> transactions = budget.transactions();
 		int n = transactions.size();
 		int month;
-
 		
 		for (int i = 0; i < n; ++i) {
 
@@ -76,6 +78,7 @@ public final class Reports {
 			// each month's index in the months array.
 			BudgetTransaction t = transactions.get(i);
 			month = (t.date().getMonthValue()) - 1;
+			
 			
 			// Calculations for monthly income totals. ---
 			// Every time the transaction has a + amount, we add the value to
@@ -110,14 +113,30 @@ public final class Reports {
 			}
 		}
 		
+		// Calculations for monthly net. ---
+		for (int i = 0; i < 12; ++i) {
+            monthlyNet[i] = monthlyIncome[i] + monthlyExpenses[i];
+		}
 		
-		// Calculations for monthly totals. ---
+		
+		// Calculations for the year's income and expenses totals. ---
 		for (int i = 0; i < 12; ++i) {
 			totalExpenses += monthlyExpenses[i];
 			totalIncome += monthlyIncome[i];
 		}
 		
-		// --- FORMATTING ---
+		
+		// --- FORMATTING OF REPORT ---
+				
+		// Keeps the columns with money consistent. Allowing for
+		// our report to handle amounts like $2,000,000,000,000.
+		int MONEY_COLUMN_WIDTH = 20;
+
+		String monthlyRowFormat =
+			    "| %-13s | %" + MONEY_COLUMN_WIDTH + "s | %" +
+			    MONEY_COLUMN_WIDTH + "s | %" +
+			    MONEY_COLUMN_WIDTH + "s |%n";
+		
 		StringBuilder report = new StringBuilder();
         String newLine = System.lineSeparator();
 
@@ -135,11 +154,11 @@ public final class Reports {
         }
 
         // Report header ---
-		report.append("========================================").append(newLine);
-		report.append(String.format("%22s%n", "P F M"));
-		report.append(String.format("%32s%n", "PERSONAL FINANCE MANAGER"));
-		report.append(String.format("%32s%n", "ANNUAL STATEMENT // " + budget.year()));
-        report.append("========================================").append(newLine).append(newLine);
+		report.append("======================================================================================").append(newLine);
+		report.append(String.format("%40s%n", "P F M"));
+		report.append(String.format("%50s%n", "PERSONAL FINANCE MANAGER"));
+		report.append(String.format("%50s%n", "ANNUAL STATEMENT // " + budget.year()));
+        report.append("======================================================================================").append(newLine).append(newLine);
 
         // Financial summary --
         report.append("FINANCIAL SUMMARY")
@@ -162,29 +181,31 @@ public final class Reports {
 
         // Monthly overview --
         report.append(newLine).append(newLine);
-        report.append("MONTHLY OVERVIEW")
+        report.append("				<< MONTHLY OVERVIEW >>")
               .append(newLine).append(newLine);
 
+        report.append("--------------------------------------------------------------------------------------").append(newLine);
+        // report.append("________________________________________________________________________________").append(newLine);
+
         report.append(String.format(
-                "%-10s %9s %9s %9s%n",
+                monthlyRowFormat,
                 "Month", "Income", "Expenses", "Net"));
 
-        report.append(line).append(newLine);
+        report.append("|---------------|----------------------|----------------------|----------------------|").append(newLine);
 
         for (int i = 0; i < 12; i++) {
 
-            int monthlyNet = monthlyIncome[i] + monthlyExpenses[i];
-
             report.append(String.format(
-                    "%-10s %9s %9s %9s%n",
+                    monthlyRowFormat,
                     months[i],
                     String.format("$%,d", monthlyIncome[i]),
                     String.format("$%,d",
                             Math.abs((long) monthlyExpenses[i])),
                     String.format("%s$%,d",
-                            monthlyNet < 0 ? "-" : "",
-                            Math.abs((long) monthlyNet))));
+                            monthlyNet[i] < 0 ? "-" : "",
+                            Math.abs((long) monthlyNet[i]))));
         }
+        report.append("--------------------------------------------------------------------------------------");
 
         // Category details --
         report.append(newLine).append(newLine);
@@ -226,8 +247,8 @@ public final class Reports {
         report.append(String.format("%-25s %14s%n",
                 "STATUS", status));
 
-        report.append("========================================").append(newLine);
-        report.append("           END OF STATEMENT").append(newLine).append(newLine);
+        report.append("======================================================================================").append(newLine);
+        report.append("           			END OF STATEMENT").append(newLine).append(newLine);
 
         return report.toString();
 	}
