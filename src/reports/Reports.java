@@ -20,14 +20,18 @@ import dataaudit.DataAudit.FindingType;
  */
 
 public final class Reports {
-	
+
 	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BOLD = "\u001B[1m";
+	public static final String ANSI_UNDERLINE = "\u001B[4m";
 	public static final String ANSI_BLACK = "\u001B[30m";
 	public static final String ANSI_RED = "\u001B[31m";
 	public static final String ANSI_GREEN = "\u001B[32m";
 	public static final String ANSI_YELLOW = "\u001B[33m";
 	public static final String ANSI_BLUE = "\u001B[34m";
 	public static final String ANSI_WHITE = "\u001B[37m";
+    public static final String BG_BLACK = "\u001B[40m";
+
 	
 	/**
 	 * Generates a formatted annual summary analysis report for the console.
@@ -148,6 +152,8 @@ public final class Reports {
 
         long balance = totalIncome + totalExpenses;
 
+        report.append(ANSI_YELLOW);
+        
         String status;
         String statusColor;
         if (balance > 0) {
@@ -162,7 +168,7 @@ public final class Reports {
         }
 
         // Report header ---
-		report.append(headerLine).append(newLine);
+		report.append(headerLine).append(newLine + ANSI_BOLD);
 		report.append("                                        P F M").append(newLine);
 		report.append("                               PERSONAL FINANCE MANAGER")
 			  .append(newLine);
@@ -170,7 +176,7 @@ public final class Reports {
 		report.append("                               ANNUAL STATEMENT // " + budget.year())
 			  .append(newLine);
 		
-        report.append(headerLine).append(newLine).append(newLine);
+        report.append(ANSI_RESET + ANSI_YELLOW + headerLine + ANSI_RESET).append(newLine).append(newLine + ANSI_RESET);
 
         // Financial summary --
         int summaryWidth = smallLine.length();
@@ -199,7 +205,7 @@ public final class Reports {
                   String.format("$%,d", Math.abs(totalExpenses))
               ));
 
-        report.append(summaryPadding).append(smallLine).append(newLine);
+        report.append(summaryPadding).append("|--------------------------------------|").append(newLine);
 
         report.append(summaryPadding).append(String.format(
         	   summaryRowFormat,
@@ -279,11 +285,11 @@ public final class Reports {
                         Math.abs(balance))));
 
         report.append(summaryPadding).append(String.format("%-25s        %16s%n",
-        			  "STATUS",statusColor + status + ANSI_RESET)).append(newLine);
+        			  "STATUS", ANSI_UNDERLINE + statusColor + status +  ANSI_RESET + ANSI_YELLOW)).append(newLine);
 
-        report.append(headerLine).append(newLine);
+        report.append(headerLine).append(newLine + ANSI_BOLD);
         report.append("                                   END OF STATEMENT")
-              .append(newLine).append(newLine);
+              .append(newLine).append(newLine + ANSI_RESET);
 
         return report.toString();
 	}
