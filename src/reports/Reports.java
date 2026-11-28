@@ -21,6 +21,13 @@ import dataaudit.DataAudit.FindingType;
 
 public final class Reports {
 	
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BLACK = "\u001B[30m";
+	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_GREEN = "\u001B[32m";
+	public static final String ANSI_YELLOW = "\u001B[33m";
+	public static final String ANSI_BLUE = "\u001B[34m";
+	public static final String ANSI_WHITE = "\u001B[37m";
 	
 	/**
 	 * Generates a formatted annual summary analysis report for the console.
@@ -58,7 +65,7 @@ public final class Reports {
 		// as we do by months.
 		String[] expensesCategories = {
 			"Home", "Utilities", "Food", "Appearance", "Work", "Education",
-			"Transportation", "Entertainment", "Professional Services", "Other"
+			"Transportation", "Entertainment", "Prof. Services", "Other"
 		};
 		
 		String[] incomeCategories = {
@@ -131,11 +138,6 @@ public final class Reports {
 		// Keeps the columns with money consistent. Allowing for
 		// our report to handle amounts like $2,000,000,000,000.
 		int MONEY_COLUMN_WIDTH = 20;
-
-		String monthlyRowFormat =
-			    "| %-13s | %" + MONEY_COLUMN_WIDTH + "s | %" +
-			    MONEY_COLUMN_WIDTH + "s | %" +
-			    MONEY_COLUMN_WIDTH + "s |%n";
 		
 		StringBuilder report = new StringBuilder();
         String newLine = System.lineSeparator();
@@ -147,12 +149,16 @@ public final class Reports {
         long balance = totalIncome + totalExpenses;
 
         String status;
+        String statusColor;
         if (balance > 0) {
             status = "SURPLUS";
+            statusColor = ANSI_GREEN;
         } else if (balance < 0) {
             status = "DEFICIT";
+            statusColor = ANSI_RED;
         } else {
             status = "BALANCED";
+            statusColor = ANSI_BLUE;
         }
 
         // Report header ---
@@ -167,28 +173,52 @@ public final class Reports {
         report.append(headerLine).append(newLine).append(newLine);
 
         // Financial summary --
-        report.append("FINANCIAL SUMMARY")
-              .append(newLine).append(newLine);
+        int summaryWidth = smallLine.length();
+        int padding = (headerLine.length() - summaryWidth) / 2;
+        String summaryPadding = " ".repeat(padding);
 
-        report.append(String.format("%-25s %14s%n",
-                "Income", String.format("$%,d", totalIncome)));
+        String summaryRowFormat =
+            "| %-15s %" + MONEY_COLUMN_WIDTH + "s |%n";
 
-        report.append(String.format("%-25s %14s%n",
-                "Expenses", String.format("$%,d",
-                        Math.abs(totalExpenses))));
+        report.append("                               << FINANCIAL SUMMARY >>")
+              .append(newLine);
 
-        report.append(smallLine).append(newLine);
+        report.append(summaryPadding).append(smallLine).append(newLine);
 
-        report.append(String.format("%-25s %14s%n",
-                "Balance",
-                String.format("%s$%,d",
-                        balance < 0 ? "-" : "",
-                        Math.abs(balance))));
+        report.append(summaryPadding)
+              .append(String.format(
+                  summaryRowFormat,
+                  "Income",
+                  String.format("$%,d", totalIncome)
+              ));
+
+        report.append(summaryPadding)
+              .append(String.format(
+                  summaryRowFormat,
+                  "Expenses",
+                  String.format("$%,d", Math.abs(totalExpenses))
+              ));
+
+        report.append(summaryPadding).append(smallLine).append(newLine);
+
+        report.append(summaryPadding).append(String.format(
+        	   summaryRowFormat,
+               "Balance",
+               String.format("%s$%,d",
+            		  balance < 0 ? "-" : "",
+                      Math.abs(balance))
+         ));
+
+        report.append(summaryPadding).append(smallLine).append(newLine);
 
         // Monthly overview --
+		String monthlyRowFormat =
+			    "| %-13s | %" + MONEY_COLUMN_WIDTH + "s | %" +
+			    MONEY_COLUMN_WIDTH + "s | %" +
+			    MONEY_COLUMN_WIDTH + "s |%n";
+		
         report.append(newLine).append(newLine);
-        report.append("                                << MONTHLY OVERVIEW >>")
-              .append(newLine).append(newLine);
+        report.append("                                << MONTHLY OVERVIEW >>").append(newLine);
         report.append(largeLine).append(newLine);
         report.append(String.format(monthlyRowFormat, "Month", "Income", "Expenses", "Net"));
         report.append("|---------------|----------------------|----------------------|----------------------|")
@@ -207,46 +237,49 @@ public final class Reports {
                             Math.abs(monthlyNet[i]))));
         }
         
-        report.append(largeLine);
+        report.append(largeLine).append(newLine);
 
         // Category details --
         report.append(newLine).append(newLine);
-        report.append("CATEGORY DETAILS").append(newLine);
-        report.append(smallLine).append(newLine).append(newLine);
+        report.append("                                << CATEGORY DETAILS >>").append(newLine);
+        report.append(summaryPadding).append(smallLine).append(newLine);
 
         // Income categories --
-        report.append("INCOME").append(newLine);
+        
+        String categoryRowFormat = "| %-16s%" + MONEY_COLUMN_WIDTH + "s |%n";
+        
+        report.append(summaryPadding).append("|INCOME                                |").append(newLine);
 
         for (int i = 0; i < incomeCategories.length; i++) {
-            report.append(String.format("  %-23s %14s%n",
+            report.append(summaryPadding).append(String.format(categoryRowFormat,
                     incomeCategories[i],
                     String.format("$%,d",
                             incomeCategoryTotals[i])));
         }
 
-        report.append(newLine);
+        report.append(summaryPadding).append("|--------------------------------------|").append(newLine);
 
         // Expense categories --
-        report.append("EXPENSES").append(newLine);
-
+        report.append(summaryPadding).append("|EXPENSES                              |").append(newLine);
+        
         for (int i = 0; i < expensesCategories.length; i++) {
-            report.append(String.format("  %-23s %14s%n",
+            report.append(summaryPadding).append(String.format(categoryRowFormat,
                     expensesCategories[i],
                     String.format("$%,d",
-                            Math.abs( expensesCategoryTotals[i]))));
+                            expensesCategoryTotals[i])));
         }
 
         // Final balance --
-        report.append(newLine);
-        report.append(smallLine).append(newLine);
+        report.append(summaryPadding).append(smallLine).append(newLine).append(newLine);
 
-        report.append(String.format("%-25s %14s%n",
+        report.append(summaryPadding).append(String.format("%-25s %14s%n",
                 "TOTAL BALANCE",
                 String.format("%s$%,d",
                         balance < 0 ? "-" : "",
                         Math.abs(balance))));
 
-        report.append(String.format("%-25s %14s%n", "STATUS", status)).append(newLine);
+        report.append(summaryPadding).append(String.format("%-25s        %16s%n",
+        			  "STATUS",statusColor + status + ANSI_RESET)).append(newLine);
 
         report.append(headerLine).append(newLine);
         report.append("                                   END OF STATEMENT")
